@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PequiMundo Muebles – Catálogo</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #3bc9c0;
+    --teal-dark: #2aada4;
+    --orange: #f97316;
+    --orange-light: #fb923c;
+    --yellow: #eab308;
+    --green: #22c55e;
+    --red: #ef4444;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-700: #374151;
+    --gray-900: #111827;
+    --white: #ffffff;
+    --radius: 14px;
+    --shadow: 0 2px 16px rgba(0,0,0,.08);
+    --shadow-hover: 0 8px 32px rgba(0,0,0,.13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Poppins', sans-serif; background: var(--gray-50); color: var(--gray-900); min-height: 100vh; }
+
+  /* formato navegacion*/
+  nav {
+    background: var(--white);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; height: auto;
+    box-shadow: 0 1px 6px rgba(0,0,0,.07);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo { display: flex; align-items: center; width: auto; height: 100px; }
+  .logo-icon { width: 36px; height: 36px; }
+  .nav-links { display: flex; align-items: center; gap: 8px; }
+  .nav-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 18px; border-radius: 999px; font-size: .85rem; font-weight: 600;
+    cursor: pointer; border: none; text-decoration: none; transition: all .2s;
+    font-family: 'Poppins', sans-serif;
+  }
+  .nav-btn.active { background: var(--teal); color: var(--white); }
+  .nav-btn.ghost { background: transparent; color: var(--gray-700); }
+  .nav-btn.ghost:hover { background: var(--gray-100); }
+  .nav-btn.cart { background: var(--orange); color: var(--white); }
+  .nav-btn.cart:hover { background: var(--orange-light); }
+  .nav-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--yellow); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 1rem;
+  }
+
+  /* formato cabeza */
+  .hero {
+    margin: 24px 32px 0;
+    background: linear-gradient(135deg, #3bc9c0 0%, #22c55e 50%, #eab308 100%);
+    border-radius: var(--radius); padding: 40px 36px 36px; color: var(--white);
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; right: -60px; top: -60px;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: rgba(255,255,255,.1);
+  }
+  .hero::after {
+    content: ''; position: absolute; right: 60px; bottom: -40px;
+    width: 150px; height: 150px; border-radius: 50%;
+    background: rgba(255,255,255,.07);
+  }
+  .hero h1 { font-family: 'Nunito', sans-serif; font-size: 1.75rem; font-weight: 900; margin-bottom: 8px; }
+  .hero p { font-size: .9rem; opacity: .9; max-width: 420px; margin-bottom: 20px; }
+  .badges { display: flex; gap: 10px; flex-wrap: wrap; }
+  .badge {
+    background: rgba(255,255,255,.22); backdrop-filter: blur(4px);
+    border-radius: 999px; padding: 5px 14px; font-size: .78rem; font-weight: 600;
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  /* formato filtros */
+  .filters { display: flex; gap: 10px; padding: 24px 32px 0; flex-wrap: wrap; }
+  .filter-btn {
+    padding: 8px 20px; border-radius: 999px; font-size: .85rem; font-weight: 600;
+    cursor: pointer; border: 2px solid var(--gray-200); background: var(--white);
+    color: var(--gray-700); transition: all .2s; font-family: 'Poppins', sans-serif;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--gray-900); border-color: var(--gray-900); color: var(--white);
+  }
+
+  /* formato catalogo */
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 20px 32px 40px; }
+  @media(max-width:900px){ .grid { grid-template-columns: repeat(2,1fr); } }
+
+  .card {
+    background: var(--white); border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow: hidden;
+    transition: transform .2s, box-shadow .2s; cursor: pointer;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+  .card-img { position: relative; height: 180px; overflow: hidden; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
+  .card:hover .card-img img { transform: scale(1.05); }
+  .card-badge {
+    position: absolute; top: 10px; right: 10px;
+    background: var(--orange); color: white; font-size: .7rem;
+    font-weight: 700; padding: 3px 10px; border-radius: 999px;
+    font-family: 'Nunito', sans-serif;
+  }
+  .card-body { padding: 14px 14px 16px; }
+  .card-cat {
+    display: inline-block; padding: 2px 10px; border-radius: 999px;
+    font-size: .68rem; font-weight: 700; margin-bottom: 6px; font-family: 'Nunito',sans-serif;
+  }
+  .cat-camas { background: #dbeafe; color: #1d4ed8; }
+  .cat-cunas { background: #fce7f3; color: #9d174d; }
+  .cat-escritorios { background: #dcfce7; color: #15803d; }
+  .card-stars { display: inline-flex; align-items: center; gap: 3px; font-size: .75rem; color: var(--yellow); font-weight: 700; margin-left: 6px; }
+  .card-title { font-family: 'Nunito',sans-serif; font-size: .95rem; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+  .card-price { font-family: 'Nunito',sans-serif; font-size: 1.1rem; font-weight: 900; color: var(--gray-900); margin-bottom: 4px; }
+  .card-stock { font-size: .73rem; color: var(--gray-500); margin-bottom: 12px; }
+  .card-stock.sin { color: var(--red); }
+  .btn-add {
+    width: 100%; padding: 9px; border-radius: 10px;
+    background: var(--orange); color: var(--white);
+    font-family: 'Nunito',sans-serif; font-size: .85rem; font-weight: 800;
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: background .2s;
+  }
+  .btn-add:hover { background: var(--orange-light); }
+  .btn-add.disabled { background: var(--gray-200); color: var(--gray-400); cursor: not-allowed; }
+
+  /* formato de contacto */
+  .cta-section {
+    margin: 0 32px 40px; background: var(--white);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 36px 24px; text-align: center;
+  }
+  .cta-section h3 { font-family: 'Nunito',sans-serif; font-size: 1.3rem; font-weight: 900; margin-bottom: 8px; }
+  .cta-section p { color: var(--gray-500); font-size: .88rem; margin-bottom: 20px; }
+  .cta-section p span { color: var(--teal); font-weight: 600; }
+  .btn-wa {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--green); color: white;
+    padding: 12px 28px; border-radius: 999px;
+    font-family: 'Nunito',sans-serif; font-weight: 800; font-size: .95rem;
+    border: none; cursor: pointer; transition: background .2s; text-decoration: none;
+  }
+  .btn-wa:hover { background: #16a34a; }
+</style>
+</head>
+<body>
+
+<!-- navegacion -->
+<nav>
+  <div class="logo">
+    <img src="img/pequeMundo_logo.png" class="logo" >
+  </div>
+  <div class="nav-links">
+    <a class="nav-btn active" href="catalogo.html">🛍️ Catálogo</a>
+    <a class="nav-btn ghost" href="pedidos.html">🕐 Mis Pedidos</a>
+    <a class="nav-btn cart" href="pago.html">🛒 Carrito (2)</a>
+    <button class="nav-avatar">👤</button>
+  </div>
+</nav>
+
+<!-- cabeza -->
+<div class="hero">
+  <h1>¡Crea el espacio perfecto para tus niños!</h1>
+  <p>Muebles infantiles diseñados y fabricados en Chile con los más altos estándares de calidad y seguridad.</p>
+  <div class="badges">
+    <span class="badge">🚚 Envío Gratis RM</span>
+    <span class="badge">🔧 Instalación Incluida</span>
+    <span class="badge">🛡️ Garantía 2 Años</span>
+  </div>
+</div>
+
+<!-- filtros -->
+<div class="filters">
+  <button class="filter-btn active" onclick="filterProducts('todos', this)">Todos los Productos</button>
+  <button class="filter-btn" onclick="filterProducts('camas', this)">Camas</button>
+  <button class="filter-btn" onclick="filterProducts('cunas', this)">Cunas</button>
+  <button class="filter-btn" onclick="filterProducts('escritorios', this)">Escritorios</button>
+</div>
+
+<!-- catalogo -->
+<div class="grid" id="productGrid">
+
+  <div class="card" data-cat="camas">
+    <div class="card-img">
+      <img src="https://bainba.com/14428-thickbox_default/cama-para-ninos-montessori-nube.jpg" alt="Cama Infantil Nubes">
+    </div>
+    <div class="card-body">
+      <div><span class="card-cat cat-camas">Camas</span><span class="card-stars">⭐ 4.8</span></div>
+      <div class="card-title">Cama Infantil Nubes</div>
+      <div class="card-price">$189.990</div>
+      <div class="card-stock">Stock: 8 disponibles</div>
+      <button class="btn-add" onclick="addToCart(this)">🛒 Agregar al Carrito</button>
+    </div>
+  </div>
+
+  <div class="card" data-cat="cunas">
+    <div class="card-img">
+      <img src="https://blasibed.com/wp-content/uploads/2023/04/cuna-estela-300x300.jpg" alt="Cuna Convertible Estrella">
+      <span class="card-badge">Últimas unidades</span>
+    </div>
+    <div class="card-body">
+      <div><span class="card-cat cat-cunas">Cunas</span><span class="card-stars">⭐ 4.9</span></div>
+      <div class="card-title">Cuna Convertible Estrella</div>
+      <div class="card-price">$249.990</div>
+      <div class="card-stock">Stock: 5 disponibles</div>
+      <button class="btn-add" onclick="addToCart(this)">🛒 Agregar al Carrito</button>
+    </div>
+  </div>
+
+  <div class="card" data-cat="escritorios">
+    <div class="card-img">
+      <img src="https://i.etsystatic.com/23154329/r/il/7f551e/6694723444/il_794xN.6694723444_aqro.jpg" alt="Escritorio Arcoiris">
+    </div>
+    <div class="card-body">
+      <div><span class="card-cat cat-escritorios">Escritorios</span><span class="card-stars">⭐ 4.7</span></div>
+      <div class="card-title">Escritorio Arcoiris</div>
+      <div class="card-price">$149.990</div>
+      <div class="card-stock">Stock: 12 disponibles</div>
+      <button class="btn-add" onclick="addToCart(this)">🛒 Agregar al Carrito</button>
+    </div>
+  </div>
+
+  <div class="card" data-cat="camas">
+    <div class="card-img">
+      <img src="https://mueblesdleyda.cl/cdn/shop/products/MDL023-3-MUEBLESDLEYDA-TRINIDAD.jpg?v=1742078810" alt="Cama Alta con Tobogán">
+      <span class="card-badge">Últimas unidades</span>
+    </div>
+    <div class="card-body">
+      <div><span class="card-cat cat-camas">Camas</span><span class="card-stars">⭐ 5</span></div>
+      <div class="card-title">Cama Alta con Tobogán</div>
+      <div class="card-price">$329.990</div>
+      <div class="card-stock">Stock: 3 disponibles</div>
+      <button class="btn-add" onclick="addToCart(this)">🛒 Agregar al Carrito</button>
+    </div>
+  </div>
+
+  <div class="card" data-cat="escritorios">
+    <div class="card-img">
+      <img src="https://m.media-amazon.com/images/I/71RnoYtxEzL._AC_SX522_.jpg" alt="Escritorio Compacto Luna">
+    </div>
+    <div class="card-body">
+      <div><span class="card-cat cat-escritorios">Escritorios</span><span class="card-stars">⭐ 4.6</span></div>
+      <div class="card-title">Escritorio Compacto Luna</div>
+      <div class="card-price">$129.990</div>
+      <div class="card-stock">Stock: 15 disponibles</div>
+      <button class="btn-add" onclick="addToCart(this)">🛒 Agregar al Carrito</button>
+    </div>
+  </div>
+
+  <div class="card" data-cat="cunas">
+    <div class="card-img">
+      <img src="https://i.pinimg.com/736x/1a/72/ec/1a72ecf4cf929eaa4a0260ff2f7d6b2b.jpg" alt="Cuna Mecedora Clásica">
+    </div>
+    <div class="card-body">
+      <div><span class="card-cat cat-cunas">Cunas</span><span class="card-stars">⭐ 4.8</span></div>
+      <div class="card-title">Cuna Mecedora Clásica</div>
+      <div class="card-price">$199.990</div>
+      <div class="card-stock">Stock: 6 disponibles</div>
+      <button class="btn-add" onclick="addToCart(this)">🛒 Agregar al Carrito</button>
+    </div>
+  </div>
+
+  <div class="card" data-cat="camas">
+    <div class="card-img">
+      <img src="https://m.media-amazon.com/images/I/81E2-yXYRzL._AC_SX522_.jpg" alt="Cama Montessori">
+      <span class="card-badge" style="background:var(--red)">Agotado</span>
+    </div>
+    <div class="card-body">
+      <div><span class="card-cat cat-camas">Camas</span><span class="card-stars">⭐ 4.9</span></div>
+      <div class="card-title">Cama Montessori Bosque</div>
+      <div class="card-price">$219.990</div>
+      <div class="card-stock sin">Sin stock</div>
+      <button class="btn-add disabled" disabled>🚫 No Disponible</button>
+    </div>
+  </div>
+
+  <div class="card" data-cat="escritorios">
+    <div class="card-img">
+      <img src="https://thumbs.dreamstime.com/b/un-escritorio-infantil-de-madera-colores-brillantes-con-divertidos-personajes-animales-y-libros-educativos-coloridos-vibrante-en-417192554.jpg" alt="Escritorio niños">
+    </div>
+    <div class="card-body">
+      <div><span class="card-cat cat-escritorios">Escritorios</span><span class="card-stars">⭐ 4.7</span></div>
+      <div class="card-title">Escritorio con Estante Safari</div>
+      <div class="card-price">$179.990</div>
+      <div class="card-stock">Stock: 9 disponibles</div>
+      <button class="btn-add" onclick="addToCart(this)">🛒 Agregar al Carrito</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- contactos -->
+<div class="cta-section">
+  <h3>¿Necesitas asesoría personalizada?</h3>
+  <p>Nuestro equipo está listo para ayudarte a <span>elegir el mueble perfecto</span> para el cuarto de tus niños. Te asesoramos sin compromiso.</p>
+  <a href="https://wa.me/56990726705" class="btn-wa" target="_blank">💬 Contactar por WhatsApp</a>
+</div>
+
+<script>
+function filterProducts(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.card').forEach(card => {
+    card.style.display = (cat === 'todos' || card.dataset.cat === cat) ? '' : 'none';
+  });
+}
+function addToCart(btn) {
+  btn.textContent = '✅ ¡Agregado!';
+  btn.style.background = 'var(--green)';
+  setTimeout(() => {
+    btn.textContent = '🛒 Agregar al Carrito';
+    btn.style.background = '';
+  }, 1500);
+}
+</script>
+</body>
+</html>
