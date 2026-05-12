@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'pequemundo',
 ]
 
 MIDDLEWARE = [
@@ -49,12 +50,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'pequemundo.urls'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'pequemundo' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -67,15 +70,19 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'pequemundo.wsgi.application'
-
+ROOT_URLCONF = 'pequemundo.urls'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.oracle',
+        'NAME': 'xe',
+        'USER': 'pequemundo',
+        'PASSWORD': 'peque',
+        'HOST': 'localhost',
+        'PORT': '1521',
     }
 }
 
@@ -115,3 +122,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'pequemundo' / 'templates' / 'img',
+]

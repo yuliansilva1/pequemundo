@@ -114,18 +114,22 @@
 
 <nav>
   <div class="logo">
-    <img src="img/pequeMundo_logo.png" class="logo" >
+    <img src="/static/pequeMundo_logo.png" class="logo" >
   </div>
   <div class="nav-links">
-    <a class="nav-btn ghost" href="catalogo.html">🛍️ Catálogo</a>
-    <a class="nav-btn ghost" href="pedidos.html">🕐 Mis Pedidos</a>
-    <a class="nav-btn active" href="pago.html">🛒 Carrito (2)</a>
-    <button class="nav-avatar">👤</button>
+    <a class="nav-btn ghost" href="/catalogo/">🛍️ Catálogo</a>
+    <a class="nav-btn ghost" href="/pedidos/">🕐 Mis Pedidos</a>
+    <a class="nav-btn active" href="/pago/">🛒 Carrito (2)</a>
+    {% if request.session.username %}
+    <a class="nav-avatar" href="/logout/" title="Cerrar Sesión">👤</a>
+    {% else %}
+    <a class="nav-avatar" href="/login/" title="Iniciar Sesión">👤</a>
+    {% endif %}
   </div>
 </nav>
 
 <div class="page">
-  <a href="catalogo.html" class="back-link">← Volver al catálogo</a>
+  <a href="/catalogo/" class="back-link">← Volver al catálogo</a>
   <h1>Finalizar Compra</h1>
   <p class="subtitle">Completa tu pedido y recibe tus muebles en casa</p>
 

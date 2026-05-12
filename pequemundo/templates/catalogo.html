@@ -160,13 +160,17 @@
 <!-- navegacion -->
 <nav>
   <div class="logo">
-    <img src="img/pequeMundo_logo.png" class="logo" >
+    <img src="/static/pequeMundo_logo.png" class="logo" >
   </div>
   <div class="nav-links">
-    <a class="nav-btn active" href="catalogo.html">🛍️ Catálogo</a>
-    <a class="nav-btn ghost" href="pedidos.html">🕐 Mis Pedidos</a>
-    <a class="nav-btn cart" href="pago.html">🛒 Carrito (2)</a>
-    <button class="nav-avatar">👤</button>
+    <a class="nav-btn active" href="/catalogo/">🛍️ Catálogo</a>
+    <a class="nav-btn ghost" href="/pedidos/">🕐 Mis Pedidos</a>
+    <a class="nav-btn cart" href="/pago/">🛒 Carrito (2)</a>
+    {% if request.session.username %}
+    <a class="nav-avatar" href="/logout/" title="Cerrar Sesión">👤</a>
+    {% else %}
+    <a class="nav-avatar" href="/login/" title="Iniciar Sesión">👤</a>
+    {% endif %}
   </div>
 </nav>
 
@@ -191,114 +195,40 @@
 
 <!-- catalogo -->
 <div class="grid" id="productGrid">
-
-  <div class="card" data-cat="camas">
+  {% for producto in productos %}
+  <div class="card" data-cat="{{ producto.categoria|lower }}">
     <div class="card-img">
-      <img src="https://bainba.com/14428-thickbox_default/cama-para-ninos-montessori-nube.jpg" alt="Cama Infantil Nubes">
-    </div>
-    <div class="card-body">
-      <div><span class="card-cat cat-camas">Camas</span><span class="card-stars">⭐ 4.8</span></div>
-      <div class="card-title">Cama Infantil Nubes</div>
-      <div class="card-price">$189.990</div>
-      <div class="card-stock">Stock: 8 disponibles</div>
-      <button class="btn-add" onclick="addToCart(this)">🛒 Agregar al Carrito</button>
-    </div>
-  </div>
-
-  <div class="card" data-cat="cunas">
-    <div class="card-img">
-      <img src="https://blasibed.com/wp-content/uploads/2023/04/cuna-estela-300x300.jpg" alt="Cuna Convertible Estrella">
+      {% if producto.imagen_url %}
+      <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}">
+      {% elif producto.categoria == 'Camas' %}
+      <img src="https://bainba.com/14428-thickbox_default/cama-para-ninos-montessori-nube.jpg" alt="{{ producto.nombre }}">
+      {% elif producto.categoria == 'Cunas' %}
+      <img src="https://blasibed.com/wp-content/uploads/2023/04/cuna-estela-300x300.jpg" alt="{{ producto.nombre }}">
+      {% elif producto.categoria == 'Escritorios' %}
+      <img src="https://i.etsystatic.com/23154329/r/il/7f551e/6694723444/il_794xN.6694723444_aqro.jpg" alt="{{ producto.nombre }}">
+      {% else %}
+      <img src="https://via.placeholder.com/300x180?text={{ producto.nombre }}" alt="{{ producto.nombre }}">
+      {% endif %}
+      {% if producto.stock <= 5 and producto.stock > 0 %}
       <span class="card-badge">Últimas unidades</span>
-    </div>
-    <div class="card-body">
-      <div><span class="card-cat cat-cunas">Cunas</span><span class="card-stars">⭐ 4.9</span></div>
-      <div class="card-title">Cuna Convertible Estrella</div>
-      <div class="card-price">$249.990</div>
-      <div class="card-stock">Stock: 5 disponibles</div>
-      <button class="btn-add" onclick="addToCart(this)">🛒 Agregar al Carrito</button>
-    </div>
-  </div>
-
-  <div class="card" data-cat="escritorios">
-    <div class="card-img">
-      <img src="https://i.etsystatic.com/23154329/r/il/7f551e/6694723444/il_794xN.6694723444_aqro.jpg" alt="Escritorio Arcoiris">
-    </div>
-    <div class="card-body">
-      <div><span class="card-cat cat-escritorios">Escritorios</span><span class="card-stars">⭐ 4.7</span></div>
-      <div class="card-title">Escritorio Arcoiris</div>
-      <div class="card-price">$149.990</div>
-      <div class="card-stock">Stock: 12 disponibles</div>
-      <button class="btn-add" onclick="addToCart(this)">🛒 Agregar al Carrito</button>
-    </div>
-  </div>
-
-  <div class="card" data-cat="camas">
-    <div class="card-img">
-      <img src="https://mueblesdleyda.cl/cdn/shop/products/MDL023-3-MUEBLESDLEYDA-TRINIDAD.jpg?v=1742078810" alt="Cama Alta con Tobogán">
-      <span class="card-badge">Últimas unidades</span>
-    </div>
-    <div class="card-body">
-      <div><span class="card-cat cat-camas">Camas</span><span class="card-stars">⭐ 5</span></div>
-      <div class="card-title">Cama Alta con Tobogán</div>
-      <div class="card-price">$329.990</div>
-      <div class="card-stock">Stock: 3 disponibles</div>
-      <button class="btn-add" onclick="addToCart(this)">🛒 Agregar al Carrito</button>
-    </div>
-  </div>
-
-  <div class="card" data-cat="escritorios">
-    <div class="card-img">
-      <img src="https://m.media-amazon.com/images/I/71RnoYtxEzL._AC_SX522_.jpg" alt="Escritorio Compacto Luna">
-    </div>
-    <div class="card-body">
-      <div><span class="card-cat cat-escritorios">Escritorios</span><span class="card-stars">⭐ 4.6</span></div>
-      <div class="card-title">Escritorio Compacto Luna</div>
-      <div class="card-price">$129.990</div>
-      <div class="card-stock">Stock: 15 disponibles</div>
-      <button class="btn-add" onclick="addToCart(this)">🛒 Agregar al Carrito</button>
-    </div>
-  </div>
-
-  <div class="card" data-cat="cunas">
-    <div class="card-img">
-      <img src="https://i.pinimg.com/736x/1a/72/ec/1a72ecf4cf929eaa4a0260ff2f7d6b2b.jpg" alt="Cuna Mecedora Clásica">
-    </div>
-    <div class="card-body">
-      <div><span class="card-cat cat-cunas">Cunas</span><span class="card-stars">⭐ 4.8</span></div>
-      <div class="card-title">Cuna Mecedora Clásica</div>
-      <div class="card-price">$199.990</div>
-      <div class="card-stock">Stock: 6 disponibles</div>
-      <button class="btn-add" onclick="addToCart(this)">🛒 Agregar al Carrito</button>
-    </div>
-  </div>
-
-  <div class="card" data-cat="camas">
-    <div class="card-img">
-      <img src="https://m.media-amazon.com/images/I/81E2-yXYRzL._AC_SX522_.jpg" alt="Cama Montessori">
+      {% elif producto.stock == 0 %}
       <span class="card-badge" style="background:var(--red)">Agotado</span>
+      {% endif %}
     </div>
     <div class="card-body">
-      <div><span class="card-cat cat-camas">Camas</span><span class="card-stars">⭐ 4.9</span></div>
-      <div class="card-title">Cama Montessori Bosque</div>
-      <div class="card-price">$219.990</div>
-      <div class="card-stock sin">Sin stock</div>
-      <button class="btn-add disabled" disabled>🚫 No Disponible</button>
+      <div><span class="card-cat cat-{{ producto.categoria|lower }}">{{ producto.categoria }}</span><span class="card-stars">⭐ 4.8</span></div>
+      <div class="card-title">{{ producto.nombre }}</div>
+      <div class="card-price">${{ producto.precio|floatformat:0 }}</div>
+      <div class="card-stock {% if producto.stock == 0 %}sin{% endif %}">
+        {% if producto.stock > 0 %}Stock: {{ producto.stock }} disponibles{% else %}Sin stock{% endif %}
+      </div>
+      <button class="btn-add {% if producto.stock == 0 %}disabled{% endif %}" {% if producto.stock == 0 %}disabled{% endif %} onclick="addToCart(this)">{% if producto.stock > 0 %}🛒 Agregar al Carrito{% else %}🚫 No Disponible{% endif %}</button>
+      {% if request.session.username %}
+      <a href="{% url 'edit_product' producto.id %}" class="btn-add" style="margin-top:10px; background:#2563eb;">✏️ Editar producto</a>
+      {% endif %}
     </div>
   </div>
-
-  <div class="card" data-cat="escritorios">
-    <div class="card-img">
-      <img src="https://thumbs.dreamstime.com/b/un-escritorio-infantil-de-madera-colores-brillantes-con-divertidos-personajes-animales-y-libros-educativos-coloridos-vibrante-en-417192554.jpg" alt="Escritorio niños">
-    </div>
-    <div class="card-body">
-      <div><span class="card-cat cat-escritorios">Escritorios</span><span class="card-stars">⭐ 4.7</span></div>
-      <div class="card-title">Escritorio con Estante Safari</div>
-      <div class="card-price">$179.990</div>
-      <div class="card-stock">Stock: 9 disponibles</div>
-      <button class="btn-add" onclick="addToCart(this)">🛒 Agregar al Carrito</button>
-    </div>
-  </div>
-
+  {% endfor %}
 </div>
 
 <!-- contactos -->
