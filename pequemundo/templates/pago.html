@@ -17,6 +17,11 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Poppins',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh;}
 
+  .messages{margin-bottom:18px;}
+  .message{padding:14px 16px;border-radius:12px;font-size:.95rem;margin-bottom:10px;}
+  .message.error{background:#fee2e2;color:#991b1b;border:1px solid #fecaca;}
+  .message.success{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;}
+
   nav{background:var(--white);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;box-shadow:0 1px 6px rgba(0,0,0,.07);position:sticky;top:0;z-index:100;}
   .logo { display: flex; align-items: center; width: auto; height: 100px; }
   .nav-links{display:flex;align-items:center;gap:8px;}
@@ -133,11 +138,14 @@
   <h1>Finalizar Compra</h1>
   <p class="subtitle">Completa tu pedido y recibe tus muebles en casa</p>
 
-  <div class="layout">
+  {% if messages %}
+  <div class="messages">
+    {% for message in messages %}
+      <div class="message {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
-    <!-- LEFT -->
-    <div>
-      <!-- CARRITO -->
       <div class="section-card">
         <h3>🛒 Tu Carrito</h3>
         {% if cart_items %}
