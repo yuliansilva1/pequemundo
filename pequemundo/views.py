@@ -1,9 +1,53 @@
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 from .models import Producto, Usuario, Categoria
+
+
+def _get_cart(request):
+    return request.session.get('cart', {})
+
+
+def _save_cart(request, cart):
+    request.session['cart'] = cart
+    request.session.modified = True
+
+
+def _default_image_for_categoria(categoria):
+    lower = categoria.lower() if categoria else ''
+    if lower == 'camas':
+        return 'https://bainba.com/14428-thickbox_default/cama-para-ninos-montessori-nube.jpg'
+    if lower == 'cunas':
+        return 'https://blasibed.com/wp-content/uploads/2023/04/cuna-estela-300x300.jpg'
+    if lower == 'escritorios':
+        return 'https://i.etsystatic.com/23154329/r/il/7f551e/6694723444/il_794xN.6694723444_aqro.jpg'
+    return f'https://via.placeholder.com/300x180?text={categoria or "Producto"}'
+
+
+def _get_cart_items(request):
+    cart = _get_cart(request)
+    items = []
+    total = 0
+    for product_id, qty in cart.items():
+        try:
+            producto = Producto.objects.get(id_producto=int(product_id), activo__in=['1', None])
+            item_total = float(producto.precio) * qty
+            total += item_total
+            items.append({
+                'id': producto.id_producto,
+                'nombre': producto.nombre,
+                'precio': float(producto.precio),
+                'cantidad': qty,
+                'subtotal': item_total,
+                'imagen_url': producto.imagen_url or _default_image_for_categoria(producto.id_categoria.nombre if producto.id_categoria else ''),
+            })
+        except Producto.DoesNotExist:
+            continue
+    return items, total
+
 
 def catalogo(request):
     try:
@@ -21,7 +65,8 @@ def catalogo(request):
     except Exception as e:
         productos_data = []
         print(f"Error en catalogo: {e}")
-    return render(request, 'catalogo.html', {'productos': productos_data})
+    cart_count = sum(_get_cart(request).values())
+    return render(request, 'catalogo.html', {'productos': productos_data, 'cart_count': cart_count})
 
 def login_view(request):
     if request.method == 'POST':
@@ -122,8 +167,72 @@ def edit_product(request, product_id):
         'categorias': categorias,
     })
 
+@require_POST
+def add_to_cart(request, product_id):
+    try:
+        producto = Producto.objects.get(id_producto=product_id, activo__in=['1', None])
+    except Producto.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Producto no encontrado.'}, status=404)
+
+    cart = _get_cart(request)
+    product_key = str(product_id)
+    quantity = cart.get(product_key, 0) + 1
+
+    if producto.stock is not None and quantity > producto.stock:
+        return JsonResponse({'success': False, 'message': 'Stock insuficiente.'}, status=400)
+
+    cart[product_key] = quantity
+    _save_cart(request, cart)
+
+    return JsonResponse({'success': True, 'cart_count': sum(cart.values())})
+
+
 def pago(request):
-    return render(request, 'pago.html')
+    cart_items, total = _get_cart_items(request)
+    cart_count = sum(_get_cart(request).values())
+    return render(request, 'pago.html', {
+        'cart_items': cart_items,
+        'total': total,
+        'cart_count': cart_count,
+    })
+
+@require_POST
+def checkout(request):
+    cart_items, total = _get_cart_items(request)
+    if not cart_items:
+        messages.error(request, 'Tu carrito está vacío.')
+        return redirect('pago')
+
+    orders = request.session.get('orders', [])
+    order_id = timezone.now().strftime('PM%Y%m%d%H%M%S')
+    order_date = timezone.now().strftime('%d de %B de %Y')
+
+    orders.append({
+        'id': order_id,
+        'date': order_date,
+        'total': total,
+        'status': 'En Preparación',
+        'eta': '5-7 días hábiles',
+        'items': cart_items,
+    })
+    request.session['orders'] = orders
+    request.session['cart'] = {}
+    request.session.modified = True
+
+    messages.success(request, 'Tu pedido fue confirmado correctamente.')
+    return redirect('pedidos')
+
 
 def pedidos(request):
-    return render(request, 'pedidos.html')
+    orders = request.session.get('orders', [])
+    total_orders = len(orders)
+    in_process = sum(1 for order in orders if order.get('status') != 'Entregado')
+    completed = total_orders - in_process
+    cart_count = sum(_get_cart(request).values())
+    return render(request, 'pedidos.html', {
+        'orders': orders,
+        'total_orders': total_orders,
+        'in_process': in_process,
+        'completed': completed,
+        'cart_count': cart_count,
+    })

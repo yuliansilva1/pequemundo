@@ -120,7 +120,7 @@
   <div class="nav-links">
     <a class="nav-btn ghost" href="/catalogo/">🛍️ Catálogo</a>
     <a class="nav-btn active" href="/pedidos/">🕐 Mis Pedidos</a>
-    <a class="nav-btn cart" href="/pago/">🛒 Carrito (2)</a>
+    <a class="nav-btn cart" href="/pago/">🛒 Carrito ({{ cart_count|default:0 }})</a>
     {% if request.session.username %}
     <a class="nav-avatar" href="/logout/" title="Cerrar Sesión">👤</a>
     {% else %}
@@ -140,102 +140,56 @@
       <div class="stat-icon blue">📦</div>
       <div>
         <div class="stat-label">Total de Pedidos</div>
-        <div class="stat-num">4</div>
+        <div class="stat-num">{{ total_orders }}</div>
       </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon orange">🚚</div>
       <div>
         <div class="stat-label">En Proceso</div>
-        <div class="stat-num">2</div>
+        <div class="stat-num">{{ in_process }}</div>
       </div>
     </div>
     <div class="stat-card">
       <div class="stat-icon green">✅</div>
       <div>
         <div class="stat-label">Completados</div>
-        <div class="stat-num">2</div>
+        <div class="stat-num">{{ completed }}</div>
       </div>
     </div>
   </div>
 
-  <!-- PEDIDOS ACTIVOS -->
-  <div class="section-title">Pedidos Activos</div>
+  <div class="section-title">Pedidos</div>
 
-  <div class="order-card">
-    <div class="order-main">
-      <img class="order-img" src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=200&q=80" alt="Cama Infantil Nubes">
-      <div class="order-info">
-        <div class="order-name">Cama Infantil Nubes</div>
-        <div class="order-meta">Pedido #1001 • 27 de marzo de 2026</div>
+  {% if orders %}
+    {% for order in orders %}
+    <div class="order-card">
+      <div class="order-main">
+        <img class="order-img" src="{{ order.items.0.imagen_url }}" alt="Pedido {{ order.id }}">
+        <div class="order-info">
+          <div class="order-name">Pedido #{{ order.id }}</div>
+          <div class="order-meta">{{ order.date }}</div>
+        </div>
+        <div class="order-price">${{ order.total|floatformat:0 }}</div>
       </div>
-      <div class="order-price">$189.990</div>
-    </div>
-    <div class="order-status">
-      <span class="status-pill status-prep">🕐 En Preparación</span>
-    </div>
-    <div class="order-eta">🕐 Entrega estimada: 1 de abril de 2026</div>
-  </div>
-
-  <div class="order-card">
-    <div class="order-main">
-      <img class="order-img" src="https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=200&q=80" alt="Escritorio Arcoiris">
-      <div class="order-info">
-        <div class="order-name">Escritorio Arcoiris</div>
-        <div class="order-meta">Pedido #998 • 14 de marzo de 2026</div>
+      <div class="order-status">
+        <span class="status-pill {% if order.status == 'En Preparación' %}status-prep{% elif order.status == 'En Camino' %}status-camino{% else %}status-entregado{% endif %}">
+          {% if order.status == 'En Preparación' %}🕐 En Preparación{% elif order.status == 'En Camino' %}🚚 En Camino{% else %}✅ Entregado{% endif %}
+        </span>
       </div>
-      <div class="order-price">$149.990</div>
+      <div class="order-eta">🕐 Entrega estimada: {{ order.eta }}</div>
     </div>
-    <div class="order-status">
-      <span class="status-pill status-camino">🚚 En Camino</span>
-    </div>
-    <div class="tracking-block">
-      <div class="track-num-label">Número de seguimiento</div>
-      <div class="track-num">PM2026031500998</div>
-      <div class="progress-labels">
-        <span>Preparado</span>
-        <span>En tránsito</span>
-        <span>Por entregar</span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width:65%"></div>
+    {% endfor %}
+  {% else %}
+    <div class="order-card">
+      <div class="order-main">
+        <div class="order-info">
+          <div class="order-name">Todavía no has hecho pedidos</div>
+          <div class="order-meta">Agrega productos al carrito y finaliza tu compra.</div>
+        </div>
       </div>
     </div>
-    <div class="order-eta">🕐 Entrega estimada: 30 de marzo de 2026</div>
-  </div>
-
-  <!-- HISTORIAL -->
-  <div class="section-title" style="margin-top:28px">Historial de Compras</div>
-
-  <div class="hist-card">
-    <div class="hist-main">
-      <img class="hist-img" src="https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=200&q=80" alt="Cuna Mecedora Clásica">
-      <div class="hist-info">
-        <div class="hist-name">Cuna Mecedora Clásica</div>
-        <div class="hist-meta">Pedido #985 • 9 de febrero de 2026</div>
-        <div style="margin-top:6px"><span class="status-pill status-entregado">✅ Entregado</span></div>
-      </div>
-      <div class="hist-right">
-        <div class="hist-price">$199.990</div>
-        <button class="btn-rebuy" onclick="location.href='catalogo.html'">Volver a comprar</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="hist-card">
-    <div class="hist-main">
-      <img class="hist-img" src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=200&q=80" alt="Escritorio Compacto Luna">
-      <div class="hist-info">
-        <div class="hist-name">Escritorio Compacto Luna</div>
-        <div class="hist-meta">Pedido #972 • 19 de enero de 2026</div>
-        <div style="margin-top:6px"><span class="status-pill status-entregado">✅ Entregado</span></div>
-      </div>
-      <div class="hist-right">
-        <div class="hist-price">$129.990</div>
-        <button class="btn-rebuy" onclick="location.href='catalogo.html'">Volver a comprar</button>
-      </div>
-    </div>
-  </div>
+  {% endif %}
 </div>
 
 <!-- FOOTER -->
