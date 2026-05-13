@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from .models import Producto, Usuario, Categoria, Pedido, PedidoItem
+from .models import Producto, Usuario, Categoria
 
 
 def _get_cart(request):
@@ -125,6 +125,45 @@ def logout_view(request):
     return redirect('catalogo')
 
 
+def add_product(request):
+    if not request.session.get('username'):
+        messages.error(request, 'Debes iniciar sesión para agregar productos.')
+        return redirect('login')
+
+    categorias = Categoria.objects.all()
+
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        precio = request.POST.get('precio', '0').strip()
+        stock = request.POST.get('stock', '0').strip()
+        categoria_id = request.POST.get('categoria')
+        descripcion = request.POST.get('descripcion', '').strip()
+        imagen_url = request.POST.get('imagen_url', '').strip()
+
+        if not nombre:
+            messages.error(request, 'El nombre del producto es obligatorio.')
+        else:
+            try:
+                categoria = Categoria.objects.get(id_categoria=categoria_id) if categoria_id else None
+                producto = Producto(
+                    nombre=nombre,
+                    precio=precio,
+                    stock=int(stock),
+                    id_categoria=categoria,
+                    descripcion=descripcion,
+                    imagen_url=imagen_url,
+                    activo='1',
+                    fecha_creacion=timezone.now()
+                )
+                producto.save()
+                messages.success(request, 'Producto agregado correctamente.')
+                return redirect('catalogo')
+            except Exception as e:
+                messages.error(request, f'Error al agregar el producto: {e}')
+
+    return render(request, 'add_product.html', {'categorias': categorias})
+
+
 def edit_product(request, product_id):
     if not request.session.get('username'):
         messages.error(request, 'Debes iniciar sesión para editar productos.')
@@ -203,79 +242,28 @@ def checkout(request):
         messages.error(request, 'Tu carrito está vacío.')
         return redirect('pago')
 
-    user_id = request.session.get('user_id')
-    if not user_id:
-        messages.error(request, 'Debes iniciar sesión para poder pagar el pedido.')
-        return redirect('login')
+    orders = request.session.get('orders', [])
+    order_id = timezone.now().strftime('PM%Y%m%d%H%M%S')
+    order_date = timezone.now().strftime('%d de %B de %Y')
 
-    usuario = Usuario.objects.filter(id_usuario=user_id, activo='1').first()
-    if not usuario:
-        messages.error(request, 'Usuario inválido. Inicia sesión nuevamente.')
-        return redirect('login')
+    orders.append({
+        'id': order_id,
+        'date': order_date,
+        'total': total,
+        'status': 'En Preparación',
+        'eta': '5-7 días hábiles',
+        'items': cart_items,
+    })
+    request.session['orders'] = orders
+    request.session['cart'] = {}
+    request.session.modified = True
 
-    try:
-        order_code = timezone.now().strftime('PM%Y%m%d%H%M%S')
-        pedido = Pedido.objects.create(
-            id_usuario=usuario,
-            codigo=order_code,
-            fecha_pedido=timezone.now(),
-            total=total,
-            costo_despacho=0,
-            total_final=total,
-            estado='EN_PREPARACION',
-            tipo_entrega='RETIRO_TIENDA',
-            direccion_entrega='Retiro en tienda',
-            region='Santiago',
-        )
-
-        for item in cart_items:
-            producto = Producto.objects.get(id_producto=item['id'])
-            PedidoItem.objects.create(
-                id_pedido=pedido,
-                id_producto=producto,
-                cantidad=item['cantidad'],
-                precio_unitario=item['precio'],
-                subtotal=item['subtotal'],
-            )
-            if producto.stock is not None:
-                producto.stock = max(0, producto.stock - item['cantidad'])
-                producto.save(update_fields=['stock'])
-
-        request.session['cart'] = {}
-        request.session.modified = True
-        messages.success(request, 'Tu pedido fue confirmado correctamente.')
-        return redirect('pedidos')
-
-    except Exception as e:
-        messages.error(request, f'Error al confirmar pedido: {e}')
-        return redirect('pago')
+    messages.success(request, 'Tu pedido fue confirmado correctamente.')
+    return redirect('pedidos')
 
 
 def pedidos(request):
-    pedidos_qs = Pedido.objects.prefetch_related('items__id_producto').order_by('-fecha_pedido')
-    orders = []
-
-    for pedido in pedidos_qs:
-        items = []
-        for item in pedido.items.all():
-            items.append({
-                'id': item.id_producto.id_producto,
-                'nombre': item.id_producto.nombre,
-                'cantidad': item.cantidad,
-                'subtotal': float(item.subtotal),
-                'precio': float(item.precio_unitario),
-                'imagen_url': item.id_producto.imagen_url or _default_image_for_categoria(item.id_producto.id_categoria.nombre if item.id_producto.id_categoria else ''),
-            })
-
-        orders.append({
-            'id': pedido.id_pedido,
-            'date': pedido.fecha_pedido.strftime('%d de %B de %Y'),
-            'total': float(pedido.total),
-            'status': pedido.estado,
-            'eta': '5-7 días hábiles',
-            'items': items,
-        })
-
+    orders = request.session.get('orders', [])
     total_orders = len(orders)
     in_process = sum(1 for order in orders if order.get('status') != 'Entregado')
     completed = total_orders - in_process

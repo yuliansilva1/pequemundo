@@ -165,6 +165,9 @@
   <div class="nav-links">
     <a class="nav-btn active" href="/catalogo/">🛍️ Catálogo</a>
     <a class="nav-btn ghost" href="/pedidos/">🕐 Mis Pedidos</a>
+    {% if request.session.username %}
+    <a class="nav-btn ghost" href="/producto/nuevo/">➕ Agregar Producto</a>
+    {% endif %}
     <a class="nav-btn cart" href="/pago/">🛒 Carrito ({{ cart_count|default:0 }})</a>
     {% if request.session.username %}
     <a class="nav-avatar" href="/logout/" title="Cerrar Sesión">👤</a>
@@ -218,7 +221,7 @@
     <div class="card-body">
       <div><span class="card-cat cat-{{ producto.categoria|lower }}">{{ producto.categoria }}</span><span class="card-stars">⭐ 4.8</span></div>
       <div class="card-title">{{ producto.nombre }}</div>
-      <div class="card-price">${{ producto.precio|floatformat:0 }}</div>
+      <div class="card-price">${{ producto.precio|floatformat:2 }}</div>
       <div class="card-stock {% if producto.stock == 0 %}sin{% endif %}">
         {% if producto.stock > 0 %}Stock: {{ producto.stock }} disponibles{% else %}Sin stock{% endif %}
       </div>
