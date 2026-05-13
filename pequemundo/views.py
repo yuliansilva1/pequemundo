@@ -4,11 +4,96 @@ from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from .models import Producto, Usuario, Categoria
+from .models import Producto, Usuario, Categoria, Pedido, PedidoItem
 
 
 def _get_cart(request):
     return request.session.get('cart', {})
+
+DELIVERY_TYPE_MAP = {
+    'Retiro en Tienda': 'RETIRO_TIENDA',
+    'Despacho a Domicilio': 'DESPACHO_DOMICILIO',
+    'RETIRO_TIENDA': 'RETIRO_TIENDA',
+    'DESPACHO_DOMICILIO': 'DESPACHO_DOMICILIO',
+}
+
+ORDER_STATUS_MAP = {
+    'Recibido': 'RECIBIDO',
+    'En Preparación': 'EN_PREPARACION',
+    'En Camino': 'EN_CAMINO',
+    'Entregado': 'ENTREGADO',
+    'Cancelado': 'CANCELADO',
+    'RECIBIDO': 'RECIBIDO',
+    'EN_PREPARACION': 'EN_PREPARACION',
+    'EN_CAMINO': 'EN_CAMINO',
+    'ENTREGADO': 'ENTREGADO',
+    'CANCELADO': 'CANCELADO',
+}
+
+ORDER_STATUS_DISPLAY = {
+    'RECIBIDO': 'Recibido',
+    'EN_PREPARACION': 'En Preparación',
+    'EN_CAMINO': 'En Camino',
+    'ENTREGADO': 'Entregado',
+    'CANCELADO': 'Cancelado',
+}
+
+
+def _normalize_delivery_type(delivery):
+    return DELIVERY_TYPE_MAP.get(delivery, 'RETIRO_TIENDA')
+
+
+def _normalize_order_status(status):
+    return ORDER_STATUS_MAP.get(status, 'RECIBIDO')
+
+
+def _format_order_status(status_key):
+    return ORDER_STATUS_DISPLAY.get(status_key, ORDER_STATUS_DISPLAY['RECIBIDO'])
+
+
+def _get_status_class(status_key):
+    if status_key == 'EN_CAMINO':
+        return 'status-camino'
+    if status_key == 'ENTREGADO':
+        return 'status-entregado'
+    return 'status-prep'
+
+
+def _migrate_session_orders_to_user(request, user):
+    session_orders = request.session.get('orders', [])
+    if not session_orders:
+        return
+
+    for order_data in session_orders:
+        try:
+            order_status = _normalize_order_status(order_data.get('status', 'Recibido'))
+            order = Pedido(
+                id_usuario=user,
+                codigo=order_data.get('id'),
+                estado=order_status,
+                total=order_data.get('total') or 0,
+                total_final=order_data.get('total') or 0,
+                costo_despacho=0,
+                fecha_pedido=timezone.now(),
+            )
+            order.save()
+
+            for item_data in order_data.get('items', []):
+                producto = Producto.objects.filter(id_producto=item_data.get('id')).first()
+                if not producto:
+                    continue
+                PedidoItem.objects.create(
+                    id_pedido=order,
+                    id_producto=producto,
+                    cantidad=item_data.get('cantidad', 0),
+                    precio_unitario=item_data.get('precio') or 0,
+                    subtotal=item_data.get('subtotal') or 0,
+                )
+        except Exception:
+            continue
+
+    request.session.pop('orders', None)
+    request.session.modified = True
 
 
 def _save_cart(request, cart):
@@ -82,6 +167,7 @@ def login_view(request):
             if valid_password:
                 request.session['user_id'] = user.id_usuario
                 request.session['username'] = user.nombre
+                _migrate_session_orders_to_user(request, user)
                 return redirect('/')
             messages.error(request, 'Credenciales inválidas')
         except Usuario.DoesNotExist:
@@ -242,19 +328,61 @@ def checkout(request):
         messages.error(request, 'Tu carrito está vacío.')
         return redirect('pago')
 
-    orders = request.session.get('orders', [])
-    order_id = timezone.now().strftime('PM%Y%m%d%H%M%S')
-    order_date = timezone.now().strftime('%d de %B de %Y')
+    delivery = request.POST.get('delivery', 'Retiro en Tienda')
+    delivery_type = _normalize_delivery_type(delivery)
+    direccion = request.POST.get('direccion', '').strip() or 'Retiro en Tienda'
+    region = request.POST.get('region', '').strip() or 'Región Metropolitana'
 
-    orders.append({
-        'id': order_id,
-        'date': order_date,
-        'total': total,
-        'status': 'En Preparación',
-        'eta': '5-7 días hábiles',
-        'items': cart_items,
-    })
-    request.session['orders'] = orders
+    user = None
+    user_id = request.session.get('user_id')
+    if user_id:
+        try:
+            user = Usuario.objects.get(id_usuario=user_id)
+        except Usuario.DoesNotExist:
+            user = None
+
+    if user:
+        order = Pedido(
+            id_usuario=user,
+            codigo=timezone.now().strftime('PM%Y%m%d%H%M%S'),
+            estado=_normalize_order_status('En Preparación'),
+            tipo_entrega=delivery_type,
+            total=total,
+            total_final=total,
+            costo_despacho=0,
+            region=region,
+            direccion_entrega=direccion,
+            fecha_pedido=timezone.now(),
+        )
+        order.save()
+
+        for item in cart_items:
+            producto = Producto.objects.filter(id_producto=item['id']).first()
+            if not producto:
+                continue
+            PedidoItem.objects.create(
+                id_pedido=order,
+                id_producto=producto,
+                cantidad=item['cantidad'],
+                precio_unitario=item['precio'],
+                subtotal=item['subtotal'],
+            )
+    else:
+        orders = request.session.get('orders', [])
+        order_id = timezone.now().strftime('PM%Y%m%d%H%M%S')
+        order_date = timezone.now().strftime('%d de %B de %Y')
+
+        orders.append({
+            'id': order_id,
+            'date': order_date,
+            'total': total,
+            'status': 'En Preparación',
+            'eta': '5-7 días hábiles',
+            'delivery': delivery,
+            'items': cart_items,
+        })
+        request.session['orders'] = orders
+
     request.session['cart'] = {}
     request.session.modified = True
 
@@ -263,9 +391,47 @@ def checkout(request):
 
 
 def pedidos(request):
-    orders = request.session.get('orders', [])
+    orders = []
+    user_id = request.session.get('user_id')
+    if user_id:
+        try:
+            user = Usuario.objects.get(id_usuario=user_id)
+            pedidos_qs = Pedido.objects.filter(id_usuario=user).order_by('-fecha_pedido')
+            for pedido_obj in pedidos_qs:
+                items = []
+                for item in pedido_obj.items.select_related('id_producto').all():
+                    producto = item.id_producto
+                    items.append({
+                        'id': producto.id_producto if producto else None,
+                        'nombre': producto.nombre if producto else '',
+                        'precio': float(item.precio_unitario or 0),
+                        'cantidad': item.cantidad,
+                        'subtotal': float(item.subtotal or 0),
+                        'imagen_url': producto.imagen_url if producto and producto.imagen_url else _default_image_for_categoria(producto.id_categoria.nombre if producto and producto.id_categoria else ''),
+                    })
+                status_key = _normalize_order_status(pedido_obj.estado or 'RECIBIDO')
+                orders.append({
+                    'id': pedido_obj.codigo or f'PM{pedido_obj.id_pedido}',
+                    'date': pedido_obj.fecha_pedido.strftime('%d de %B de %Y') if pedido_obj.fecha_pedido else '',
+                    'total': float(pedido_obj.total or 0),
+                    'status': _format_order_status(status_key),
+                    'status_key': status_key,
+                    'status_class': _get_status_class(status_key),
+                    'eta': '5-7 días hábiles',
+                    'items': items,
+                })
+        except Usuario.DoesNotExist:
+            orders = request.session.get('orders', [])
+    else:
+        orders = request.session.get('orders', [])
+        for order in orders:
+            status_key = _normalize_order_status(order.get('status', 'En Preparación'))
+            order['status'] = _format_order_status(status_key)
+            order['status_key'] = status_key
+            order['status_class'] = _get_status_class(status_key)
+
     total_orders = len(orders)
-    in_process = sum(1 for order in orders if order.get('status') != 'Entregado')
+    in_process = sum(1 for order in orders if order.get('status_key') != 'ENTREGADO')
     completed = total_orders - in_process
     cart_count = sum(_get_cart(request).values())
     return render(request, 'pedidos.html', {

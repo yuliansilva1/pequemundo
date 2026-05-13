@@ -170,9 +170,9 @@
     {% endif %}
     <a class="nav-btn cart" href="/pago/">🛒 Carrito ({{ cart_count|default:0 }})</a>
     {% if request.session.username %}
-    <a class="nav-avatar" href="/logout/" title="Cerrar Sesión">👤</a>
+    <a class="nav-btn ghost" href="/logout/">Cerrar Sesión</a>
     {% else %}
-    <a class="nav-avatar" href="/login/" title="Iniciar Sesión">👤</a>
+    <a class="nav-btn ghost" href="/login/">Iniciar Sesión</a>
     {% endif %}
   </div>
 </nav>

@@ -121,9 +121,9 @@
     <a class="nav-btn ghost" href="/pedidos/">🕐 Mis Pedidos</a>
     <a class="nav-btn active" href="/pago/">🛒 Carrito ({{ cart_count|default:0 }})</a>
     {% if request.session.username %}
-    <a class="nav-avatar" href="/logout/" title="Cerrar Sesión">👤</a>
+    <a class="nav-btn ghost" href="/logout/">Cerrar Sesión</a>
     {% else %}
-    <a class="nav-avatar" href="/login/" title="Iniciar Sesión">👤</a>
+    <a class="nav-btn ghost" href="/login/">Iniciar Sesión</a>
     {% endif %}
   </div>
 </nav>
@@ -135,87 +135,90 @@
 
   <div class="layout">
 
-    <!-- LEFT -->
-    <div>
-      <!-- CARRITO -->
-      <div class="section-card">
-        <h3>🛒 Tu Carrito</h3>
-        {% if cart_items %}
-          {% for item in cart_items %}
-          <div class="cart-item">
-            <img class="cart-img" src="{{ item.imagen_url }}" alt="{{ item.nombre }}">
-            <div class="cart-item-info">
-              <div class="cart-item-name">{{ item.nombre }}</div>
-              <div class="cart-item-qty">Cantidad: {{ item.cantidad }}</div>
+    <form method="post" action="{% url 'checkout' %}">
+      {% csrf_token %}
+      <input type="hidden" name="direccion" value="Retiro en Tienda">
+      <input type="hidden" name="region" value="Región Metropolitana">
+      <!-- LEFT -->
+      <div>
+        <!-- CARRITO -->
+        <div class="section-card">
+          <h3>🛒 Tu Carrito</h3>
+          {% if cart_items %}
+            {% for item in cart_items %}
+            <div class="cart-item">
+              <img class="cart-img" src="{{ item.imagen_url }}" alt="{{ item.nombre }}">
+              <div class="cart-item-info">
+                <div class="cart-item-name">{{ item.nombre }}</div>
+                <div class="cart-item-qty">Cantidad: {{ item.cantidad }}</div>
+              </div>
+              <div class="cart-item-price">${{ item.subtotal|floatformat:2 }}</div>
             </div>
-            <div class="cart-item-price">${{ item.subtotal|floatformat:2 }}</div>
+            {% endfor %}
+          {% else %}
+            <p style="color: var(--gray-600); font-size: .95rem; line-height: 1.6;">Tu carrito está vacío. Agrega productos desde el catálogo para probar la compra.</p>
+          {% endif %}
+        </div>
+
+        <!-- MODALIDAD ENTREGA -->
+        <div class="section-card">
+          <h3>🚚 Modalidad de Entrega</h3>
+          <div class="delivery-opt selected">
+            <input type="radio" name="delivery" value="Retiro en Tienda" checked>
+            <div>
+              <div class="delivery-opt-title">🏪 Retiro en Tienda</div>
+              <div class="delivery-detail">📍 Av. Providencia 1234, Santiago</div>
+              <div class="delivery-detail">🕐 Lunes a Viernes 9:00 – 18:00</div>
+              <div class="delivery-free">✓ Sin costo adicional</div>
+            </div>
           </div>
-          {% endfor %}
+          <div class="delivery-opt">
+            <input type="radio" name="delivery" value="Despacho a Domicilio">
+            <div>
+              <div class="delivery-opt-title">🏠 Despacho a Domicilio</div>
+              <div class="delivery-detail">📦 Entrega en 5-7 días hábiles</div>
+              <div class="delivery-detail">🔧 Incluye instalación del mueble</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INFORMACIÓN CONTACTO -->
+        <div class="section-card">
+          <h3>👤 Información de Contacto</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nombre completo</label>
+              <input type="text" name="full_name" placeholder="Juan Pérez">
+            </div>
+            <div class="form-group">
+              <label>RUT</label>
+              <input type="text" name="rut" placeholder="12.345.678-9">
+            </div>
+            <div class="form-group">
+              <label>Correo electrónico</label>
+              <input type="email" name="email" placeholder="juan@ejemplo.cl">
+            </div>
+            <div class="form-group">
+              <label>Teléfono</label>
+              <input type="tel" name="phone" placeholder="+56 9 1234 5678">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: RESUMEN -->
+      <div class="summary-card">
+        <h3>Resumen del Pedido</h3>
+        <div class="summary-row"><span>Subtotal</span><span>${{ total|floatformat:2 }}</span></div>
+        <div class="summary-row"><span>Envío</span><span class="free">GRATIS</span></div>
+        <div class="summary-row total"><span>Total</span><span>${{ total|floatformat:2 }}</span></div>
+        {% if cart_items %}
+          <button class="btn-pay" type="submit">💳 Pagar Ahora &rarr;</button>
         {% else %}
-          <p style="color: var(--gray-600); font-size: .95rem; line-height: 1.6;">Tu carrito está vacío. Agrega productos desde el catálogo para probar la compra.</p>
+          <button class="btn-pay" type="button" disabled style="opacity:.7;cursor:not-allowed;">💳 Agrega productos para continuar</button>
         {% endif %}
       </div>
-
-      <!-- MODALIDAD ENTREGA -->
-      <div class="section-card">
-        <h3>🚚 Modalidad de Entrega</h3>
-        <div class="delivery-opt selected">
-          <input type="radio" name="delivery" checked>
-          <div>
-            <div class="delivery-opt-title">🏪 Retiro en Tienda</div>
-            <div class="delivery-detail">📍 Av. Providencia 1234, Santiago</div>
-            <div class="delivery-detail">🕐 Lunes a Viernes 9:00 – 18:00</div>
-            <div class="delivery-free">✓ Sin costo adicional</div>
-          </div>
-        </div>
-        <div class="delivery-opt">
-          <input type="radio" name="delivery">
-          <div>
-            <div class="delivery-opt-title">🏠 Despacho a Domicilio</div>
-            <div class="delivery-detail">📦 Entrega en 5-7 días hábiles</div>
-            <div class="delivery-detail">🔧 Incluye instalación del mueble</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- INFORMACIÓN CONTACTO -->
-      <div class="section-card">
-        <h3>👤 Información de Contacto</h3>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Nombre completo</label>
-            <input type="text" placeholder="Juan Pérez">
-          </div>
-          <div class="form-group">
-            <label>RUT</label>
-            <input type="text" placeholder="12.345.678-9">
-          </div>
-          <div class="form-group">
-            <label>Correo electrónico</label>
-            <input type="email" placeholder="juan@ejemplo.cl">
-          </div>
-          <div class="form-group">
-            <label>Teléfono</label>
-            <input type="tel" placeholder="+56 9 1234 5678">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- RIGHT: RESUMEN -->
-    <div class="summary-card">
-      <h3>Resumen del Pedido</h3>
-      <div class="summary-row"><span>Subtotal</span><span>${{ total|floatformat:2 }}</span></div>
-      <div class="summary-row"><span>Envío</span><span class="free">GRATIS</span></div>
-      <div class="summary-row total"><span>Total</span><span>${{ total|floatformat:2 }}</span></div>
-      {% if cart_items %}
-      <form method="post" action="{% url 'checkout' %}">
-        {% csrf_token %}
-        <button class="btn-pay" type="submit">💳 Pagar Ahora &rarr;</button>
-      </form>
-      {% else %}
-      <button class="btn-pay" type="button" disabled style="opacity:.7;cursor:not-allowed;">💳 Agrega productos para continuar</button>
-      {% endif %}
+    </form>
       <div class="trust-items">
         <div class="trust-item">🔒 Pago seguro encriptado</div>
         <div class="trust-item">🛡️ Garantía de 2 años</div>

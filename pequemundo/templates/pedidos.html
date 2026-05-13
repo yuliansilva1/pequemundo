@@ -122,9 +122,9 @@
     <a class="nav-btn active" href="/pedidos/">🕐 Mis Pedidos</a>
     <a class="nav-btn cart" href="/pago/">🛒 Carrito ({{ cart_count|default:0 }})</a>
     {% if request.session.username %}
-    <a class="nav-avatar" href="/logout/" title="Cerrar Sesión">👤</a>
+    <a class="nav-btn ghost" href="/logout/">Cerrar Sesión</a>
     {% else %}
-    <a class="nav-avatar" href="/login/" title="Iniciar Sesión">👤</a>
+    <a class="nav-btn ghost" href="/login/">Iniciar Sesión</a>
     {% endif %}
   </div>
 </nav>
@@ -173,8 +173,8 @@
         <div class="order-price">${{ order.total|floatformat:2 }}</div>
       </div>
       <div class="order-status">
-        <span class="status-pill {% if order.status == 'En Preparación' %}status-prep{% elif order.status == 'En Camino' %}status-camino{% else %}status-entregado{% endif %}">
-          {% if order.status == 'En Preparación' %}🕐 En Preparación{% elif order.status == 'En Camino' %}🚚 En Camino{% else %}✅ Entregado{% endif %}
+        <span class="status-pill {{ order.status_class|default:'status-prep' }}">
+          {% if order.status_key == 'EN_PREPARACION' or order.status_key == 'RECIBIDO' %}🕐 {{ order.status }}{% elif order.status_key == 'EN_CAMINO' %}🚚 {{ order.status }}{% elif order.status_key == 'ENTREGADO' %}✅ {{ order.status }}{% else %}{{ order.status }}{% endif %}
         </span>
       </div>
       <div class="order-eta">🕐 Entrega estimada: {{ order.eta }}</div>
