@@ -77,14 +77,30 @@ ROOT_URLCONF = 'pequemundo.urls'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'xe',
-        'USER': 'pequemundo',
-        'PASSWORD': 'peque',
-        'HOST': 'localhost',
-        'PORT': '1521',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres.qhkhnchsklmaarssnjqn',
+        'PASSWORD': 'PequeMundo@', # La que pusiste al crear el proyecto
+        'HOST': 'aws-1-us-west-1.pooler.supabase.com',
+        'PORT': '6543',
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
     }
 }
+
+
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.oracle',
+#        'NAME': 'xe',
+#        'USER': 'pequemundo',
+#        'PASSWORD': 'peque',
+#        'HOST': 'localhost',
+#        'PORT': '1521',
+#    }
+#}
+
 
 
 # Password validation
