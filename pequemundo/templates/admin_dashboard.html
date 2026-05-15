@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración - PequeMundo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --teal: #3bc9c0;
+      --teal-dark: #2aada4;
+      --orange: #f97316;
+      --orange-light: #fb923c;
+      --yellow: #eab308;
+      --green: #22c55e;
+      --red: #ef4444;
+      --blue: #2563eb;
+      --purple: #a855f7;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --white: #ffffff;
+      --radius: 14px;
+      --shadow: 0 2px 16px rgba(0,0,0,.08);
+      --shadow-hover: 0 8px 32px rgba(0,0,0,.13);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 260px;
+      height: 100vh;
+      background: var(--gray-900);
+      color: var(--white);
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    .sidebar-header {
+      padding: 24px 20px;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+
+    .sidebar-logo {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--teal);
+    }
+
+    .sidebar-menu {
+      padding: 20px 0;
+      list-style: none;
+    }
+
+    .sidebar-menu li {
+      padding: 0;
+      margin: 0;
+    }
+
+    .sidebar-menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      color: rgba(255,255,255,.7);
+      text-decoration: none;
+      transition: all .2s;
+      font-weight: 500;
+    }
+
+    .sidebar-menu a:hover,
+    .sidebar-menu a.active {
+      background: rgba(59, 201, 192, .1);
+      color: var(--teal);
+      border-left: 3px solid var(--teal);
+      padding-left: 17px;
+    }
+
+    .main-content {
+      margin-left: 260px;
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .header h1 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 2rem;
+      font-weight: 900;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .2s;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .btn-primary {
+      background: var(--teal);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background: var(--teal-dark);
+    }
+
+    .btn-secondary {
+      background: var(--gray-200);
+      color: var(--gray-900);
+    }
+
+    .btn-secondary:hover {
+      background: var(--gray-300);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .stat-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+
+    .stat-label {
+      color: var(--gray-500);
+      font-size: 0.875rem;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-family: 'Nunito', sans-serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--gray-900);
+    }
+
+    .stat-detail {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      margin-top: 8px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 1200px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    .card h3 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+      color: var(--gray-900);
+    }
+
+    .chart-container {
+      height: 300px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+    }
+
+    .chart-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .chart-label {
+      min-width: 80px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--gray-700);
+    }
+
+    .chart-bar-fill {
+      flex: 1;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--gray-200);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-bar-fill.fill {
+      background: linear-gradient(90deg, var(--teal), var(--teal-dark));
+    }
+
+    .chart-value {
+      min-width: 40px;
+      text-align: right;
+      font-weight: 700;
+      color: var(--gray-900);
+      font-size: 0.875rem;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table thead {
+      background: var(--gray-100);
+    }
+
+    .table th {
+      padding: 12px;
+      text-align: left;
+      font-weight: 700;
+      color: var(--gray-700);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--gray-200);
+      font-size: 0.875rem;
+    }
+
+    .table tbody tr:hover {
+      background: var(--gray-50);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .badge-admin {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge-vendedor {
+      background: #ddd6fe;
+      color: #4f46e5;
+    }
+
+    .badge-finanzas {
+      background: #fecaca;
+      color: #991b1b;
+    }
+
+    .badge-cliente {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .badge-despacho {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .status-preparacion {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-camino {
+      background: #bfdbfe;
+      color: #1e3a8a;
+    }
+
+    .status-entregado {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-cancelado {
+      background: #fee2e2;
+      color: #7f1d1d;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gray-500);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .sidebar-menu a {
+        display: inline-block;
+        margin-right: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">🏪 Admin</div>
+  </div>
+  <ul class="sidebar-menu">
+    <li><a href="{% url 'admin_dashboard' %}" class="active">📊 Dashboard</a></li>
+    <li><a href="{% url 'manage_users' %}">👥 Gestionar Usuarios</a></li>
+    <li><a href="{% url 'catalogo' %}">🛍️ Catálogo</a></li>
+    <li><a href="{% url 'logout' %}">🚪 Cerrar Sesión</a></li>
+  </ul>
+</div>
+
+<div class="main-content">
+  <div class="header">
+    <div>
+      <h1>📊 Panel de Administración</h1>
+      <p style="color: var(--gray-500); font-size: 0.9rem; margin-top: 4px;">Bienvenido de vuelta, administrador</p>
+    </div>
+    <div class="header-actions">
+      <a href="{% url 'manage_users' %}" class="btn btn-primary">👥 Gestionar Usuarios</a>
+      <a href="{% url 'catalogo' %}" class="btn btn-secondary">🛍️ Ir al Catálogo</a>
+    </div>
+  </div>
+
+  <!-- Estadísticas Principales -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-label">Total de Usuarios</div>
+      <div class="stat-value">{{ total_usuarios }}</div>
+      <div class="stat-detail">{{ usuarios_activos }} activos</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div class="stat-label">Total de Pedidos</div>
+      <div class="stat-value">{{ total_pedidos }}</div>
+      <div class="stat-detail">Todos los tiempos</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-label">Total de Ventas</div>
+      <div class="stat-value">${{ total_ventas|floatformat:0 }}</div>
+      <div class="stat-detail">Ingresos totales</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-label">Pedidos Entregados</div>
+      <div class="stat-value">{{ pedidos_por_estado.ENTREGADO }}</div>
+      <div class="stat-detail">{{ pedidos_por_estado.EN_PREPARACION }} en preparación</div>
+    </div>
+  </div>
+
+  <!-- Distribución de Usuarios y Pedidos -->
+  <div class="grid-2">
+    <div class="card">
+      <h3>👥 Usuarios por Rol</h3>
+      <div class="chart-container">
+        <div class="chart-bar">
+          <div class="chart-label">ADMIN</div>
+          <div class="chart-bar-fill fill" style="width: {% widthratio roles_count.ADMIN total_usuarios 100 %}%"></div>
+          <div class="chart-value">{{ roles_count.ADMIN }}</div>
+        </div>
+        <div class="chart-bar">
+          <div class="chart-label">VENDEDOR</div>
+          <div class="chart-bar-fill fill" style="width: {% widthratio roles_count.VENDEDOR total_usuarios 100 %}%"></div>
+          <div class="chart-value">{{ roles_count.VENDEDOR }}</div>
+        </div>
+        <div class="chart-bar">
+          <div class="chart-label">FINANZAS</div>
+          <div class="chart-bar-fill fill" style="width: {% widthratio roles_count.FINANZAS total_usuarios 100 %}%"></div>
+          <div class="chart-value">{{ roles_count.FINANZAS }}</div>
+        </div>
+        <div class="chart-bar">
+          <div class="chart-label">CLIENTE</div>
+          <div class="chart-bar-fill fill" style="width: {% widthratio roles_count.CLIENTE total_usuarios 100 %}%"></div>
+          <div class="chart-value">{{ roles_count.CLIENTE }}</div>
+        </div>
+        <div class="chart-bar">
+          <div class="chart-label">DESPACHO</div>
+          <div class="chart-bar-fill fill" style="width: {% widthratio roles_count.DESPACHO total_usuarios 100 %}%"></div>
+          <div class="chart-value">{{ roles_count.DESPACHO }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📦 Pedidos por Estado</h3>
+      <div class="chart-container">
+        <div class="chart-bar">
+          <div class="chart-label">Recibido</div>
+          <div class="chart-bar-fill fill" style="width: {% widthratio pedidos_por_estado.RECIBIDO total_pedidos 100 %}%"></div>
+          <div class="chart-value">{{ pedidos_por_estado.RECIBIDO }}</div>
+        </div>
+        <div class="chart-bar">
+          <div class="chart-label">Preparación</div>
+          <div class="chart-bar-fill fill" style="width: {% widthratio pedidos_por_estado.EN_PREPARACION total_pedidos 100 %}%"></div>
+          <div class="chart-value">{{ pedidos_por_estado.EN_PREPARACION }}</div>
+        </div>
+        <div class="chart-bar">
+          <div class="chart-label">En Camino</div>
+          <div class="chart-bar-fill fill" style="width: {% widthratio pedidos_por_estado.EN_CAMINO total_pedidos 100 %}%"></div>
+          <div class="chart-value">{{ pedidos_por_estado.EN_CAMINO }}</div>
+        </div>
+        <div class="chart-bar">
+          <div class="chart-label">Entregado</div>
+          <div class="chart-bar-fill fill" style="width: {% widthratio pedidos_por_estado.ENTREGADO total_pedidos 100 %}%"></div>
+          <div class="chart-value">{{ pedidos_por_estado.ENTREGADO }}</div>
+        </div>
+        <div class="chart-bar">
+          <div class="chart-label">Cancelado</div>
+          <div class="chart-bar-fill fill" style="width: {% widthratio pedidos_por_estado.CANCELADO total_pedidos 100 %}%"></div>
+          <div class="chart-value">{{ pedidos_por_estado.CANCELADO }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Últimos Pedidos -->
+  <div class="card" style="margin-bottom: 32px;">
+    <h3>📋 Últimos Pedidos</h3>
+    {% if ultimos_pedidos %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Usuario</th>
+          <th>Estado</th>
+          <th>Total</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pedido in ultimos_pedidos %}
+        <tr>
+          <td><strong>{{ pedido.codigo }}</strong></td>
+          <td>{{ pedido.usuario }}</td>
+          <td>
+            <span class="status-badge 
+              {% if pedido.estado == 'EN_PREPARACION' %}status-preparacion{% endif %}
+              {% if pedido.estado == 'EN_CAMINO' %}status-camino{% endif %}
+              {% if pedido.estado == 'ENTREGADO' %}status-entregado{% endif %}
+              {% if pedido.estado == 'CANCELADO' %}status-cancelado{% endif %}
+            ">{{ pedido.estado }}</span>
+          </td>
+          <td><strong>${{ pedido.total|floatformat:2 }}</strong></td>
+          <td>{{ pedido.fecha }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <p>No hay pedidos registrados</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Últimos Usuarios -->
+  <div class="card">
+    <h3>👤 Últimos Usuarios Registrados</h3>
+    {% if ultimos_usuarios %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Fecha Registro</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for usuario in ultimos_usuarios %}
+        <tr>
+          <td><strong>{{ usuario.nombre }}</strong></td>
+          <td>{{ usuario.email }}</td>
+          <td>
+            <span class="badge 
+              {% if usuario.rol == 'ADMIN' %}badge-admin{% endif %}
+              {% if usuario.rol == 'VENDEDOR' %}badge-vendedor{% endif %}
+              {% if usuario.rol == 'FINANZAS' %}badge-finanzas{% endif %}
+              {% if usuario.rol == 'CLIENTE' %}badge-cliente{% endif %}
+              {% if usuario.rol == 'DESPACHO' %}badge-despacho{% endif %}
+            ">{{ usuario.rol }}</span>
+          </td>
+          <td>{{ usuario.fecha_registro }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <p>No hay usuarios registrados</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+</body>
+</html>

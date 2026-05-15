@@ -32,6 +32,7 @@ urlpatterns = [
     path('producto/nuevo/', views.add_product, name='add_product'),
     path('producto/<int:product_id>/editar/', views.edit_product, name='edit_product'),
     path('logout/', views.logout_view, name='logout'),
+    path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-panel/usuarios/', views.manage_users, name='manage_users'),
     path('admin-panel/usuarios/<int:user_id>/role/', views.update_user_role, name='update_user_role'),
 ]

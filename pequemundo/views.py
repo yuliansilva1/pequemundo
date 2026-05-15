@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.db import models
 from .models import Producto, Usuario, Categoria, Pedido, PedidoItem
 
 
@@ -182,8 +183,14 @@ def login_view(request):
             if valid_password:
                 request.session['user_id'] = user.id_usuario
                 request.session['username'] = user.nombre
+                request.session['user_role'] = user.id_rol
                 _migrate_session_orders_to_user(request, user)
-                return redirect('/')
+                
+                # Redirigir según el rol del usuario
+                if user.id_rol == 1:  # ADMIN
+                    return redirect('admin_dashboard')
+                else:
+                    return redirect('/')
             messages.error(request, 'Credenciales inválidas')
         except Usuario.DoesNotExist:
             messages.error(request, 'Credenciales inválidas')
@@ -455,6 +462,91 @@ def pedidos(request):
         'total_orders': total_orders,
         'in_process': in_process,
         'completed': completed,
+        'cart_count': cart_count,
+    })
+
+
+def admin_dashboard(request):
+    """Panel de administrador con estadísticas y gestión general"""
+    # Verificar si el usuario es administrador
+    user_id = request.session.get('user_id')
+    if not user_id:
+        messages.error(request, 'Debes iniciar sesión.')
+        return redirect('login')
+    
+    try:
+        user = Usuario.objects.get(id_usuario=user_id)
+        if user.id_rol != 1:  # Solo administradores
+            messages.error(request, 'No tienes permiso para acceder.')
+            return redirect('catalogo')
+    except Usuario.DoesNotExist:
+        messages.error(request, 'Usuario no encontrado.')
+        return redirect('login')
+    
+    # Obtener estadísticas
+    total_usuarios = Usuario.objects.count()
+    usuarios_activos = Usuario.objects.filter(activo='1').count()
+    
+    # Contar usuarios por rol
+    roles_count = {
+        'ADMIN': Usuario.objects.filter(id_rol=1).count(),
+        'VENDEDOR': Usuario.objects.filter(id_rol=2).count(),
+        'FINANZAS': Usuario.objects.filter(id_rol=3).count(),
+        'CLIENTE': Usuario.objects.filter(id_rol=4).count(),
+        'DESPACHO': Usuario.objects.filter(id_rol=5).count(),
+    }
+    
+    # Obtener últimos pedidos
+    ultimos_pedidos = Pedido.objects.select_related('id_usuario').order_by('-fecha_pedido')[:10]
+    pedidos_data = []
+    for pedido in ultimos_pedidos:
+        pedidos_data.append({
+            'id': pedido.id_pedido,
+            'codigo': pedido.codigo,
+            'usuario': pedido.id_usuario.nombre if pedido.id_usuario else 'Anónimo',
+            'estado': pedido.estado,
+            'total': float(pedido.total_final or 0),
+            'fecha': pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') if pedido.fecha_pedido else '',
+        })
+    
+    # Contar pedidos por estado
+    pedidos_por_estado = {
+        'RECIBIDO': Pedido.objects.filter(estado='RECIBIDO').count(),
+        'EN_PREPARACION': Pedido.objects.filter(estado='EN_PREPARACION').count(),
+        'EN_CAMINO': Pedido.objects.filter(estado='EN_CAMINO').count(),
+        'ENTREGADO': Pedido.objects.filter(estado='ENTREGADO').count(),
+        'CANCELADO': Pedido.objects.filter(estado='CANCELADO').count(),
+    }
+    
+    total_pedidos = Pedido.objects.count()
+    
+    # Obtener últimos usuarios registrados
+    ultimos_usuarios = Usuario.objects.order_by('-fecha_registro')[:5]
+    usuarios_data = []
+    roles_map = {1: 'ADMIN', 2: 'VENDEDOR', 3: 'FINANZAS', 4: 'CLIENTE', 5: 'DESPACHO'}
+    for usuario in ultimos_usuarios:
+        usuarios_data.append({
+            'id': usuario.id_usuario,
+            'nombre': usuario.nombre,
+            'email': usuario.email or 'N/A',
+            'rol': roles_map.get(usuario.id_rol or 4, 'CLIENTE'),
+            'fecha_registro': usuario.fecha_registro.strftime('%d/%m/%Y') if usuario.fecha_registro else '',
+        })
+    
+    # Calcular total de ventas
+    total_ventas = Pedido.objects.aggregate(total=models.Sum('total_final'))['total'] or 0
+    
+    cart_count = sum(_get_cart(request).values())
+    
+    return render(request, 'admin_dashboard.html', {
+        'total_usuarios': total_usuarios,
+        'usuarios_activos': usuarios_activos,
+        'roles_count': roles_count,
+        'ultimos_pedidos': pedidos_data,
+        'pedidos_por_estado': pedidos_por_estado,
+        'total_pedidos': total_pedidos,
+        'ultimos_usuarios': usuarios_data,
+        'total_ventas': float(total_ventas),
         'cart_count': cart_count,
     })
 
