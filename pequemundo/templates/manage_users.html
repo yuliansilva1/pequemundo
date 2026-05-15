@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración - Gestionar Usuarios</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --teal: #3bc9c0;
+      --teal-dark: #2aada4;
+      --orange: #f97316;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --white: #ffffff;
+      --red: #ef4444;
+      --green: #16a34a;
+      --radius: 14px;
+      --shadow: 0 2px 16px rgba(0,0,0,.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .navbar {
+      background: var(--white);
+      box-shadow: var(--shadow);
+      padding: 16px 24px;
+      margin-bottom: 24px;
+      border-radius: var(--radius);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar h1 { font-family: 'Nunito', sans-serif; font-size: 1.5rem; font-weight: 900; color: var(--teal); }
+
+    .navbar-links {
+      display: flex;
+      gap: 16px;
+    }
+
+    .nav-link {
+      color: var(--gray-500);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color .2s;
+    }
+
+    .nav-link:hover { color: var(--teal); }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .header h2 { font-family: 'Nunito', sans-serif; font-size: 1.5rem; font-weight: 800; }
+
+    .messages { margin-bottom: 16px; }
+    .messages .error { background: #fee; color: var(--red); padding: 12px; border-radius: 8px; font-weight: 600; }
+    .messages .success { background: #efe; color: var(--green); padding: 12px; border-radius: 8px; font-weight: 600; }
+
+    .users-table {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .table-responsive { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: var(--gray-100);
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    th {
+      padding: 16px;
+      text-align: left;
+      font-weight: 700;
+      color: var(--gray-700);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--gray-200);
+      transition: background .2s;
+    }
+
+    tbody tr:hover { background: var(--gray-50); }
+
+    tbody tr:last-child { border-bottom: none; }
+
+    td {
+      padding: 16px;
+      color: var(--gray-700);
+    }
+
+    .user-info {
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+
+    .user-email { color: var(--gray-500); font-size: 0.875rem; }
+
+    .role-select {
+      padding: 8px 12px;
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      background: var(--white);
+      color: var(--gray-900);
+      transition: border-color .2s;
+    }
+
+    .role-select:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(59, 201, 192, 0.1);
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .role-badge.client { background: #dbeafe; color: #1e40af; }
+    .role-badge.admin { background: #fef3c7; color: #92400e; }
+    .role-badge.vendor { background: #ddd6fe; color: #4f46e5; }
+
+    .btn-save {
+      padding: 8px 16px;
+      background: var(--teal);
+      color: var(--white);
+      border: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .btn-save:hover { background: var(--teal-dark); }
+
+    .btn-save:disabled {
+      background: var(--gray-300);
+      cursor: not-allowed;
+    }
+
+    .status-active { color: var(--green); font-weight: 600; }
+    .status-inactive { color: var(--red); font-weight: 600; }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gray-500);
+    }
+
+    .empty-state p { font-size: 1.125rem; margin-bottom: 16px; }
+
+    .loading { text-align: center; color: var(--gray-500); padding: 20px; }
+
+    .alert {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      font-size: 0.875rem;
+      display: none;
+    }
+
+    .alert.show { display: block; }
+    .alert.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .alert.error { background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5; }
+
+    @media (max-width: 768px) {
+      .navbar { flex-direction: column; gap: 12px; }
+      table { font-size: 0.875rem; }
+      th, td { padding: 12px; }
+      .header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <h1>🏪 PequeMundo</h1>
+  <div class="navbar-links">
+    <a href="{% url 'catalogo' %}" class="nav-link">Catálogo</a>
+    <a href="{% url 'pedidos' %}" class="nav-link">Mis Pedidos</a>
+    <a href="{% url 'manage_users' %}" class="nav-link" style="color: var(--teal); font-weight: 700;">Gestionar Usuarios</a>
+    <a href="{% url 'logout' %}" class="nav-link">Cerrar Sesión</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="header">
+    <h2>👥 Gestión de Usuarios y Roles</h2>
+  </div>
+
+  {% if messages %}
+  <div class="messages">
+    {% for message in messages %}
+    <div class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div id="alert" class="alert"></div>
+
+  {% if usuarios %}
+  <div class="users-table">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Rol Actual</th>
+            <th>Cambiar Rol</th>
+            <th>Estado</th>
+            <th>Registrado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for usuario in usuarios %}
+          <tr>
+            <td>
+              <div class="user-info">{{ usuario.nombre }} {{ usuario.apellido }}</div>
+              <div class="user-email">ID: {{ usuario.id }}</div>
+            </td>
+            <td>{{ usuario.email|default:"N/A" }}</td>
+            <td>{{ usuario.telefono|default:"N/A" }}</td>
+            <td>
+              <span class="role-badge {% if usuario.id_rol == 1 %}client{% elif usuario.id_rol == 2 %}admin{% else %}vendor{% endif %}">
+                {{ usuario.rol_actual }}
+              </span>
+            </td>
+            <td>
+              <form method="post" action="{% url 'update_user_role' usuario.id %}" class="role-form" style="display: inline;">
+                {% csrf_token %}
+                <select name="rol" class="role-select" data-user-id="{{ usuario.id }}" data-current-role="{{ usuario.id_rol }}">
+                  <option value="1" {% if usuario.id_rol == 1 %}selected{% endif %}>ADMIN</option>
+                  <option value="2" {% if usuario.id_rol == 2 %}selected{% endif %}>VENDEDOR</option>
+                  <option value="3" {% if usuario.id_rol == 3 %}selected{% endif %}>FINANZAS</option>
+                  <option value="4" {% if usuario.id_rol == 4 %}selected{% endif %}>CLIENTE</option>
+                  <option value="5" {% if usuario.id_rol == 5 %}selected{% endif %}>DESPACHO</option>
+                </select>
+              </form>
+            </td>
+            <td>
+              <span class="{% if usuario.activo == '1' %}status-active{% else %}status-inactive{% endif %}">
+                {% if usuario.activo == '1' %}Activo{% else %}Inactivo{% endif %}
+              </span>
+            </td>
+            <td>{{ usuario.fecha_registro }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('.role-select').forEach(select => {
+      select.addEventListener('change', function() {
+        const userId = this.dataset.userId;
+        const newRole = this.value;
+        const currentRole = this.dataset.currentRole;
+
+        if (newRole === currentRole) return;
+
+        const formData = new FormData();
+        formData.append('rol', newRole);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        const originalRole = select.value;
+        this.disabled = true;
+
+        fetch(`/admin-panel/usuarios/${userId}/role/`, {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          this.disabled = false;
+          if (data.success) {
+            showAlert(data.message, 'success');
+            this.dataset.currentRole = newRole;
+            // Recargar la tabla después de 1 segundo
+            setTimeout(() => location.reload(), 1000);
+          } else {
+            showAlert(data.message || 'Error al actualizar el rol', 'error');
+            this.value = currentRole;
+          }
+        })
+        .catch(error => {
+          this.disabled = false;
+          this.value = currentRole;
+          showAlert('Error de conexión: ' + error.message, 'error');
+        });
+      });
+    });
+
+    function showAlert(message, type) {
+      const alert = document.getElementById('alert');
+      alert.textContent = message;
+      alert.className = `alert show ${type}`;
+      setTimeout(() => alert.classList.remove('show'), 4000);
+    }
+  </script>
+  {% else %}
+  <div class="empty-state">
+    <p>No hay usuarios para mostrar.</p>
+  </div>
+  {% endif %}
+
+</div>
+
+</body>
+</html>

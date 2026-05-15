@@ -52,13 +52,15 @@
   .messages { margin-bottom: 16px; }
   .messages .error { color: #ef4444; font-weight: 600; }
   .messages .success { color: #16a34a; font-weight: 600; }
+
+
 </style>
 </head>
 <body>
 
 <div class="register-container">
   <h1>Crear cuenta</h1>
-  <p>Regístrate para acceder a tus pedidos y carrito en PequiMundo</p>
+  <p>Regístrate para acceder a tus pedidos y carrito en PequeMundo</p>
 
   {% if messages %}
   <div class="messages">
@@ -90,6 +92,7 @@
       <label for="password_confirm">Confirmar contraseña</label>
       <input type="password" id="password_confirm" name="password_confirm" required>
     </div>
+    
     <button type="submit" class="btn-register">Crear cuenta</button>
   </form>
 

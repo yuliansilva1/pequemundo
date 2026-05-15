@@ -150,8 +150,23 @@ def catalogo(request):
     except Exception as e:
         productos_data = []
         print(f"Error en catalogo: {e}")
+    
+    # Verificar si el usuario es administrador
+    is_admin = False
+    user_id = request.session.get('user_id')
+    if user_id:
+        try:
+            user = Usuario.objects.get(id_usuario=user_id)
+            is_admin = user.id_rol == 1
+        except Usuario.DoesNotExist:
+            pass
+    
     cart_count = sum(_get_cart(request).values())
-    return render(request, 'catalogo.html', {'productos': productos_data, 'cart_count': cart_count})
+    return render(request, 'catalogo.html', {
+        'productos': productos_data, 
+        'cart_count': cart_count,
+        'is_admin': is_admin
+    })
 
 def login_view(request):
     if request.method == 'POST':
@@ -190,12 +205,13 @@ def register_view(request):
         elif Usuario.objects.filter(nombre=nombre).exists():
             messages.error(request, 'El nombre de usuario ya existe.')
         else:
+            # Todos los nuevos usuarios se registran como CLIENTE (rol 4)
             usuario = Usuario(
                 nombre=nombre,
                 apellido=apellido or None,
                 email=email or None,
                 contrasena=make_password(password),
-                id_rol=1,
+                id_rol=4,  # CLIENTE por defecto
                 activo='1',
                 fecha_registro=timezone.now()
             )
@@ -441,3 +457,91 @@ def pedidos(request):
         'completed': completed,
         'cart_count': cart_count,
     })
+
+
+def manage_users(request):
+    # Verificar si el usuario es administrador (id_rol = 1 es admin)
+    user_id = request.session.get('user_id')
+    if not user_id:
+        messages.error(request, 'Debes iniciar sesión para acceder a este panel.')
+        return redirect('login')
+    
+    try:
+        user = Usuario.objects.get(id_usuario=user_id)
+        # Verificar si es administrador (id_rol = 1)
+        if user.id_rol != 1:
+            messages.error(request, 'No tienes permiso para acceder a este panel.')
+            return redirect('catalogo')
+    except Usuario.DoesNotExist:
+        messages.error(request, 'Usuario no encontrado.')
+        return redirect('login')
+    
+    # Obtener todos los usuarios
+    usuarios = Usuario.objects.all().order_by('nombre')
+    
+    # Mapeo de roles
+    roles_map = {
+        1: 'ADMIN',
+        2: 'VENDEDOR',
+        3: 'FINANZAS',
+        4: 'CLIENTE',
+        5: 'DESPACHO',
+    }
+    
+    usuarios_data = []
+    for usuario in usuarios:
+        usuarios_data.append({
+            'id': usuario.id_usuario,
+            'nombre': usuario.nombre,
+            'apellido': usuario.apellido or '',
+            'email': usuario.email or '',
+            'telefono': usuario.telefono or '',
+            'id_rol': usuario.id_rol or 4,
+            'rol_actual': roles_map.get(usuario.id_rol or 4, 'CLIENTE'),
+            'activo': usuario.activo,
+            'fecha_registro': usuario.fecha_registro.strftime('%d/%m/%Y') if usuario.fecha_registro else '',
+        })
+    
+    cart_count = sum(_get_cart(request).values())
+    
+    return render(request, 'manage_users.html', {
+        'usuarios': usuarios_data,
+        'roles': roles_map,
+        'cart_count': cart_count,
+    })
+
+
+@require_POST
+def update_user_role(request, user_id):
+    # Verificar si el usuario es administrador
+    admin_user_id = request.session.get('user_id')
+    if not admin_user_id:
+        return JsonResponse({'success': False, 'message': 'No autenticado'}, status=401)
+    
+    try:
+        admin_user = Usuario.objects.get(id_usuario=admin_user_id)
+        if admin_user.id_rol != 1:  # Solo administradores
+            return JsonResponse({'success': False, 'message': 'No tienes permisos'}, status=403)
+    except Usuario.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Admin no encontrado'}, status=401)
+    
+    try:
+        usuario = Usuario.objects.get(id_usuario=user_id)
+        new_role = request.POST.get('rol')
+        
+        if new_role not in ['1', '2', '3', '4', '5']:
+            return JsonResponse({'success': False, 'message': 'Rol inválido'}, status=400)
+        
+        usuario.id_rol = int(new_role)
+        usuario.save()
+        
+        roles_map = {1: 'ADMIN', 2: 'VENDEDOR', 3: 'FINANZAS', 4: 'CLIENTE', 5: 'DESPACHO'}
+        return JsonResponse({
+            'success': True,
+            'message': f'Rol actualizado a {roles_map.get(int(new_role))}',
+            'new_role': roles_map.get(int(new_role))
+        })
+    except Usuario.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Usuario no encontrado'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'Error: {str(e)}'}, status=500)

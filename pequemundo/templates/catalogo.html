@@ -169,6 +169,9 @@
     <a class="nav-btn ghost" href="/pedidos/">🕐 Mis Pedidos</a>
     {% if request.session.username %}
     <a class="nav-btn ghost" href="/producto/nuevo/">➕ Agregar Producto</a>
+    {% if is_admin %}
+    <a class="nav-btn ghost" href="/admin-panel/usuarios/" style="background: #fef3c7; color: #92400e; font-weight: 700;">👥 Administración</a>
+    {% endif %}
     {% endif %}
     <a class="nav-btn cart" href="/pago/">🛒 Carrito ({{ cart_count|default:0 }})</a>
     {% if request.session.username %}
