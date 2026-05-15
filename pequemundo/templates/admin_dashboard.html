@@ -391,6 +391,78 @@
         margin-right: 12px;
       }
     }
+
+    /* Dropdown Menu */
+    .user-menu-container {
+      position: relative;
+    }
+
+    .user-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--yellow);
+      color: var(--gray-900);
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: .85rem;
+      font-family: 'Poppins', sans-serif;
+      transition: background .2s;
+    }
+
+    .user-btn:hover {
+      background: #facc15;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-hover);
+      min-width: 200px;
+      list-style: none;
+      margin-top: 8px;
+      overflow: hidden;
+      display: none;
+      z-index: 1000;
+    }
+
+    .dropdown-menu.show {
+      display: block;
+    }
+
+    .dropdown-menu li {
+      padding: 0;
+      margin: 0;
+    }
+
+    .dropdown-menu a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      color: var(--gray-700);
+      text-decoration: none;
+      transition: all .2s;
+      font-weight: 500;
+      font-size: .85rem;
+    }
+
+    .dropdown-menu a:hover {
+      background: var(--gray-100);
+      color: var(--teal);
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: var(--gray-200);
+      margin: 4px 0;
+    }
   </style>
 </head>
 <body>
@@ -403,7 +475,20 @@
     <li><a href="{% url 'admin_dashboard' %}" class="active">📊 Dashboard</a></li>
     <li><a href="{% url 'manage_users' %}">👥 Gestionar Usuarios</a></li>
     <li><a href="{% url 'catalogo' %}">🛍️ Catálogo</a></li>
-    <li><a href="{% url 'logout' %}">🚪 Cerrar Sesión</a></li>
+    {% if request.session.username %}
+    <li>
+      <div class="user-menu-container">
+        <button class="user-btn" onclick="toggleUserMenu(event)">👤 {{ request.session.username }}</button>
+        <ul class="dropdown-menu" id="userMenu">
+          <li><a href="{% url 'user_profile' %}">👤 Mi Perfil</a></li>
+          <li><a href="{% url 'user_edit_profile' %}">✏️ Editar Perfil</a></li>
+          <li><a href="{% url 'pedidos' %}">🕐 Mis Pedidos</a></li>
+          <li><div class="dropdown-divider"></div></li>
+          <li><a href="{% url 'logout' %}">🚪 Cerrar Sesión</a></li>
+        </ul>
+      </div>
+    </li>
+    {% endif %}
   </ul>
 </div>
 
@@ -596,5 +681,19 @@
 
 </div>
 
+<script>
+function toggleUserMenu(event) {
+  event.stopPropagation();
+  const menu = document.getElementById('userMenu');
+  menu.classList.toggle('show');
+}
+
+document.addEventListener('click', function() {
+  const menu = document.getElementById('userMenu');
+  if (menu) {
+    menu.classList.remove('show');
+  }
+});
+</script>
 </body>
 </html>

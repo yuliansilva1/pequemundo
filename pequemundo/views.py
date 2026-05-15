@@ -197,6 +197,12 @@ def login_view(request):
     return render(request, 'login.html')
 
 
+def logout_view(request):
+    request.session.flush()
+    messages.success(request, 'Has cerrado sesión correctamente.')
+    return redirect('login')
+
+
 def register_view(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
@@ -229,9 +235,101 @@ def register_view(request):
     return render(request, 'register.html')
 
 
-def logout_view(request):
-    request.session.flush()
-    return redirect('catalogo')
+def user_profile(request):
+    """Vista de perfil del usuario"""
+    user_id = request.session.get('user_id')
+    if not user_id:
+        messages.error(request, 'Debes iniciar sesión.')
+        return redirect('login')
+    
+    try:
+        usuario = Usuario.objects.get(id_usuario=user_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, 'Usuario no encontrado.')
+        return redirect('login')
+    
+    if request.method == 'POST':
+        apellido = request.POST.get('apellido', '').strip()
+        email = request.POST.get('email', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
+        direccion = request.POST.get('direccion', '').strip()
+        imagen_url = request.POST.get('imagen_url', '').strip()
+        
+        usuario.apellido = apellido or None
+        usuario.email = email or None
+        usuario.telefono = telefono or None
+        usuario.direccion = direccion or None
+        usuario.imagen_url = imagen_url or None
+        usuario.save()
+        
+        messages.success(request, 'Perfil actualizado correctamente.')
+        return redirect('user_profile')
+    
+    # Obtener historial de compras
+    pedidos = Pedido.objects.filter(id_usuario=usuario).order_by('-fecha_pedido')
+    pedidos_data = []
+    for pedido in pedidos:
+        items = []
+        for item in pedido.items.select_related('id_producto').all():
+            items.append({
+                'nombre': item.id_producto.nombre if item.id_producto else 'Producto',
+                'cantidad': item.cantidad,
+                'precio': float(item.precio_unitario or 0),
+            })
+        pedidos_data.append({
+            'id': pedido.id_pedido,
+            'codigo': pedido.codigo,
+            'estado': pedido.estado,
+            'total': float(pedido.total_final or 0),
+            'fecha': pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') if pedido.fecha_pedido else '',
+            'items': items,
+        })
+    
+    cart_count = sum(_get_cart(request).values())
+    
+    return render(request, 'user_profile.html', {
+        'usuario': usuario,
+        'pedidos': pedidos_data,
+        'cart_count': cart_count,
+    })
+
+
+def user_edit_profile(request):
+    """Vista para editar perfil del usuario"""
+    user_id = request.session.get('user_id')
+    if not user_id:
+        messages.error(request, 'Debes iniciar sesión.')
+        return redirect('login')
+    
+    try:
+        usuario = Usuario.objects.get(id_usuario=user_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, 'Usuario no encontrado.')
+        return redirect('login')
+    
+    if request.method == 'POST':
+        apellido = request.POST.get('apellido', '').strip()
+        email = request.POST.get('email', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
+        direccion = request.POST.get('direccion', '').strip()
+        imagen_url = request.POST.get('imagen_url', '').strip()
+        
+        usuario.apellido = apellido or None
+        usuario.email = email or None
+        usuario.telefono = telefono or None
+        usuario.direccion = direccion or None
+        usuario.imagen_url = imagen_url or None
+        usuario.save()
+        
+        messages.success(request, 'Perfil actualizado correctamente.')
+        return redirect('user_profile')
+    
+    cart_count = sum(_get_cart(request).values())
+    
+    return render(request, 'user_edit_profile.html', {
+        'usuario': usuario,
+        'cart_count': cart_count,
+    })
 
 
 def add_product(request):

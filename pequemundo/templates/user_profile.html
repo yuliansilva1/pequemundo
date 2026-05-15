@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Perfil - PequeMundo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --teal: #3bc9c0;
+      --teal-dark: #2aada4;
+      --orange: #f97316;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --white: #ffffff;
+      --red: #ef4444;
+      --green: #22c55e;
+      --radius: 14px;
+      --shadow: 0 2px 16px rgba(0,0,0,.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .navbar {
+      background: var(--white);
+      box-shadow: var(--shadow);
+      padding: 16px 24px;
+      margin-bottom: 24px;
+      border-radius: var(--radius);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar h1 { font-family: 'Nunito', sans-serif; font-size: 1.5rem; font-weight: 900; color: var(--teal); }
+
+    .navbar-links {
+      display: flex;
+      gap: 16px;
+    }
+
+    .nav-link {
+      color: var(--gray-500);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color .2s;
+    }
+
+    .nav-link:hover { color: var(--teal); }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .profile-header {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: var(--teal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 3rem;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-info {
+      flex: 1;
+    }
+
+    .profile-info h1 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .profile-info p {
+      color: var(--gray-500);
+      margin-bottom: 12px;
+    }
+
+    .profile-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .2s;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary {
+      background: var(--teal);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background: var(--teal-dark);
+    }
+
+    .btn-secondary {
+      background: var(--gray-200);
+      color: var(--gray-900);
+    }
+
+    .btn-secondary:hover {
+      background: var(--gray-300);
+    }
+
+    .section {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .section h2 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+      color: var(--gray-900);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .info-item {
+      padding: 12px;
+      background: var(--gray-50);
+      border-radius: 8px;
+    }
+
+    .info-label {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      font-weight: 600;
+      color: var(--gray-900);
+      font-size: 0.95rem;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table thead {
+      background: var(--gray-100);
+    }
+
+    .table th {
+      padding: 12px;
+      text-align: left;
+      font-weight: 700;
+      color: var(--gray-700);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--gray-200);
+      font-size: 0.85rem;
+    }
+
+    .table tbody tr:hover {
+      background: var(--gray-50);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .badge-preparacion {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge-camino {
+      background: #bfdbfe;
+      color: #1e3a8a;
+    }
+
+    .badge-entregado {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .badge-cancelado {
+      background: #fee2e2;
+      color: #7f1d1d;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gray-500);
+    }
+
+    .messages { margin-bottom: 16px; }
+    .messages .error { background: #fee; color: var(--red); padding: 12px; border-radius: 8px; font-weight: 600; }
+    .messages .success { background: #efe; color: var(--green); padding: 12px; border-radius: 8px; font-weight: 600; }
+
+    /* Dropdown Menu */
+    .user-menu-container {
+      position: relative;
+    }
+
+    .user-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--yellow);
+      color: var(--gray-900);
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: .85rem;
+      font-family: 'Poppins', sans-serif;
+      transition: background .2s;
+    }
+
+    .user-btn:hover {
+      background: #facc15;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-hover);
+      min-width: 200px;
+      list-style: none;
+      margin-top: 8px;
+      overflow: hidden;
+      display: none;
+      z-index: 1000;
+    }
+
+    .dropdown-menu.show {
+      display: block;
+    }
+
+    .dropdown-menu li {
+      padding: 0;
+      margin: 0;
+    }
+
+    .dropdown-menu a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      color: var(--gray-700);
+      text-decoration: none;
+      transition: all .2s;
+      font-weight: 500;
+      font-size: .85rem;
+    }
+
+    .dropdown-menu a:hover {
+      background: var(--gray-100);
+      color: var(--teal);
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: var(--gray-200);
+      margin: 4px 0;
+    }
+
+    @media (max-width: 768px) {
+      .navbar { flex-direction: column; gap: 12px; }
+      .profile-header { flex-direction: column; }
+      .profile-actions { flex-wrap: wrap; }
+      .info-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <h1>🏪 PequeMundo</h1>
+  <div class="navbar-links">
+    <a href="{% url 'catalogo' %}" class="nav-link">🛍️ Catálogo</a>
+    <a href="{% url 'user_profile' %}" class="nav-link" style="color: var(--teal); font-weight: 700;">👤 Mi Perfil</a>
+    {% if request.session.username %}
+    <div class="user-menu-container">
+      <button class="user-btn" onclick="toggleUserMenu(event)">👤 {{ request.session.username }}</button>
+      <ul class="dropdown-menu" id="userMenu">
+        <li><a href="{% url 'user_profile' %}">👤 Mi Perfil</a></li>
+        <li><a href="{% url 'user_edit_profile' %}">✏️ Editar Perfil</a></li>
+        <li><a href="{% url 'pedidos' %}">🕐 Mis Pedidos</a></li>
+        <li><div class="dropdown-divider"></div></li>
+        <li><a href="{% url 'logout' %}">🚪 Cerrar Sesión</a></li>
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="container">
+  {% if messages %}
+  <div class="messages">
+    {% for message in messages %}
+    <div class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Header de Perfil -->
+  <div class="profile-header">
+    <div class="profile-avatar">
+      {% if usuario.imagen_url %}
+      <img src="{{ usuario.imagen_url }}" alt="{{ usuario.nombre }}">
+      {% else %}
+      👤
+      {% endif %}
+    </div>
+    <div class="profile-info">
+      <h1>{{ usuario.nombre }} {% if usuario.apellido %}{{ usuario.apellido }}{% endif %}</h1>
+      <p>📧 {{ usuario.email|default:"Sin email registrado" }}</p>
+      <p>📱 {{ usuario.telefono|default:"Sin teléfono registrado" }}</p>
+      <p>📍 {{ usuario.direccion|default:"Sin dirección registrada" }}</p>
+      <div class="profile-actions">
+        <a href="{% url 'user_edit_profile' %}" class="btn btn-primary">✏️ Editar Perfil</a>
+        <a href="{% url 'catalogo' %}" class="btn btn-secondary">🛍️ Ir al Catálogo</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Información Detallada -->
+  <div class="section">
+    <h2>📋 Información Completa</h2>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">Nombre de Usuario</div>
+        <div class="info-value">{{ usuario.nombre }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Apellido</div>
+        <div class="info-value">{{ usuario.apellido|default:"No registrado" }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Email</div>
+        <div class="info-value">{{ usuario.email|default:"No registrado" }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Teléfono</div>
+        <div class="info-value">{{ usuario.telefono|default:"No registrado" }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Dirección</div>
+        <div class="info-value">{{ usuario.direccion|default:"No registrada" }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Registrado el</div>
+        <div class="info-value">{% if usuario.fecha_registro %}{{ usuario.fecha_registro|date:"d/m/Y" }}{% else %}N/A{% endif %}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historial de Compras -->
+  <div class="section">
+    <h2>🛒 Historial de Compras</h2>
+    {% if pedidos %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Fecha</th>
+          <th>Artículos</th>
+          <th>Total</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pedido in pedidos %}
+        <tr>
+          <td><strong>{{ pedido.codigo }}</strong></td>
+          <td>{{ pedido.fecha }}</td>
+          <td>
+            <div style="max-width: 200px;">
+              {% for item in pedido.items %}
+              <div>{{ item.cantidad }}x {{ item.nombre }}</div>
+              {% endfor %}
+            </div>
+          </td>
+          <td><strong>${{ pedido.total|floatformat:2 }}</strong></td>
+          <td>
+            <span class="badge 
+              {% if pedido.estado == 'EN_PREPARACION' %}badge-preparacion{% endif %}
+              {% if pedido.estado == 'EN_CAMINO' %}badge-camino{% endif %}
+              {% if pedido.estado == 'ENTREGADO' %}badge-entregado{% endif %}
+              {% if pedido.estado == 'CANCELADO' %}badge-cancelado{% endif %}
+            ">{{ pedido.estado }}</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <p>🛍️ Aún no has realizado compras</p>
+      <p style="font-size: 0.9rem; margin-top: 8px;"><a href="{% url 'catalogo' %}" style="color: var(--teal); text-decoration: none; font-weight: 600;">Ir al catálogo →</a></p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+function toggleUserMenu(event) {
+  event.stopPropagation();
+  const menu = document.getElementById('userMenu');
+  menu.classList.toggle('show');
+}
+
+document.addEventListener('click', function() {
+  const menu = document.getElementById('userMenu');
+  if (menu) {
+    menu.classList.remove('show');
+  }
+});
+</script>
+</body>
+</html>

@@ -99,15 +99,77 @@
   .footer-col a:hover{color:var(--teal);}
   .footer-bottom{text-align:center;font-size:.75rem;color:var(--gray-400);border-top:1px solid var(--gray-200);padding-top:16px;max-width:1000px;margin:0 auto;}
 
-  /* SUCCESS MODAL */
-  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center;}
-  .modal-overlay.show{display:flex;}
-  .modal{background:white;border-radius:20px;padding:40px 36px;text-align:center;max-width:400px;width:90%;animation:pop .3s ease;}
-  @keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
-  .modal-icon{font-size:3rem;margin-bottom:12px;}
-  .modal h2{font-family:'Nunito',sans-serif;font-size:1.5rem;font-weight:900;margin-bottom:8px;}
-  .modal p{color:var(--gray-500);font-size:.88rem;margin-bottom:20px;}
-  .modal-btn{display:inline-block;background:var(--teal);color:white;padding:11px 28px;border-radius:999px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;border:none;cursor:pointer;text-decoration:none;}
+  /* Dropdown Menu */
+  .user-menu-container {
+    position: relative;
+  }
+
+  .user-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--yellow);
+    color: var(--gray-900);
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: .85rem;
+    font-family: 'Poppins', sans-serif;
+    transition: background .2s;
+  }
+
+  .user-btn:hover {
+    background: #facc15;
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-hover);
+    min-width: 200px;
+    list-style: none;
+    margin-top: 8px;
+    overflow: hidden;
+    display: none;
+    z-index: 1000;
+  }
+
+  .dropdown-menu.show {
+    display: block;
+  }
+
+  .dropdown-menu li {
+    padding: 0;
+    margin: 0;
+  }
+
+  .dropdown-menu a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    color: var(--gray-700);
+    text-decoration: none;
+    transition: all .2s;
+    font-weight: 500;
+    font-size: .85rem;
+  }
+
+  .dropdown-menu a:hover {
+    background: var(--gray-100);
+    color: var(--teal);
+  }
+
+  .dropdown-divider {
+    height: 1px;
+    background: var(--gray-200);
+    margin: 4px 0;
+  }
 </style>
 </head>
 <body>
@@ -123,7 +185,16 @@
     <a class="nav-btn ghost" href="/pedidos/">🕐 Mis Pedidos</a>
     <a class="nav-btn active" href="/pago/">🛒 Carrito ({{ cart_count|default:0 }})</a>
     {% if request.session.username %}
-    <a class="nav-btn ghost" href="/logout/">Cerrar Sesión</a>
+    <div class="user-menu-container">
+      <button class="user-btn" onclick="toggleUserMenu(event)">👤 {{ request.session.username }}</button>
+      <ul class="dropdown-menu" id="userMenu">
+        <li><a href="{% url 'user_profile' %}">👤 Mi Perfil</a></li>
+        <li><a href="{% url 'user_edit_profile' %}">✏️ Editar Perfil</a></li>
+        <li><a href="{% url 'pedidos' %}">🕐 Mis Pedidos</a></li>
+        <li><div class="dropdown-divider"></div></li>
+        <li><a href="{% url 'logout' %}">🚪 Cerrar Sesión</a></li>
+      </ul>
+    </div>
     {% else %}
     <a class="nav-btn ghost" href="/login/">Iniciar Sesión</a>
     {% endif %}
@@ -276,6 +347,20 @@ function selectDelivery(type) {
 function handlePay() {
   document.getElementById('successModal').classList.add('show');
 }
+</script>
+<script>
+function toggleUserMenu(event) {
+  event.stopPropagation();
+  const menu = document.getElementById('userMenu');
+  menu.classList.toggle('show');
+}
+
+document.addEventListener('click', function() {
+  const menu = document.getElementById('userMenu');
+  if (menu) {
+    menu.classList.remove('show');
+  }
+});
 </script>
 </body>
 </html>
