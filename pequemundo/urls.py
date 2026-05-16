@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
@@ -38,3 +40,7 @@ urlpatterns = [
     path('admin-panel/usuarios/', views.manage_users, name='manage_users'),
     path('admin-panel/usuarios/<int:user_id>/role/', views.update_user_role, name='update_user_role'),
 ]
+
+# Servir archivos media en desarrollo
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

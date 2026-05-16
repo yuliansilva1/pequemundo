@@ -499,7 +499,8 @@
       <p style="color: var(--gray-500); font-size: 0.9rem; margin-top: 4px;">Bienvenido de vuelta, administrador</p>
     </div>
     <div class="header-actions">
-      <a href="{% url 'manage_users' %}" class="btn btn-primary">👥 Gestionar Usuarios</a>
+      <a href="{% url 'add_product' %}" class="btn btn-primary">➕ Crear producto</a>
+      <a href="{% url 'manage_users' %}" class="btn btn-secondary">👥 Gestionar Usuarios</a>
       <a href="{% url 'catalogo' %}" class="btn btn-secondary">🛍️ Ir al Catálogo</a>
     </div>
   </div>
@@ -533,6 +534,54 @@
       <div class="stat-value">{{ pedidos_por_estado.ENTREGADO }}</div>
       <div class="stat-detail">{{ pedidos_por_estado.EN_PREPARACION }} en preparación</div>
     </div>
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div class="stat-label">Productos Activos</div>
+      <div class="stat-value">{{ productos_activos }}</div>
+      <div class="stat-detail">Activos en catálogo</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🚫</div>
+      <div class="stat-label">Productos Inactivos</div>
+      <div class="stat-value">{{ productos_inactivos }}</div>
+      <div class="stat-detail">No visibles en tienda</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom: 32px;">
+    <h3>📦 Productos recientes</h3>
+    {% if productos %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th>Stock</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for producto in productos %}
+        <tr>
+          <td><strong>{{ producto.nombre }}</strong></td>
+          <td>{{ producto.categoria }}</td>
+          <td>{{ producto.stock }}</td>
+          <td>
+            <span class="badge {% if producto.activo == '1' %}badge-admin{% else %}badge-cancelado{% endif %}">
+              {% if producto.activo == '1' %}Activo{% else %}Inactivo{% endif %}
+            </span>
+          </td>
+          <td><a href="{% url 'edit_product' producto.id %}" class="btn btn-secondary">Editar</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <p>No hay productos registrados</p>
+    </div>
+    {% endif %}
   </div>
 
   <!-- Distribución de Usuarios y Pedidos -->

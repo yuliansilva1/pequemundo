@@ -9,6 +9,7 @@ class Usuario(models.Model):
     contrasena = models.CharField(max_length=128, db_column='contrasena')
     telefono = models.CharField(max_length=50, db_column='telefono', blank=True, null=True)
     direccion = models.CharField(max_length=255, db_column='direccion', blank=True, null=True)
+    imagen_url = models.CharField(max_length=500, db_column='imagen_url', blank=True, null=True, default='pequeMundo_usuarios.png')
     activo = models.CharField(max_length=1, db_column='activo', default='1')
     fecha_registro = models.DateTimeField(db_column='fecha_registro', blank=True, null=True)
 

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Perfil - PequeMundo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --teal: #3bc9c0;
+      --teal-dark: #2aada4;
+      --orange: #f97316;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --white: #ffffff;
+      --red: #ef4444;
+      --green: #22c55e;
+      --radius: 14px;
+      --shadow: 0 2px 16px rgba(0,0,0,.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .navbar {
+      background: var(--white);
+      box-shadow: var(--shadow);
+      padding: 16px 24px;
+      margin-bottom: 24px;
+      border-radius: var(--radius);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar h1 { font-family: 'Nunito', sans-serif; font-size: 1.5rem; font-weight: 900; color: var(--teal); }
+
+    .navbar-links {
+      display: flex;
+      gap: 16px;
+    }
+
+    .nav-link {
+      color: var(--gray-500);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color .2s;
+    }
+
+    .nav-link:hover { color: var(--teal); }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .breadcrumb {
+      margin-bottom: 24px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.9rem;
+      color: var(--gray-500);
+    }
+
+    .breadcrumb a {
+      color: var(--teal);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .section {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+
+    .section h1 {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      margin-bottom: 24px;
+      color: var(--gray-900);
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: var(--gray-700);
+      font-size: 0.95rem;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="tel"],
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      transition: border-color .2s;
+      box-sizing: border-box;
+    }
+
+    .form-group input[type="text"]:focus,
+    .form-group input[type="email"]:focus,
+    .form-group input[type="tel"]:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(59, 201, 192, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .avatar-section {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      margin-bottom: 32px;
+      padding: 24px;
+      background: var(--gray-50);
+      border-radius: 12px;
+    }
+
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: var(--teal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 3rem;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-upload {
+      flex: 1;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: -9999px;
+    }
+
+    .file-input-label {
+      display: block;
+      padding: 12px 20px;
+      background: var(--teal);
+      color: var(--white);
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      font-weight: 600;
+      transition: background .2s;
+      margin-bottom: 12px;
+    }
+
+    .file-input-label:hover {
+      background: var(--teal-dark);
+    }
+
+    .file-name {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      margin-top: 8px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .form-grid .form-group {
+      margin-bottom: 0;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all .2s;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background: var(--teal);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background: var(--teal-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 201, 192, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--gray-200);
+      color: var(--gray-900);
+    }
+
+    .btn-secondary:hover {
+      background: var(--gray-300);
+    }
+
+    .messages { margin-bottom: 24px; }
+    .messages .error { 
+      background: #fee; 
+      color: var(--red); 
+      padding: 12px 16px; 
+      border-radius: 8px; 
+      font-weight: 600;
+      border-left: 4px solid var(--red);
+    }
+    .messages .success { 
+      background: #efe; 
+      color: var(--green); 
+      padding: 12px 16px; 
+      border-radius: 8px; 
+      font-weight: 600;
+      border-left: 4px solid var(--green);
+    }
+
+    .info-box {
+      background: var(--gray-50);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      border-left: 4px solid var(--teal);
+    }
+
+    .info-box p {
+      margin: 0;
+      color: var(--gray-700);
+      font-size: 0.9rem;
+    }
+
+    /* Dropdown Menu */
+    .user-menu-container {
+      position: relative;
+    }
+
+    .user-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: #facc15;
+      color: var(--gray-900);
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: .85rem;
+      font-family: 'Poppins', sans-serif;
+      transition: background .2s;
+    }
+
+    .user-btn:hover {
+      background: #f59e0b;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      min-width: 200px;
+      list-style: none;
+      margin-top: 8px;
+      overflow: hidden;
+      display: none;
+      z-index: 1000;
+    }
+
+    .dropdown-menu.show {
+      display: block;
+    }
+
+    .dropdown-menu li {
+      padding: 0;
+      margin: 0;
+    }
+
+    .dropdown-menu a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      color: var(--gray-700);
+      text-decoration: none;
+      transition: all .2s;
+      font-weight: 500;
+      font-size: .85rem;
+    }
+
+    .dropdown-menu a:hover {
+      background: var(--gray-100);
+      color: var(--teal);
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: var(--gray-200);
+      margin: 4px 0;
+    }
+
+    @media (max-width: 768px) {
+      .navbar { flex-direction: column; gap: 12px; }
+      .avatar-section { flex-direction: column; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-actions { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <h1>🏪 PequeMundo</h1>
+  <div class="navbar-links">
+    <a href="{% url 'catalogo' %}" class="nav-link">🛍️ Catálogo</a>
+    <a href="{% url 'user_profile' %}" class="nav-link">👤 Mi Perfil</a>
+    {% if request.session.username %}
+    <div class="user-menu-container">
+      <button class="user-btn" onclick="toggleUserMenu(event)">👤 {{ request.session.username }}</button>
+      <ul class="dropdown-menu" id="userMenu">
+        <li><a href="{% url 'user_profile' %}">👤 Mi Perfil</a></li>
+        <li><a href="{% url 'user_edit_profile' %}" style="color: var(--teal); font-weight: 700;">✏️ Editar Perfil</a></li>
+        <li><a href="{% url 'pedidos' %}">🕐 Mis Pedidos</a></li>
+        <li><div class="dropdown-divider"></div></li>
+        <li><a href="{% url 'logout' %}">🚪 Cerrar Sesión</a></li>
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="container">
+  {% if messages %}
+  <div class="messages">
+    {% for message in messages %}
+    <div class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="breadcrumb">
+    <a href="{% url 'user_profile' %}">Mi Perfil</a>
+    <span>/</span>
+    <span>Editar Perfil</span>
+  </div>
+
+  <div class="section">
+    <h1>✏️ Editar Perfil</h1>
+
+    <div class="info-box">
+      <p>📝 Actualiza tu información personal y carga una foto de perfil</p>
+    </div>
+
+    <!-- Sección de Avatar Corregida -->
+    <div class="avatar-section">
+      <div class="profile-avatar" id="avatarContainer">
+        {% if usuario.imagen_url and usuario.imagen_url != "pequeMundo_usuarios.png" %}
+          {% if usuario.imagen_url|slice:":9" == "perfiles/" %}
+            <img src="/media/{{ usuario.imagen_url }}" alt="{{ usuario.nombre }}" onerror="this.src='/static/pequeMundo_usuarios.png'">
+          {% else %}
+            <img src="/static/{{ usuario.imagen_url }}" alt="{{ usuario.nombre }}" onerror="this.src='/static/pequeMundo_usuarios.png'">
+          {% endif %}
+        {% else %}
+          <img src="/static/pequeMundo_usuarios.png" alt="Foto por defecto">
+        {% endif %}
+      </div>
+      <div class="avatar-upload">
+        <h3 style="margin-bottom: 12px; font-size: 1.1rem; color: var(--gray-900);">Foto de Perfil</h3>
+        <p style="color: var(--gray-500); margin-bottom: 16px; font-size: 0.9rem;">Sube una foto para tu perfil (PNG, JPG, GIF - máx 5MB)</p>
+        <label for="imageInput" class="file-input-label">📸 Seleccionar Foto</label>
+        <div class="file-name" id="fileName"></div>
+      </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="nombre">Nombre de Usuario</label>
+          <input type="text" id="nombre" name="nombre" value="{{ usuario.nombre }}" disabled style="background: var(--gray-100); cursor: not-allowed;">
+          <small style="color: var(--gray-500); margin-top: 4px; display: block;">No puedes cambiar tu nombre de usuario</small>
+        </div>
+
+        <div class="form-group">
+          <label for="apellido">Apellido</label>
+          <input type="text" id="apellido" name="apellido" value="{{ usuario.apellido|default:'' }}" placeholder="Ingresa tu apellido">
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="email">Correo Electrónico</label>
+          <input type="email" id="email" name="email" value="{{ usuario.email|default:'' }}" placeholder="correo@ejemplo.com">
+        </div>
+
+        <div class="form-group">
+          <label for="telefono">Teléfono</label>
+          <input type="tel" id="telefono" name="telefono" value="{{ usuario.telefono|default:'' }}" placeholder="+56 9 1234 5678">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="direccion">Dirección</label>
+        <textarea id="direccion" name="direccion" placeholder="Calle, número, ciudad, etc.">{{ usuario.direccion|default:'' }}</textarea>
+      </div>
+
+      <!-- Campo oculto para la imagen -->
+      <input type="file" id="imageInput" name="imagen_url" accept="image/*" style="display: none;" onchange="previewImage(event)">
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">💾 Guardar Cambios</button>
+        <a href="{% url 'user_profile' %}" class="btn btn-secondary">❌ Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleUserMenu(event) {
+    event.preventDefault();
+    const menu = document.getElementById('userMenu');
+    menu.classList.toggle('show');
+  }
+
+  document.addEventListener('click', function(event) {
+    const menu = document.getElementById('userMenu');
+    const btn = event.target.closest('.user-btn');
+    if (!btn && !event.target.closest('#userMenu')) {
+      menu.classList.remove('show');
+    }
+  });
+
+  function previewImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const avatarContainer = document.getElementById('avatarContainer');
+        avatarContainer.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+      };
+      reader.readAsDataURL(file);
+
+      // Mostrar nombre del archivo
+      const fileName = document.getElementById('fileName');
+      fileName.textContent = '✓ Archivo seleccionado: ' + file.name;
+    }
+  }
+</script>
+
+</body>
+</html>

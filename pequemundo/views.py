@@ -5,7 +5,9 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.db import models
+from django.conf import settings
 from .models import Producto, Usuario, Categoria, Pedido, PedidoItem
+import os
 
 
 def _get_cart(request):
@@ -113,6 +115,26 @@ def _default_image_for_categoria(categoria):
     return f'https://via.placeholder.com/300x180?text={categoria or "Producto"}'
 
 
+def _normalize_image_url(url):
+    if not url:
+        return ''
+    if url.startswith('http://') or url.startswith('https://') or url.startswith('/media/') or url.startswith('/static/'):
+        return url
+    return f"{settings.MEDIA_URL.rstrip('/')}/{url.lstrip('/')}"
+
+
+def _save_uploaded_image(archivo, subfolder):
+    media_root = settings.MEDIA_ROOT
+    target_dir = os.path.join(media_root, subfolder)
+    os.makedirs(target_dir, exist_ok=True)
+    nombre_archivo = f'{timezone.now().strftime("%Y%m%d%H%M%S")}_{archivo.name}'
+    ruta_guardado = os.path.join(target_dir, nombre_archivo)
+    with open(ruta_guardado, 'wb+') as destino:
+        for chunk in archivo.chunks():
+            destino.write(chunk)
+    return f'{subfolder}/{nombre_archivo}'
+
+
 def _get_cart_items(request):
     cart = _get_cart(request)
     items = []
@@ -122,13 +144,14 @@ def _get_cart_items(request):
             producto = Producto.objects.get(id_producto=int(product_id), activo__in=['1', None])
             item_total = float(producto.precio) * qty
             total += item_total
+            imagen_or_default = producto.imagen_url or _default_image_for_categoria(producto.id_categoria.nombre if producto.id_categoria else '')
             items.append({
                 'id': producto.id_producto,
                 'nombre': producto.nombre,
                 'precio': float(producto.precio),
                 'cantidad': qty,
                 'subtotal': item_total,
-                'imagen_url': producto.imagen_url or _default_image_for_categoria(producto.id_categoria.nombre if producto.id_categoria else ''),
+                'imagen_url': _normalize_image_url(imagen_or_default),
             })
         except Producto.DoesNotExist:
             continue
@@ -145,7 +168,7 @@ def catalogo(request):
                 'precio': float(p.precio),
                 'stock': p.stock,
                 'categoria': p.id_categoria.nombre if p.id_categoria else 'Sin categoria',
-                'imagen_url': p.imagen_url if getattr(p, 'imagen_url', None) else ''
+                'imagen_url': _normalize_image_url(p.imagen_url) if getattr(p, 'imagen_url', None) else ''
             } for p in productos
         ]
     except Exception as e:
@@ -225,6 +248,7 @@ def register_view(request):
                 email=email or None,
                 contrasena=make_password(password),
                 id_rol=4,  # CLIENTE por defecto
+                imagen_url='pequeMundo_usuarios.png',  # Imagen por defecto
                 activo='1',
                 fecha_registro=timezone.now()
             )
@@ -248,23 +272,6 @@ def user_profile(request):
         messages.error(request, 'Usuario no encontrado.')
         return redirect('login')
     
-    if request.method == 'POST':
-        apellido = request.POST.get('apellido', '').strip()
-        email = request.POST.get('email', '').strip()
-        telefono = request.POST.get('telefono', '').strip()
-        direccion = request.POST.get('direccion', '').strip()
-        imagen_url = request.POST.get('imagen_url', '').strip()
-        
-        usuario.apellido = apellido or None
-        usuario.email = email or None
-        usuario.telefono = telefono or None
-        usuario.direccion = direccion or None
-        usuario.imagen_url = imagen_url or None
-        usuario.save()
-        
-        messages.success(request, 'Perfil actualizado correctamente.')
-        return redirect('user_profile')
-    
     # Obtener historial de compras
     pedidos = Pedido.objects.filter(id_usuario=usuario).order_by('-fecha_pedido')
     pedidos_data = []
@@ -285,10 +292,25 @@ def user_profile(request):
             'items': items,
         })
     
+    # Construir la URL de la imagen
+    imagen_perfil_url = usuario.imagen_url or 'pequeMundo_usuarios.png'
+    if not imagen_perfil_url or imagen_perfil_url in ['None', 'img/pequeMundo_usuarios.png', '/static/img/pequeMundo_usuarios.png']:
+        imagen_perfil_url = 'pequeMundo_usuarios.png'
+    elif imagen_perfil_url.startswith('img/'):
+        imagen_perfil_url = imagen_perfil_url[4:]
+    
+    if imagen_perfil_url.startswith('perfiles/'):
+        # Es una imagen cargada por el usuario
+        imagen_perfil_url = f'{settings.MEDIA_URL}{imagen_perfil_url}'
+    else:
+        # Es una imagen estática dentro de STATICFILES_DIRS
+        imagen_perfil_url = f'/static/{imagen_perfil_url}'
+    
     cart_count = sum(_get_cart(request).values())
     
     return render(request, 'user_profile.html', {
         'usuario': usuario,
+        'imagen_perfil_url': imagen_perfil_url,
         'pedidos': pedidos_data,
         'cart_count': cart_count,
     })
@@ -312,13 +334,36 @@ def user_edit_profile(request):
         email = request.POST.get('email', '').strip()
         telefono = request.POST.get('telefono', '').strip()
         direccion = request.POST.get('direccion', '').strip()
-        imagen_url = request.POST.get('imagen_url', '').strip()
         
         usuario.apellido = apellido or None
         usuario.email = email or None
         usuario.telefono = telefono or None
         usuario.direccion = direccion or None
-        usuario.imagen_url = imagen_url or None
+        
+        # Manejo de subida de imagen
+        if 'imagen_url' in request.FILES:
+            archivo = request.FILES['imagen_url']
+            # Crear la carpeta de medios si no existe
+            media_root = settings.MEDIA_ROOT
+            perfiles_dir = os.path.join(media_root, 'perfiles')
+            
+            if not os.path.exists(media_root):
+                os.makedirs(media_root)
+            if not os.path.exists(perfiles_dir):
+                os.makedirs(perfiles_dir)
+            
+            # Generar nombre único para el archivo
+            nombre_archivo = f'{usuario.id_usuario}_{timezone.now().timestamp()}_{archivo.name}'
+            ruta_guardado = os.path.join(perfiles_dir, nombre_archivo)
+            
+            # Guardar el archivo
+            with open(ruta_guardado, 'wb+') as destino:
+                for chunk in archivo.chunks():
+                    destino.write(chunk)
+            
+            # Guardar la ruta relativa en la base de datos
+            usuario.imagen_url = f'perfiles/{nombre_archivo}'
+        
         usuario.save()
         
         messages.success(request, 'Perfil actualizado correctamente.')
@@ -346,12 +391,15 @@ def add_product(request):
         categoria_id = request.POST.get('categoria')
         descripcion = request.POST.get('descripcion', '').strip()
         imagen_url = request.POST.get('imagen_url', '').strip()
+        imagen_file = request.FILES.get('imagen_file')
 
         if not nombre:
             messages.error(request, 'El nombre del producto es obligatorio.')
         else:
             try:
                 categoria = Categoria.objects.get(id_categoria=categoria_id) if categoria_id else None
+                if imagen_file:
+                    imagen_url = _save_uploaded_image(imagen_file, 'productos')
                 producto = Producto(
                     nombre=nombre,
                     precio=precio,
@@ -390,6 +438,8 @@ def edit_product(request, product_id):
         stock = request.POST.get('stock', '0').strip()
         categoria_id = request.POST.get('categoria')
         activo = request.POST.get('activo', '1')
+        imagen_url = request.POST.get('imagen_url', '').strip()
+        imagen_file = request.FILES.get('imagen_file')
 
         if not nombre:
             messages.error(request, 'El nombre del producto es obligatorio.')
@@ -399,7 +449,10 @@ def edit_product(request, product_id):
                 producto.precio = precio
                 producto.stock = int(stock)
                 producto.activo = activo
-                producto.imagen_url = request.POST.get('imagen_url', '').strip()
+                if imagen_file:
+                    producto.imagen_url = _save_uploaded_image(imagen_file, 'productos')
+                elif imagen_url:
+                    producto.imagen_url = imagen_url
                 if categoria_id:
                     producto.id_categoria = Categoria.objects.get(id_categoria=categoria_id)
                 producto.save()
@@ -634,6 +687,19 @@ def admin_dashboard(request):
     # Calcular total de ventas
     total_ventas = Pedido.objects.aggregate(total=models.Sum('total_final'))['total'] or 0
     
+    productos_activos = Producto.objects.filter(activo='1').count()
+    productos_inactivos = Producto.objects.filter(activo='0').count()
+    productos = Producto.objects.select_related('id_categoria').order_by('-fecha_creacion')[:10]
+    productos_data = []
+    for producto in productos:
+        productos_data.append({
+            'id': producto.id_producto,
+            'nombre': producto.nombre,
+            'stock': producto.stock,
+            'categoria': producto.id_categoria.nombre if producto.id_categoria else 'Sin categoria',
+            'activo': '1' if producto.activo != '0' else '0',
+        })
+    
     cart_count = sum(_get_cart(request).values())
     
     return render(request, 'admin_dashboard.html', {
@@ -645,6 +711,9 @@ def admin_dashboard(request):
         'total_pedidos': total_pedidos,
         'ultimos_usuarios': usuarios_data,
         'total_ventas': float(total_ventas),
+        'productos_activos': productos_activos,
+        'productos_inactivos': productos_inactivos,
+        'productos': productos_data,
         'cart_count': cart_count,
     })
 

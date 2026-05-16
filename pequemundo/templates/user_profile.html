@@ -272,7 +272,7 @@
       align-items: center;
       gap: 8px;
       padding: 8px 16px;
-      background: var(--yellow);
+      background: #facc15;
       color: var(--gray-900);
       border: none;
       border-radius: 999px;
@@ -284,7 +284,7 @@
     }
 
     .user-btn:hover {
-      background: #facc15;
+      background: #f59e0b;
     }
 
     .dropdown-menu {
@@ -293,7 +293,7 @@
       right: 0;
       background: var(--white);
       border-radius: var(--radius);
-      box-shadow: var(--shadow-hover);
+      box-shadow: var(--shadow);
       min-width: 200px;
       list-style: none;
       margin-top: 8px;
@@ -373,13 +373,13 @@
   </div>
   {% endif %}
 
-  <!-- Header de Perfil -->
+  <!-- Header de Perfil Corregido sin fallos de parpadeo -->
   <div class="profile-header">
     <div class="profile-avatar">
-      {% if usuario.imagen_url %}
-      <img src="{{ usuario.imagen_url }}" alt="{{ usuario.nombre }}">
+      {% if imagen_perfil_url %}
+        <img src="{{ imagen_perfil_url }}" alt="Foto de perfil" onerror="this.src='/static/pequeMundo_usuarios.png'">
       {% else %}
-      👤
+        <img src="/static/pequeMundo_usuarios.png" alt="Foto por defecto">
       {% endif %}
     </div>
     <div class="profile-info">
