@@ -32,6 +32,8 @@
       color: var(--gray-900);
       min-height: 100vh;
       padding: 20px;
+      display: flex;
+      flex-direction: column;
     }
 
     .navbar {
@@ -340,6 +342,15 @@
       .profile-actions { flex-wrap: wrap; }
       .info-grid { grid-template-columns: 1fr; }
     }
+
+    /* FOOTER */
+    footer { background: var(--white); margin-top: auto; padding: 40px 32px 24px; box-shadow: var(--shadow); border-radius: var(--radius); }
+    .footer-grid { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 32px; }
+    .footer-col h4 { font-family: 'Nunito',sans-serif; color: var(--gray-900); font-size: 1.05rem; font-weight: 800; margin-bottom: 16px; }
+    .footer-col p { font-size: .85rem; color: var(--gray-500); line-height: 1.6; margin-bottom: 8px; }
+    .footer-col a { display: block; font-size: .85rem; color: var(--gray-500); text-decoration: none; margin-bottom: 10px; transition: color .2s; }
+    .footer-col a:hover { color: var(--teal); }
+    .footer-bottom { text-align: center; font-size: .8rem; color: var(--gray-400); border-top: 1px solid var(--gray-200); padding-top: 24px; }
   </style>
 </head>
 <body>
@@ -473,6 +484,29 @@
   </div>
 
 </div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h4>Sobre Nosotros</h4>
+      <p>Fabricamos muebles infantiles de calidad en Chile. Diseños seguros y modernos para el cuarto de tus niños.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <a href="mailto:contacto@pequemundo.cl">✉️ contacto@pequemundo.cl</a>
+      <a href="tel:+56222345678">📞 +56 2 2345 6789</a>
+      <a href="#">📍 Santiago, Chile</a>
+    </div>
+    <div class="footer-col">
+      <h4>Horario de Atención</h4>
+      <p>Lunes a Viernes: 9:00 – 18:00</p>
+      <p>Sábado: 10:00 – 14:00</p>
+      <p>Domingo: Cerrado</p>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 PequeMundo Muebles. Todos los derechos reservados.</div>
+</footer>
 
 <script>
 function toggleUserMenu(event) {

@@ -543,7 +543,7 @@ def checkout(request):
         order = Pedido(
             id_usuario=user,
             codigo=timezone.now().strftime('PM%Y%m%d%H%M%S'),
-            estado=_normalize_order_status('En Preparación'),
+            estado=_normalize_order_status('Recibido'),
             tipo_entrega=delivery_type,
             total=total,
             total_final=total,
@@ -574,7 +574,7 @@ def checkout(request):
             'id': order_id,
             'date': order_date,
             'total': total,
-            'status': 'En Preparación',
+            'status': 'Recibido',
             'eta': '5-7 días hábiles',
             'delivery': delivery,
             'items': cart_items,
@@ -618,6 +618,18 @@ def checkout(request):
             return redirect('pago')
 
     # Si es un método de pago distinto a Webpay, descontar el stock de inmediato
+    # Si es un método de pago distinto a Webpay, actualizamos el estado y descontamos stock de inmediato
+    if user and order:
+        order.estado = _normalize_order_status('En Preparación')
+        order.save()
+    elif not user:
+        session_orders = request.session.get('orders', [])
+        for session_order in session_orders:
+            if session_order.get('id') == order_id:
+                session_order['status'] = 'En Preparación'
+                session_order['status_key'] = 'EN_PREPARACION'
+        request.session['orders'] = session_orders
+
     for item in cart_items:
         producto = Producto.objects.filter(id_producto=item['id']).first()
         if producto and producto.stock is not None:
@@ -656,8 +668,8 @@ def webpay_commit(request):
     
     if status_text == 'AUTHORIZED':
         if order:
-            if order.estado != 'RECIBIDO':
-                order.estado = _normalize_order_status('Recibido')
+            if order.estado != 'EN_PREPARACION':
+                order.estado = _normalize_order_status('En Preparación')
                 order.save()
                 # Descontar stock del producto en la BD
                 for item in order.items.all():
@@ -671,9 +683,9 @@ def webpay_commit(request):
             session_orders = request.session.get('orders', [])
             for session_order in session_orders:
                 if session_order.get('id') == buy_order:
-                    if session_order.get('status') != 'Recibido':
-                        session_order['status'] = 'Recibido'
-                        session_order['status_key'] = 'ENTREGADO'
+                    if session_order.get('status') != 'En Preparación':
+                        session_order['status'] = 'En Preparación'
+                        session_order['status_key'] = 'EN_PREPARACION'
                         # Descontar stock para usuarios sin cuenta (invitados)
                         for item in session_order.get('items', []):
                             producto = Producto.objects.filter(id_producto=item['id']).first()

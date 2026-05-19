@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PequiMundo – Mis Pedidos</title>
+<title>PequeMundo – Mis Pedidos</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -17,7 +17,7 @@
     --shadow: 0 2px 16px rgba(0,0,0,.08);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Poppins', sans-serif; background: var(--gray-50); color: var(--gray-900); min-height: 100vh; }
+  body { font-family: 'Poppins', sans-serif; background: var(--gray-50); color: var(--gray-900); min-height: 100vh; display: flex; flex-direction: column; }
 
   nav {
     background: var(--white); display: flex; align-items: center; justify-content: space-between;
@@ -173,6 +173,15 @@
     background: var(--gray-200);
     margin: 4px 0;
   }
+
+  /* FOOTER */
+  footer { background: var(--white); margin-top: auto; padding: 40px 32px 24px; box-shadow: 0 -1px 6px rgba(0,0,0,.05); }
+  .footer-grid { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 32px; }
+  .footer-col h4 { font-family: 'Nunito',sans-serif; color: var(--gray-900); font-size: 1.05rem; font-weight: 800; margin-bottom: 16px; }
+  .footer-col p { font-size: .85rem; color: var(--gray-500); line-height: 1.6; margin-bottom: 8px; }
+  .footer-col a { display: block; font-size: .85rem; color: var(--gray-500); text-decoration: none; margin-bottom: 10px; transition: color .2s; }
+  .footer-col a:hover { color: var(--teal); }
+  .footer-bottom { text-align: center; font-size: .8rem; color: var(--gray-400); border-top: 1px solid var(--gray-200); padding-top: 24px; }
 </style>
 </head>
 <body>
@@ -276,7 +285,7 @@
     </div>
     <div class="footer-col">
       <h4>Contacto</h4>
-      <a href="mailto:contacto@pequimundo.cl">✉️ contacto@pequimundo.cl</a>
+      <a href="mailto:contacto@pequemundo.cl">✉️ contacto@pequemundo.cl</a>
       <a href="tel:+56222345678">📞 +56 2 2345 6789</a>
       <a href="#">📍 Santiago, Chile</a>
     </div>
@@ -287,7 +296,7 @@
       <p>Domingo: Cerrado</p>
     </div>
   </div>
-  <div class="footer-bottom">© 2026 PequiMundo Muebles. Todos los derechos reservados.</div>
+  <div class="footer-bottom">© 2026 PequeMundo Muebles. Todos los derechos reservados.</div>
 </footer>
 
 <script>
