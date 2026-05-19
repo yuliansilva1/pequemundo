@@ -4,10 +4,14 @@ from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
 from django.db import models
 from django.conf import settings
+from urllib3 import request
 from .models import Producto, Usuario, Categoria, Pedido, PedidoItem
 import os
+import uuid
 
 
 def _get_cart(request):
@@ -121,6 +125,26 @@ def _normalize_image_url(url):
     if url.startswith('http://') or url.startswith('https://') or url.startswith('/media/') or url.startswith('/static/'):
         return url
     return f"{settings.MEDIA_URL.rstrip('/')}/{url.lstrip('/')}"
+
+
+def _get_webpay_transaction():
+    from transbank.common.integration_commerce_codes import IntegrationCommerceCodes
+    from transbank.common.integration_api_keys import IntegrationApiKeys
+    from transbank.common.integration_type import IntegrationType
+    from transbank.common.options import WebpayOptions
+    from transbank.webpay.webpay_plus.transaction import Transaction
+
+    options = WebpayOptions(
+        IntegrationCommerceCodes.WEBPAY_PLUS,
+        IntegrationApiKeys.WEBPAY,
+        IntegrationType.TEST
+    )
+    return Transaction(options)
+
+
+def _generate_webpay_session_id(request):
+    # Genera un texto único al azar de 10 caracteres, evitando conflictos
+    return uuid.uuid4().hex[:10]
 
 
 def _save_uploaded_image(archivo, subfolder):
@@ -557,11 +581,91 @@ def checkout(request):
         })
         request.session['orders'] = orders
 
+    payment_method = request.POST.get('payment_method', 'webpay')
+    if payment_method == 'webpay':
+        buy_order = order.codigo if user else order_id
+        session_id = _generate_webpay_session_id(request)
+        return_url = request.build_absolute_uri(reverse('webpay_commit'))
+        
+        try:
+            # Forzamos los tipos de datos correctos para la API de Transbank
+            webpay_response = _get_webpay_transaction().create(
+                buy_order=str(buy_order), 
+                session_id=str(session_id), 
+                amount=int(float(total)), 
+                return_url=str(return_url)
+            )
+            
+            webpay_url = webpay_response.get('url')
+            webpay_token = webpay_response.get('token')
+            
+            if not webpay_url or not webpay_token:
+                messages.error(request, 'No se pudo iniciar la transacción de Webpay (API no retornó parámetros).')
+                return redirect('pago')
+                
+            return render(request, 'webpay_redirect.html', {
+                'webpay_url': webpay_url,
+                'webpay_token': webpay_token,
+            })
+            
+        except Exception as e:
+            # Esto imprimirá el error real en tu terminal negra
+            print("\n============ ERROR DETALLADO DE WEBPAY ============")
+            print(str(e))
+            print("===================================================\n")
+            
+            messages.error(request, f'Error al iniciar el pago con Webpay: {str(e)}')
+            return redirect('pago')
+
     request.session['cart'] = {}
     request.session.modified = True
 
     messages.success(request, 'Tu pedido fue confirmado correctamente.')
     return redirect('pedidos')
+
+
+@csrf_exempt
+def webpay_commit(request):
+    # CORRECCIÓN: Captura el token si viene por POST (formulario) o por GET (URL)
+    token = request.POST.get('token_ws') or request.GET.get('token_ws')
+    
+    if not token:
+        messages.error(request, 'No se recibió el token de Webpay.')
+        return redirect('pago')
+
+    try:
+        result = _get_webpay_transaction().commit(token)
+    except Exception as e:
+        messages.error(request, f'Error al confirmar el pago en Webpay: {str(e)}')
+        return redirect('pago')
+
+    buy_order = result.get('buy_order') or ''
+    status_text = result.get('status', 'UNKNOWN')
+    amount = result.get('amount', 0)
+
+    order = Pedido.objects.filter(codigo=buy_order).first()
+    if order:
+        order.estado = _normalize_order_status('Recibido')
+        order.save()
+    else:
+        session_orders = request.session.get('orders', [])
+        for session_order in session_orders:
+            if session_order.get('id') == buy_order:
+                session_order['status'] = 'Recibido'
+                session_order['status_key'] = 'ENTREGADO'
+                break
+        request.session['orders'] = session_orders
+
+    request.session['cart'] = {}
+    request.session.modified = True
+
+    return render(request, 'webpay_result.html', {
+        'order_code': buy_order,
+        'status': status_text,
+        'amount': amount,
+        'result': result,
+        'token' : token,
+    })
 
 
 def pedidos(request):

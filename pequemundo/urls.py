@@ -28,6 +28,7 @@ urlpatterns = [
     path('pedidos/', views.pedidos, name='pedidos'),
     path('pago/', views.pago, name='pago'),
     path('checkout/', views.checkout, name='checkout'),
+    path('webpay/commit/', views.webpay_commit, name='webpay_commit'),
     path('agregar-carrito/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),

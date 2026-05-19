@@ -1,185 +1,139 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PequiMundo – Finalizar Compra</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --teal:#3bc9c0;--teal-dark:#2aada4;
-    --orange:#f97316;--orange-light:#fb923c;
-    --yellow:#eab308;--green:#22c55e;
-    --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;
-    --gray-400:#9ca3af;--gray-500:#6b7280;--gray-700:#374151;--gray-900:#111827;
-    --white:#ffffff;--radius:14px;--shadow:0 2px 16px rgba(0,0,0,.08);
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Poppins',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PequiMundo – Finalizar Compra</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --teal:#3bc9c0;--teal-dark:#2aada4;
+      --orange:#f97316;--orange-light:#fb923c;
+      --yellow:#eab308;--green:#22c55e;
+      --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;
+      --gray-400:#9ca3af;--gray-500:#6b7280;--gray-700:#374151;--gray-900:#111827;
+      --white:#ffffff;--radius:14px;--shadow:0 2px 16px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Poppins',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh;}
 
-  nav{background:var(--white);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;box-shadow:0 1px 6px rgba(0,0,0,.07);position:sticky;top:0;z-index:100;}
-  .logo { display: flex; align-items: center; width: auto; height: 100px; }
-  .nav-links{display:flex;align-items:center;gap:8px;}
-  .nav-btn{display:flex;align-items:center;gap:6px;padding:7px 18px;border-radius:999px;font-size:.85rem;font-weight:600;cursor:pointer;border:none;text-decoration:none;transition:all .2s;font-family:'Poppins',sans-serif;}
-  .nav-btn.ghost{background:transparent;color:var(--gray-700);}
-  .nav-btn.ghost:hover{background:var(--gray-100);}
-  .nav-btn.active{background:var(--orange);color:var(--white);}
-  .nav-avatar{width:36px;height:36px;border-radius:50%;background:var(--yellow);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+    nav{background:var(--white);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;box-shadow:0 1px 6px rgba(0,0,0,.07);position:sticky;top:0;z-index:100;}
+    .logo { display: flex; align-items: center; width: auto; height: 100px; }
+    .nav-links{display:flex;align-items:center;gap:8px;}
+    .nav-btn{display:flex;align-items:center;gap:6px;padding:7px 18px;border-radius:999px;font-size:.85rem;font-weight:600;cursor:pointer;border:none;text-decoration:none;transition:all .2s;font-family:'Poppins',sans-serif;}
+    .nav-btn.ghost{background:transparent;color:var(--gray-700);}
+    .nav-btn.ghost:hover{background:var(--gray-100);}
+    .nav-btn.active{background:var(--orange);color:var(--white);}
 
-  .page{max-width:1000px;margin:0 auto;padding:28px 24px 60px;}
-  .back-link{font-size:.83rem;color:var(--teal);text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:4px;margin-bottom:18px;}
-  .back-link:hover{color:var(--teal-dark);}
-  h1{font-family:'Nunito',sans-serif;font-size:1.75rem;font-weight:900;margin-bottom:4px;}
-  .subtitle{color:var(--gray-500);font-size:.88rem;margin-bottom:24px;}
+    .page{max-width:1000px;margin:0 auto;padding:28px 24px 60px;}
+    .back-link{font-size:.83rem;color:var(--teal);text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:4px;margin-bottom:18px;}
+    .back-link:hover{color:var(--teal-dark);}
+    h1{font-family:'Nunito',sans-serif;font-size:1.75rem;font-weight:900;margin-bottom:4px;}
+    .subtitle{color:var(--gray-500);font-size:.88rem;margin-bottom:24px;}
 
-  .layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
-  @media(max-width:760px){.layout{grid-template-columns:1fr;}}
+    .layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
+    @media(max-width:760px){.layout{grid-template-columns:1fr;}}
 
-  /* LEFT COLUMN */
-  .section-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 22px;margin-bottom:18px;}
-  .section-card h3{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+    /* LEFT COLUMN */
+    .section-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-bottom:18px;}
+    .section-card h3{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 
-  /* CART ITEMS */
-  .cart-item{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--gray-100);}
-  .cart-item:last-child{border-bottom:none;}
-  .cart-img{width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;}
-  .cart-item-info{flex:1;}
-  .cart-item-name{font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:800;}
-  .cart-item-qty{font-size:.75rem;color:var(--gray-500);}
-  .cart-item-price{font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;flex-shrink:0;}
+    /* CART ITEMS */
+    .cart-item{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--gray-100);}
+    .cart-item:last-child{border-bottom:none;}
+    .cart-img{width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;}
+    .cart-item-info{flex:1;}
+    .cart-item-name{font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:800;}
+    .cart-item-qty{font-size:.75rem;color:var(--gray-500);}
+    .cart-item-price{font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;flex-shrink:0;}
 
-  /* DELIVERY */
-  .delivery-opt{
-    border:2px solid var(--gray-200);border-radius:12px;padding:14px 16px;cursor:pointer;
-    margin-bottom:10px;transition:all .2s;display:flex;align-items:flex-start;gap:12px;
-  }
-  .delivery-opt.selected{border-color:var(--teal);background:#f0fffe;}
-  .delivery-opt input[type=radio]{margin-top:3px;accent-color:var(--teal);flex-shrink:0;}
-  .delivery-opt-title{font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;margin-bottom:4px;}
-  .delivery-detail{font-size:.75rem;color:var(--gray-500);display:flex;align-items:center;gap:5px;margin-bottom:2px;}
-  .delivery-free{font-size:.73rem;color:var(--green);font-weight:700;}
+    /* DELIVERY */
+    .delivery-opt{
+      border:2px solid var(--gray-200);border-radius:12px;padding:14px 16px;cursor:pointer;
+      margin-bottom:10px;transition:all .2s;display:flex;align-items:flex-start;gap:12px;
+    }
+    .delivery-opt.selected{border-color:var(--teal);background:#f0fffe;}
+    .delivery-opt input[type=radio]{margin-top:3px;accent-color:var(--teal);flex-shrink:0;}
+    .delivery-opt-title{font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;margin-bottom:4px;}
+    .delivery-detail{font-size:.75rem;color:var(--gray-500);display:flex;align-items:center;gap:5px;margin-bottom:2px;}
+    .delivery-free{font-size:.73rem;color:var(--green);font-weight:700;}
 
-  /* FORM */
-  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .form-group{display:flex;flex-direction:column;gap:5px;}
-  .form-group.full{grid-column:1/-1;}
-  label{font-size:.78rem;font-weight:600;color:var(--gray-700);}
-  input{
-    padding:10px 14px;border:1.5px solid var(--gray-200);border-radius:10px;
-    font-size:.85rem;font-family:'Poppins',sans-serif;color:var(--gray-900);
-    outline:none;transition:border-color .2s;background:var(--white);
-  }
-  input:focus{border-color:var(--teal);}
-  input::placeholder{color:var(--gray-400);}
+    /* FORM */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .form-group{display:flex;flex-direction:column;gap:5px;}
+    .form-group.full{grid-column:1/-1;}
+    .radio-option{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid var(--gray-200);border-radius:12px;cursor:pointer;transition:all .2s;background:var(--white);}
+    .radio-option:hover{border-color:var(--teal);background:#f8fffe;}
+    .radio-option input{width:auto;margin:0;}
+    label{font-size:.78rem;font-weight:600;color:var(--gray-700);}
+    input{
+      padding:10px 14px;border:1.5px solid var(--gray-200);border-radius:10px;
+      font-size:.85rem;font-family:'Poppins',sans-serif;color:var(--gray-900);
+      outline:none;transition:border-color .2s;background:var(--white);
+    }
+    input:focus{border-color:var(--teal);}
+    input::placeholder{color:var(--gray-400);}
 
-  /* RIGHT COLUMN – SUMMARY */
-  .summary-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;position:sticky;top:76px;}
-  .summary-card h3{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;margin-bottom:16px;}
-  .summary-row{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:8px;color:var(--gray-700);}
-  .summary-row.total{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.1rem;color:var(--gray-900);border-top:1px solid var(--gray-200);padding-top:12px;margin-top:4px;}
-  .summary-row .free{color:var(--green);font-weight:700;}
-  .btn-pay{
-    width:100%;padding:13px;margin-top:16px;
-    background:linear-gradient(135deg,var(--teal),var(--green));
-    color:white;border:none;border-radius:12px;
-    font-family:'Nunito',sans-serif;font-size:1rem;font-weight:900;
-    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
-    transition:opacity .2s;box-shadow:0 4px 16px rgba(59,201,192,.35);
-  }
-  .btn-pay:hover{opacity:.9;}
-  .trust-items{margin-top:14px;display:flex;flex-direction:column;gap:6px;}
-  .trust-item{display:flex;align-items:center;gap:8px;font-size:.75rem;color:var(--gray-500);}
-  .payment-info{margin-top:14px;background:#fefce8;border:1.5px solid #fde68a;border-radius:10px;padding:10px 12px;font-size:.76rem;color:#92400e;}
+    /* RIGHT COLUMN – SUMMARY */
+    .summary-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;position:sticky;top:76px;}
+    .summary-card h3{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;margin-bottom:16px;}
+    .summary-row{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:8px;color:var(--gray-700);}
+    .summary-row.total{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.1rem;color:var(--gray-900);border-top:1px solid var(--gray-200);padding-top:12px;margin-top:4px;}
+    .summary-row .free{color:var(--green);font-weight:700;}
+    .btn-pay{
+      width:100%;padding:13px;margin-top:16px;
+      background:linear-gradient(135deg,var(--teal),var(--green));
+      color:white;border:none;border-radius:12px;
+      font-family:'Nunito',sans-serif;font-size:1rem;font-weight:900;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+      transition:opacity .2s;box-shadow:0 4px 16px rgba(59,201,192,.35);
+    }
+    .btn-pay:hover{opacity:.9;}
+    .trust-items{margin-top:14px;display:flex;flex-direction:column;gap:6px;}
+    .payment-info{margin-top:14px;background:#fefce8;border:1.5px solid #fde68a;border-radius:10px;padding:10px 12px;font-size:.76rem;color:#92400e;}
 
-  /* FOOTER */
-  footer{background:var(--white);margin-top:40px;padding:36px 32px 20px;}
-  .footer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;max-width:1000px;margin:0 auto 24px;}
-  .footer-col h4{font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;margin-bottom:10px;}
-  .footer-col p,.footer-col a{font-size:.8rem;color:var(--gray-500);line-height:1.7;display:block;text-decoration:none;}
-  .footer-col a:hover{color:var(--teal);}
-  .footer-bottom{text-align:center;font-size:.75rem;color:var(--gray-400);border-top:1px solid var(--gray-200);padding-top:16px;max-width:1000px;margin:0 auto;}
+    /* FOOTER */
+    footer{background:var(--white);margin-top:40px;padding:36px 32px 20px;}
+    .footer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;max-width:1000px;margin:0 auto 24px;}
+    .footer-col h4{font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;margin-bottom:10px;}
+    .footer-col p,.footer-col a{font-size:.8rem;color:var(--gray-500);line-height:1.7;display:block;text-decoration:none;}
+    .footer-col a:hover{color:var(--teal);}
+    .footer-bottom{text-align:center;font-size:.75rem;color:var(--gray-400);border-top:1px solid var(--gray-200);padding-top:16px;max-width:1000px;margin:0 auto;}
 
-  /* Dropdown Menu */
-  .user-menu-container {
-    position: relative;
-  }
-
-  .user-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    background: var(--yellow);
-    color: var(--gray-900);
-    border: none;
-    border-radius: 999px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: .85rem;
-    font-family: 'Poppins', sans-serif;
-    transition: background .2s;
-  }
-
-  .user-btn:hover {
-    background: #facc15;
-  }
-
-  .dropdown-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: var(--white);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-hover);
-    min-width: 200px;
-    list-style: none;
-    margin-top: 8px;
-    overflow: hidden;
-    display: none;
-    z-index: 1000;
-  }
-
-  .dropdown-menu.show {
-    display: block;
-  }
-
-  .dropdown-menu li {
-    padding: 0;
-    margin: 0;
-  }
-
-  .dropdown-menu a {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 16px;
-    color: var(--gray-700);
-    text-decoration: none;
-    transition: all .2s;
-    font-weight: 500;
-    font-size: .85rem;
-  }
-
-  .dropdown-menu a:hover {
-    background: var(--gray-100);
-    color: var(--teal);
-  }
-
-  .dropdown-divider {
-    height: 1px;
-    background: var(--gray-200);
-    margin: 4px 0;
-  }
-</style>
+    /* Dropdown Menu */
+    .user-menu-container { position: relative; }
+    .user-btn {
+      display: flex;align-items: center;gap: 8px;padding: 8px 16px;background: var(--yellow);
+      color: var(--gray-900);border: none;border-radius: 999px;cursor: pointer;
+      font-weight: 600;font-size: .85rem;font-family: 'Poppins', sans-serif;transition: background .2s;
+    }
+    .user-btn:hover { background: #facc15; }
+    .dropdown-menu {
+      position: absolute;top: 100%;right: 0;background: var(--white);border-radius: var(--radius);
+      box-shadow: var(--shadow);min-width: 200px;list-style: none;margin-top: 8px;
+      overflow: hidden;display: none;z-index: 1000;
+    }
+    .dropdown-menu.show { display: block; }
+    .dropdown-menu a {
+      display: flex;align-items: center;gap: 8px;padding: 12px 16px;color: var(--gray-700);
+      text-decoration: none;transition: all .2s;font-weight: 500;font-size: .85rem;
+    }
+    .dropdown-menu a:hover { background: var(--gray-100);color: var(--teal); }
+    .message-box{margin:16px 0;}
+    .message{padding:14px 16px;border-radius:12px;font-size:.95rem;line-height:1.4;margin-bottom:10px;}
+    .message.error{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;}
+    .message.success{background:#dcfce7;color:#166534;border:1px solid #86efac;}
+    .dropdown-divider { height: 1px;background: var(--gray-200);margin: 4px 0; }
+  </style>
 </head>
 <body>
 
 <nav>
-   <div class="logo">
-  <a href="/catalogo/" class="logo-link">
-    <img src="/static/pequeMundo_logo.png" class="logo-img" alt="volver al inicio" width="200" height="150">
-  </a>
-</div>
+  <div class="logo">
+    <a href="/catalogo/" class="logo-link">
+      <img src="/static/pequeMundo_logo.png" class="logo-img" alt="volver al inicio" width="200" height="150">
+    </a>
+  </div>
   <div class="nav-links">
     <a class="nav-btn ghost" href="/catalogo/">🛍️ Catálogo</a>
     <a class="nav-btn ghost" href="/pedidos/">🕐 Mis Pedidos</a>
@@ -206,15 +160,21 @@
   <h1>Finalizar Compra</h1>
   <p class="subtitle">Completa tu pedido y recibe tus muebles en casa</p>
 
-  <div class="layout">
+  {% if messages %}
+    <div class="message-box">
+      {% for message in messages %}
+        <div class="message {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
 
-    <form method="post" action="{% url 'checkout' %}">
-      {% csrf_token %}
-      <input type="hidden" name="direccion" value="Retiro en Tienda">
-      <input type="hidden" name="region" value="Región Metropolitana">
-      <!-- LEFT -->
+  <form id="checkoutForm" method="POST" action="{% url 'checkout' %}">
+    {% csrf_token %}
+    
+    <input type="hidden" name="region" value="Región Metropolitana">
+    
+    <div class="layout">
       <div>
-        <!-- CARRITO -->
         <div class="section-card">
           <h3>🛒 Tu Carrito</h3>
           {% if cart_items %}
@@ -233,11 +193,10 @@
           {% endif %}
         </div>
 
-        <!-- MODALIDAD ENTREGA -->
         <div class="section-card">
           <h3>🚚 Modalidad de Entrega</h3>
-          <div class="delivery-opt selected">
-            <input type="radio" name="delivery" value="Retiro en Tienda" checked>
+          <div class="delivery-opt selected" id="opt-retiro" onclick="selectDelivery('retiro')">
+            <input type="radio" id="radio-retiro" name="delivery" value="Retiro en Tienda" checked>
             <div>
               <div class="delivery-opt-title">🏪 Retiro en Tienda</div>
               <div class="delivery-detail">📍 Av. Providencia 1234, Santiago</div>
@@ -245,8 +204,8 @@
               <div class="delivery-free">✓ Sin costo adicional</div>
             </div>
           </div>
-          <div class="delivery-opt">
-            <input type="radio" name="delivery" value="Despacho a Domicilio">
+          <div class="delivery-opt" id="opt-despacho" onclick="selectDelivery('despacho')">
+            <input type="radio" id="radio-despacho" name="delivery" value="Despacho a Domicilio">
             <div>
               <div class="delivery-opt-title">🏠 Despacho a Domicilio</div>
               <div class="delivery-detail">📦 Entrega en 5-7 días hábiles</div>
@@ -255,57 +214,66 @@
           </div>
         </div>
 
-        <!-- INFORMACIÓN CONTACTO -->
         <div class="section-card">
           <h3>👤 Información de Contacto</h3>
           <div class="form-grid">
             <div class="form-group">
               <label>Nombre completo</label>
-              <input type="text" name="full_name" placeholder="Juan Pérez">
+              <input type="text" name="full_name" placeholder="Juan Pérez" required>
             </div>
             <div class="form-group">
               <label>RUT</label>
-              <input type="text" name="rut" placeholder="12.345.678-9">
+              <input type="text" name="rut" placeholder="12.345.678-9" required>
             </div>
             <div class="form-group">
               <label>Correo electrónico</label>
-              <input type="email" name="email" placeholder="juan@ejemplo.cl">
+              <input type="email" name="email" placeholder="juan@ejemplo.cl" required>
             </div>
             <div class="form-group">
               <label>Teléfono</label>
-              <input type="tel" name="phone" placeholder="+56 9 1234 5678">
+              <input type="tel" name="phone" placeholder="+56 9 1234 5678" required>
             </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>💳 Método de Pago</h3>
+          <div class="form-grid">
+            <label class="form-group full radio-option">
+              <input type="radio" name="payment_method" value="webpay" checked>
+              <span>Webpay</span>
+            </label>
+            <label class="form-group full radio-option">
+              <input type="radio" name="payment_method" value="transferencia">
+              <span>Transferencia bancaria</span>
+            </label>
           </div>
         </div>
       </div>
 
-      <!-- RIGHT: RESUMEN -->
       <div class="summary-card">
         <h3>Resumen del Pedido</h3>
         <div class="summary-row"><span>Subtotal</span><span>${{ total|floatformat:2 }}</span></div>
         <div class="summary-row"><span>Envío</span><span class="free">GRATIS</span></div>
         <div class="summary-row total"><span>Total</span><span>${{ total|floatformat:2 }}</span></div>
+        
         {% if cart_items %}
           <button class="btn-pay" type="submit">💳 Pagar Ahora &rarr;</button>
         {% else %}
           <button class="btn-pay" type="button" disabled style="opacity:.7;cursor:not-allowed;">💳 Agrega productos para continuar</button>
         {% endif %}
-      </div>
-    </form>
-      <div class="trust-items">
-        <div class="trust-item"></div>
-        <div class="trust-item"></div>
-        <div class="trust-item"></div>
-      </div>
-      <div class="payment-info">
-        💳 Aceptamos Webpay, transferencia y tarjetas de crédito
+
+        <div class="trust-items">
+          <div class="trust-item"></div>
+        </div>
+        <div class="payment-info">
+          💳 Aceptamos Webpay, transferencia y tarjetas de crédito
+        </div>
       </div>
     </div>
-
-  </div>
+  </form>
 </div>
 
-<!-- FOOTER -->
 <footer>
   <div class="footer-grid">
     <div class="footer-col">
@@ -328,33 +296,26 @@
   <div class="footer-bottom">© 2026 PequeMundo Muebles. Todos los derechos reservados.</div>
 </footer>
 
-<!-- SUCCESS MODAL -->
-<div class="modal-overlay" id="successModal">
-  <div class="modal">
-    <div class="modal-icon">🎉</div>
-    <h2>¡Pedido Confirmado!</h2>
-    <p>Tu pedido #1002 fue recibido con éxito. Recibirás una confirmación en tu correo y te contactaremos para coordinar la entrega.</p>
-    <a href="pedidos.html" class="modal-btn">Ver Mis Pedidos</a>
-  </div>
-</div>
-
 <script>
+// Manejo visual y de estado para opciones de despacho/retiro
 function selectDelivery(type) {
-  document.getElementById('opt-retiro').classList.toggle('selected', type === 'retiro');
-  document.getElementById('opt-despacho').classList.toggle('selected', type === 'despacho');
-  document.getElementById('radio-despacho').checked = (type === 'despacho');
+  const isRetiro = (type === 'retiro');
+  document.getElementById('opt-retiro').classList.toggle('selected', isRetiro);
+  document.getElementById('opt-despacho').classList.toggle('selected', !isRetiro);
+  document.getElementById('radio-retiro').checked = isRetiro;
+  document.getElementById('radio-despacho').checked = !isRetiro;
 }
-function handlePay() {
-  document.getElementById('successModal').classList.add('show');
-}
-</script>
-<script>
+
+// Menú Dropdown de Usuario
 function toggleUserMenu(event) {
   event.stopPropagation();
   const menu = document.getElementById('userMenu');
-  menu.classList.toggle('show');
+  if (menu) {
+    menu.classList.toggle('show');
+  }
 }
 
+// Cerrar menú al hacer clic afuera
 document.addEventListener('click', function() {
   const menu = document.getElementById('userMenu');
   if (menu) {
