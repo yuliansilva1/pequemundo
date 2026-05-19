@@ -617,6 +617,15 @@ def checkout(request):
             messages.error(request, f'Error al iniciar el pago con Webpay: {str(e)}')
             return redirect('pago')
 
+    # Si es un método de pago distinto a Webpay, descontar el stock de inmediato
+    for item in cart_items:
+        producto = Producto.objects.filter(id_producto=item['id']).first()
+        if producto and producto.stock is not None:
+            producto.stock -= item['cantidad']
+            if producto.stock < 0:
+                producto.stock = 0
+            producto.save()
+
     request.session['cart'] = {}
     request.session.modified = True
 
@@ -644,17 +653,50 @@ def webpay_commit(request):
     amount = result.get('amount', 0)
 
     order = Pedido.objects.filter(codigo=buy_order).first()
-    if order:
-        order.estado = _normalize_order_status('Recibido')
-        order.save()
+    
+    if status_text == 'AUTHORIZED':
+        if order:
+            if order.estado != 'RECIBIDO':
+                order.estado = _normalize_order_status('Recibido')
+                order.save()
+                # Descontar stock del producto en la BD
+                for item in order.items.all():
+                    producto = item.id_producto
+                    if producto and producto.stock is not None:
+                        producto.stock -= item.cantidad
+                        if producto.stock < 0:
+                            producto.stock = 0
+                        producto.save()
+        else:
+            session_orders = request.session.get('orders', [])
+            for session_order in session_orders:
+                if session_order.get('id') == buy_order:
+                    if session_order.get('status') != 'Recibido':
+                        session_order['status'] = 'Recibido'
+                        session_order['status_key'] = 'ENTREGADO'
+                        # Descontar stock para usuarios sin cuenta (invitados)
+                        for item in session_order.get('items', []):
+                            producto = Producto.objects.filter(id_producto=item['id']).first()
+                            if producto and producto.stock is not None:
+                                producto.stock -= item['cantidad']
+                                if producto.stock < 0:
+                                    producto.stock = 0
+                                producto.save()
+                    break
+            request.session['orders'] = session_orders
     else:
-        session_orders = request.session.get('orders', [])
-        for session_order in session_orders:
-            if session_order.get('id') == buy_order:
-                session_order['status'] = 'Recibido'
-                session_order['status_key'] = 'ENTREGADO'
-                break
-        request.session['orders'] = session_orders
+        # Pago fallido o rechazado
+        if order:
+            order.estado = _normalize_order_status('Cancelado')
+            order.save()
+        else:
+            session_orders = request.session.get('orders', [])
+            for session_order in session_orders:
+                if session_order.get('id') == buy_order:
+                    session_order['status'] = 'Cancelado'
+                    session_order['status_key'] = 'CANCELADO'
+                    break
+            request.session['orders'] = session_orders
 
     request.session['cart'] = {}
     request.session.modified = True
