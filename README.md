@@ -1,11 +1,6 @@
 # pequemundo
 
-## Comandos pip
-
-```powershell
-pip install django==6.0.4 psycopg2-binary
-pip install transbank-sdk
-```
+pip install -r requirements.txt
  
  #tabla de imagen para usuario
  ALTER TABLE usuario ADD COLUMN imagen_url VARCHAR(500) NULL;
