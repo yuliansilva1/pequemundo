@@ -4,6 +4,11 @@ pip install -r requirements.txt
  
  #tabla de imagen para usuario
  ALTER TABLE usuario ADD COLUMN imagen_url VARCHAR(500) NULL;
+ 
+ ALTER TABLE producto ADD COLUMN marca VARCHAR(100) NULL;
+ ALTER TABLE producto ADD COLUMN medidas VARCHAR(150) NULL;
+ ALTER TABLE producto ADD COLUMN material VARCHAR(100) NULL;
+
 
  #tarjetas de pruebas
 #aprobada
