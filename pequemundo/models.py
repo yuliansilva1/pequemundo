@@ -43,6 +43,9 @@ class Producto(models.Model):
     imagen_url = models.CharField(max_length=500, db_column='imagen_url', blank=True, null=True)
     activo = models.CharField(max_length=1, db_column='activo', default='1')
     fecha_creacion = models.DateTimeField(db_column='fecha_creacion', blank=True, null=True)
+    marca = models.CharField(max_length=100, db_column='marca', blank=True, null=True)
+    medidas = models.CharField(max_length=150, db_column='medidas', blank=True, null=True)
+    material = models.CharField(max_length=100, db_column='material', blank=True, null=True)
 
     class Meta:
         managed = False

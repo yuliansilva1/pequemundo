@@ -89,6 +89,22 @@
         <option value="0" {% if producto.activo == '0' %}selected{% endif %}>Inactivo</option>
       </select>
     </div>
+    <div class="form-group">
+      <label for="descripcion">Descripción</label>
+      <input type="text" id="descripcion" name="descripcion" value="{{ producto.descripcion|default_if_none:'' }}">
+    </div>
+    <div class="form-group">
+      <label for="marca">Marca</label>
+      <input type="text" id="marca" name="marca" value="{{ producto.marca|default_if_none:'' }}" placeholder="Ej: PequeMundo">
+    </div>
+    <div class="form-group">
+      <label for="medidas">Medidas</label>
+      <input type="text" id="medidas" name="medidas" value="{{ producto.medidas|default_if_none:'' }}" placeholder="Ej: 120x60x80 cm">
+    </div>
+    <div class="form-group">
+      <label for="material">Material</label>
+      <input type="text" id="material" name="material" value="{{ producto.material|default_if_none:'' }}" placeholder="Ej: Madera">
+    </div>
     <button class="btn-save" type="submit">Guardar cambios</button>
   </form>
 

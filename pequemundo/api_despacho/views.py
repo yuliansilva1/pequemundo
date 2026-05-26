@@ -5,6 +5,10 @@ from pequemundo.models import Pedido
 from django.views.decorators.http import require_http_methods
 import json
 
+@api_view(['GET'])
+def prueba_debug(request):
+    return Response({'mensaje': 'Ruta de prueba de despacho funcionando correctamente'}, status=status.HTTP_200_OK)
+
 @api_view(['PUT', 'PATCH'])
 def actualizar_estado_pedido(request, id_pedido):
     
@@ -30,8 +34,7 @@ def actualizar_estado_pedido(request, id_pedido):
             {'error': 'Pedido no encontrado'},
             status=status.HTTP_404_NOT_FOUND
         )
-    
-    # Obtener el nuevo estado del body de la solicitud
+
     nuevo_estado = request.data.get('estado')
     
     if not nuevo_estado:
@@ -40,7 +43,7 @@ def actualizar_estado_pedido(request, id_pedido):
             status=status.HTTP_400_BAD_REQUEST
         )
     
-    # Estados válidos
+    
     estados_validos = ['En Preparación', 'En Despacho', 'Entregado', 'Cancelado']
     
     if nuevo_estado not in estados_validos:
@@ -52,7 +55,7 @@ def actualizar_estado_pedido(request, id_pedido):
             status=status.HTTP_400_BAD_REQUEST
         )
     
-    # Actualizar el estado
+   
     estado_anterior = pedido.estado
     pedido.estado = nuevo_estado
     pedido.save()
@@ -73,10 +76,6 @@ def actualizar_estado_pedido(request, id_pedido):
 
 @api_view(['GET'])
 def obtener_estado_pedido(request, id_pedido):
-    #
-    #Obtiene el estado actual de un pedido.
-    #Método: GET
-    #URL: /api_despacho/pedidos/{id_pedido}/
     try:
         pedido = Pedido.objects.get(id_pedido=id_pedido)
     except Pedido.DoesNotExist:

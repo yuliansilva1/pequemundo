@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ producto.nombre }} - PequeMundo</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #3bc9c0;
+    --orange: #f97316;
+    --orange-light: #fb923c;
+    --yellow: #eab308;
+    --green: #22c55e;
+    --red: #ef4444;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-500: #6b7280;
+    --gray-700: #374151;
+    --gray-900: #111827;
+    --white: #ffffff;
+    --radius: 14px;
+    --shadow: 0 2px 16px rgba(0,0,0,.08);
+    --shadow-hover: 0 8px 32px rgba(0,0,0,.13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Poppins', sans-serif; background: var(--gray-50); color: var(--gray-900); min-height: 100vh; }
+
+  /* Navegacion */
+  nav { background: var(--white); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: auto; box-shadow: 0 1px 6px rgba(0,0,0,.07); position: sticky; top: 0; z-index: 100; }
+  .logo { display: flex; align-items: center; width: auto; height: 100px; }
+  .nav-links { display: flex; align-items: center; gap: 8px; }
+  .nav-btn { display: flex; align-items: center; gap: 6px; padding: 7px 18px; border-radius: 999px; font-size: .85rem; font-weight: 600; cursor: pointer; border: none; text-decoration: none; transition: all .2s; font-family: 'Poppins', sans-serif; }
+  .nav-btn.ghost { background: transparent; color: var(--gray-700); }
+  .nav-btn.ghost:hover { background: var(--gray-100); }
+  .nav-btn.cart { background: var(--orange); color: var(--white); }
+  .nav-btn.cart:hover { background: var(--orange-light); }
+
+  /* Layout Detalles */
+  .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+  .product-layout { display: flex; gap: 40px; background: var(--white); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
+  @media(max-width: 768px) { .product-layout { flex-direction: column; padding: 20px; } }
+  
+  .product-image { flex: 1; text-align: center; }
+  .product-image img { max-width: 100%; height: auto; border-radius: 10px; max-height: 500px; object-fit: contain; }
+  
+  .product-info { flex: 1; }
+  .product-title { font-family: 'Nunito', sans-serif; font-size: 2.2rem; font-weight: 900; margin-bottom: 10px; }
+  .product-cat { display: inline-block; background: var(--gray-200); padding: 4px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; margin-bottom: 20px; }
+  .product-price { font-family: 'Nunito', sans-serif; font-size: 2rem; font-weight: 800; color: var(--teal); margin-bottom: 24px; }
+  
+  .specs { margin-bottom: 30px; border-top: 1px solid var(--gray-200); padding-top: 20px; }
+  .specs h3 { font-family: 'Nunito', sans-serif; font-size: 1.2rem; margin-bottom: 12px; }
+  .specs ul { list-style: none; }
+  .specs li { padding: 10px 0; border-bottom: 1px solid var(--gray-100); display: flex; justify-content: space-between; font-size: 0.95rem; }
+  .specs li strong { color: var(--gray-700); }
+  
+  .description { margin-bottom: 30px; line-height: 1.6; color: var(--gray-700); }
+  
+  .actions { background: var(--gray-50); padding: 20px; border-radius: 12px; }
+  .stock-status { font-weight: 700; margin-bottom: 15px; font-size: 0.95rem; }
+  .stock-status.in-stock { color: var(--green); }
+  .stock-status.out-of-stock { color: var(--red); }
+  
+  .btn-add {
+    width: 100%; padding: 14px; border-radius: 10px;
+    background: var(--orange); color: var(--white);
+    font-family: 'Nunito', sans-serif; font-size: 1.1rem; font-weight: 800;
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background .2s;
+  }
+  .btn-add:hover { background: var(--orange-light); }
+  .btn-add.disabled { background: var(--gray-300); color: var(--gray-500); cursor: not-allowed; }
+  
+  .back-btn { display: inline-block; margin-bottom: 20px; color: var(--teal); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+  .back-btn:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- Menu de navegacion -->
+<nav>
+  <div class="logo">
+  <a href="/catalogo/" class="logo-link">
+    <img src="/static/pequeMundo_logo.png" class="logo-img" alt="volver al inicio" width="200" height="150">
+  </a>
+  </div>
+  <div class="nav-links">
+    <a class="nav-btn ghost" href="/catalogo/">🛍️ Catálogo</a>
+    <a class="nav-btn ghost" href="/pedidos/">🕐 Mis Pedidos</a>
+    <a class="nav-btn cart" href="/pago/">🛒 Carrito (<span id="cart-count">{{ cart_count|default:0 }}</span>)</a>
+    {% if request.session.username %}
+    <a class="nav-btn ghost" href="{% url 'user_profile' %}">👤 Mi Perfil</a>
+    {% else %}
+    <a class="nav-btn ghost" href="/login/">Iniciar Sesión</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- Detalles del producto -->
+<div class="container">
+  <a href="{% url 'catalogo' %}" class="back-btn">← Volver al catálogo</a>
+  
+  <div class="product-layout">
+    <div class="product-image">
+      <img src="{{ producto.imagen_normalizada }}" alt="{{ producto.nombre }}">
+    </div>
+    
+    <div class="product-info">
+      <h1 class="product-title">{{ producto.nombre }}</h1>
+      <span class="product-cat">{{ producto.id_categoria.nombre|default:"Sin categoría" }}</span>
+      <div class="product-price">${{ producto.precio|floatformat:2 }}</div>
+      
+      <div class="description">
+        {{ producto.descripcion|default:"Este producto no tiene descripción en este momento." }}
+      </div>
+      
+      <div class="specs">
+        <h3>Especificaciones Técnicas</h3>
+        <ul>
+          {% if producto.marca %}
+          <li><strong>Marca:</strong> <span>{{ producto.marca }}</span></li>
+          {% endif %}
+          {% if producto.medidas %}
+          <li><strong>Dimensiones:</strong> <span>{{ producto.medidas }}</span></li>
+          {% endif %}
+          {% if producto.material %}
+          <li><strong>Material:</strong> <span>{{ producto.material }}</span></li>
+          {% endif %}
+        </ul>
+      </div>
+      
+      <div class="actions">
+        {% if producto.stock > 0 %}
+          <div class="stock-status in-stock">✓ Stock disponible: {{ producto.stock }} unidades</div>
+          <button class="btn-add" onclick="agregarAlCarrito(this, {{ producto.id_producto }})">
+            🛒 Agregar al carrito
+          </button>
+        {% else %}
+          <div class="stock-status out-of-stock">✗ Agotado</div>
+          <button class="btn-add disabled" disabled>🚫 No Disponible</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+function agregarAlCarrito(btn, productId) {
+  const csrftoken = getCookie('csrftoken');
+  fetch(`/agregar-carrito/${productId}/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      btn.textContent = '✅ ¡Agregado!';
+      btn.style.background = 'var(--green)';
+      const cartCount = document.getElementById('cart-count');
+      if (cartCount) cartCount.textContent = data.cart_count;
+      setTimeout(() => { btn.textContent = '🛒 Agregar al carrito'; btn.style.background = ''; }, 1500);
+    } else {
+      alert(data.message || 'No se pudo agregar al carrito.');
+    }
+  })
+  .catch(() => alert('Error al conectar con el carrito.'));
+}
+</script>
+</body>
+</html>

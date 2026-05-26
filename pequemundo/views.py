@@ -216,6 +216,25 @@ def catalogo(request):
         'is_admin': is_admin
     })
 
+def producto_detalle(request, product_id):
+    try:
+        producto = Producto.objects.select_related('id_categoria').get(id_producto=product_id, activo__in=['1', None])
+        
+        # Normalizar imagen para que se vea correctamente en el detalle
+        imagen_url = _normalize_image_url(producto.imagen_url) if getattr(producto, 'imagen_url', None) else _default_image_for_categoria(producto.id_categoria.nombre if producto.id_categoria else '')
+        producto.imagen_normalizada = imagen_url
+        
+    except Producto.DoesNotExist:
+        messages.error(request, 'El producto que buscas no existe o no está disponible.')
+        return redirect('catalogo')
+        
+    cart_count = sum(_get_cart(request).values())
+    
+    return render(request, 'producto_detalle.html', {
+        'producto': producto,
+        'cart_count': cart_count,
+    })
+
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -416,6 +435,9 @@ def add_product(request):
         descripcion = request.POST.get('descripcion', '').strip()
         imagen_url = request.POST.get('imagen_url', '').strip()
         imagen_file = request.FILES.get('imagen_file')
+        marca = request.POST.get('marca', '').strip()
+        medidas = request.POST.get('medidas', '').strip()
+        material = request.POST.get('material', '').strip()
 
         if not nombre:
             messages.error(request, 'El nombre del producto es obligatorio.')
@@ -432,7 +454,10 @@ def add_product(request):
                     descripcion=descripcion,
                     imagen_url=imagen_url,
                     activo='1',
-                    fecha_creacion=timezone.now()
+                    fecha_creacion=timezone.now(),
+                    marca=marca or None,
+                    medidas=medidas or None,
+                    material=material or None
                 )
                 producto.save()
                 messages.success(request, 'Producto agregado correctamente.')
@@ -464,6 +489,10 @@ def edit_product(request, product_id):
         activo = request.POST.get('activo', '1')
         imagen_url = request.POST.get('imagen_url', '').strip()
         imagen_file = request.FILES.get('imagen_file')
+        descripcion = request.POST.get('descripcion', '').strip()
+        marca = request.POST.get('marca', '').strip()
+        medidas = request.POST.get('medidas', '').strip()
+        material = request.POST.get('material', '').strip()
 
         if not nombre:
             messages.error(request, 'El nombre del producto es obligatorio.')
@@ -473,6 +502,10 @@ def edit_product(request, product_id):
                 producto.precio = precio
                 producto.stock = int(stock)
                 producto.activo = activo
+                producto.descripcion = descripcion or None
+                producto.marca = marca or None
+                producto.medidas = medidas or None
+                producto.material = material or None
                 if imagen_file:
                     producto.imagen_url = _save_uploaded_image(imagen_file, 'productos')
                 elif imagen_url:

@@ -286,31 +286,35 @@
 <div class="grid" id="productGrid">
   {% for producto in productos %}
   <div class="card" data-cat="{{ producto.categoria|lower }}">
-    <div class="card-img">
-      {% if producto.imagen_url %}
-      <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}">
-      {% elif producto.categoria == 'Camas' %}
-      <img src="https://bainba.com/14428-thickbox_default/cama-para-ninos-montessori-nube.jpg" alt="{{ producto.nombre }}">
-      {% elif producto.categoria == 'Cunas' %}
-      <img src="https://blasibed.com/wp-content/uploads/2023/04/cuna-estela-300x300.jpg" alt="{{ producto.nombre }}">
-      {% elif producto.categoria == 'Escritorios' %}
-      <img src="https://i.etsystatic.com/23154329/r/il/7f551e/6694723444/il_794xN.6694723444_aqro.jpg" alt="{{ producto.nombre }}">
-      {% else %}
-      <img src="https://via.placeholder.com/300x180?text={{ producto.nombre }}" alt="{{ producto.nombre }}">
-      {% endif %}
-      {% if producto.stock <= 5 and producto.stock > 0 %}
-      <span class="card-badge">Últimas unidades</span>
-      {% elif producto.stock == 0 %}
-      <span class="card-badge" style="background:var(--red)">Agotado</span>
-      {% endif %}
-    </div>
-    <div class="card-body">
-      <div><span class="card-cat cat-{{ producto.categoria|lower }}">{{ producto.categoria }}</span><span class="card-stars">⭐ 4.8</span></div>
-      <div class="card-title">{{ producto.nombre }}</div>
-      <div class="card-price">${{ producto.precio|floatformat:2 }}</div>
-      <div class="card-stock {% if producto.stock == 0 %}sin{% endif %}">
-        {% if producto.stock > 0 %}Stock: {{ producto.stock }} disponibles{% else %}Sin stock{% endif %}
+    <a href="{% url 'producto_detalle' producto.id %}" style="text-decoration: none; color: inherit; display: block;">
+      <div class="card-img">
+        {% if producto.imagen_url %}
+        <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}">
+        {% elif producto.categoria == 'Camas' %}
+        <img src="https://bainba.com/14428-thickbox_default/cama-para-ninos-montessori-nube.jpg" alt="{{ producto.nombre }}">
+        {% elif producto.categoria == 'Cunas' %}
+        <img src="https://blasibed.com/wp-content/uploads/2023/04/cuna-estela-300x300.jpg" alt="{{ producto.nombre }}">
+        {% elif producto.categoria == 'Escritorios' %}
+        <img src="https://i.etsystatic.com/23154329/r/il/7f551e/6694723444/il_794xN.6694723444_aqro.jpg" alt="{{ producto.nombre }}">
+        {% else %}
+        <img src="https://via.placeholder.com/300x180?text={{ producto.nombre }}" alt="{{ producto.nombre }}">
+        {% endif %}
+        {% if producto.stock <= 5 and producto.stock > 0 %}
+        <span class="card-badge">Últimas unidades</span>
+        {% elif producto.stock == 0 %}
+        <span class="card-badge" style="background:var(--red)">Agotado</span>
+        {% endif %}
       </div>
+    </a>
+    <div class="card-body">
+      <a href="{% url 'producto_detalle' producto.id %}" style="text-decoration: none; color: inherit; display: block; margin-bottom: 12px;">
+        <div><span class="card-cat cat-{{ producto.categoria|lower }}">{{ producto.categoria }}</span><span class="card-stars">⭐ 4.8</span></div>
+        <div class="card-title">{{ producto.nombre }}</div>
+        <div class="card-price">${{ producto.precio|floatformat:2 }}</div>
+        <div class="card-stock {% if producto.stock == 0 %}sin{% endif %}" style="margin-bottom: 0;">
+          {% if producto.stock > 0 %}Stock: {{ producto.stock }} disponibles{% else %}Sin stock{% endif %}
+        </div>
+      </a>
       <button class="btn-add {% if producto.stock == 0 %}disabled{% endif %}" {% if producto.stock == 0 %}disabled{% endif %} onclick="addToCart(this, {{ producto.id }})">{% if producto.stock > 0 %}🛒 Agregar al Carrito{% else %}🚫 No Disponible{% endif %}</button>
       {% if request.session.username %}
       <a href="{% url 'edit_product' producto.id %}" class="btn-add" style="margin-top:10px; background:#2563eb;">✏️ Editar producto</a>
