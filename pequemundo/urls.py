@@ -22,7 +22,7 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('pequemundo.api.urls')),
+    path('api/', include('pequemundo.api_catalogo.urls')),
     path('api_despacho/', include('pequemundo.api_despacho.urls')),
     path('', views.catalogo, name='catalogo'),
     path('catalogo/', views.catalogo, name='catalogo'),
