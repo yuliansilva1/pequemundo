@@ -10,11 +10,11 @@ def prueba_debug(request):
     return Response({'mensaje': 'Ruta de prueba de despacho funcionando correctamente'}, status=status.HTTP_200_OK)
 
 @api_view(['PUT', 'PATCH'])
-def actualizar_estado_pedido(request, id_pedido):
+def actualizar_estado_pedido(request, codigo):
     
     
     #Método: PUT o PATCH
-    #URL: /api_despacho/pedidos/{id_pedido}/actualizar-estado/
+    #URL: /api_despacho/pedidos/{codigo}/actualizar-estado/
     
     #Body JSON:
     #{
@@ -28,7 +28,7 @@ def actualizar_estado_pedido(request, id_pedido):
     #- Cancelado
     
     try:
-        pedido = Pedido.objects.get(id_pedido=id_pedido)
+        pedido = Pedido.objects.get(codigo__iexact=codigo)
     except Pedido.DoesNotExist:
         return Response(
             {'error': 'Pedido no encontrado'},
@@ -44,20 +44,31 @@ def actualizar_estado_pedido(request, id_pedido):
         )
     
     
-    estados_validos = ['En Preparación', 'En Despacho', 'Entregado', 'Cancelado']
+    # Mapeo de estados enviados por la API a los estados reales de la Base de Datos
+    mapa_estados = {
+        'En Preparación': 'EN_PREPARACION',
+        'En Despacho': 'EN_CAMINO',
+        'En Camino': 'EN_CAMINO',
+        'Entregado': 'ENTREGADO',
+        'Cancelado': 'CANCELADO',
+        'EN_PREPARACION': 'EN_PREPARACION',
+        'EN_CAMINO': 'EN_CAMINO',
+        'ENTREGADO': 'ENTREGADO',
+        'CANCELADO': 'CANCELADO'
+    }
     
-    if nuevo_estado not in estados_validos:
+    if nuevo_estado not in mapa_estados:
+        estados_validos_mostrar = ['En Preparación', 'En Despacho', 'Entregado', 'Cancelado']
         return Response(
             {
-                'error': f'Estado inválido. Estados válidos: {", ".join(estados_validos)}',
-                'estados_validos': estados_validos
+                'error': f'Estado inválido. Estados válidos: {", ".join(estados_validos_mostrar)}',
+                'estados_validos': estados_validos_mostrar
             },
             status=status.HTTP_400_BAD_REQUEST
         )
     
-   
     estado_anterior = pedido.estado
-    pedido.estado = nuevo_estado
+    pedido.estado = mapa_estados[nuevo_estado]
     pedido.save()
     
     return Response(
@@ -75,20 +86,29 @@ def actualizar_estado_pedido(request, id_pedido):
 
 
 @api_view(['GET'])
-def obtener_estado_pedido(request, id_pedido):
+def obtener_estado_pedido(request, codigo):
     try:
-        pedido = Pedido.objects.get(id_pedido=id_pedido)
+        pedido = Pedido.objects.get(codigo__iexact=codigo)
     except Pedido.DoesNotExist:
         return Response(
             {'error': 'Pedido no encontrado'},
             status=status.HTTP_404_NOT_FOUND
         )
     
+    # Mapeo inverso para mostrar un estado amigable cuando se consulta (GET)
+    estado_mostrar = {
+        'RECIBIDO': 'Recibido',
+        'EN_PREPARACION': 'En Preparación',
+        'EN_CAMINO': 'En Despacho',
+        'ENTREGADO': 'Entregado',
+        'CANCELADO': 'Cancelado'
+    }
+
     return Response(
         {
             'id_pedido': pedido.id_pedido,
             'codigo': pedido.codigo,
-            'estado': pedido.estado,
+            'estado': estado_mostrar.get(pedido.estado, pedido.estado),
             'total_final': str(pedido.total_final),
             'fecha_pedido': pedido.fecha_pedido,
             'fecha_entrega': pedido.fecha_entrega,
