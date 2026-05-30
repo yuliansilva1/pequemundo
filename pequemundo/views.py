@@ -543,6 +543,30 @@ def add_to_cart(request, product_id):
     return JsonResponse({'success': True, 'cart_count': sum(cart.values())})
 
 
+@require_POST
+def remove_from_cart(request, product_id):
+    try:
+        Producto.objects.get(id_producto=product_id, activo__in=['1', None])
+    except Producto.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Producto no encontrado.'}, status=404)
+
+    cart = _get_cart(request)
+    product_key = str(product_id)
+
+    if product_key in cart:
+        del cart[product_key]
+        _save_cart(request, cart)
+        cart_items, total = _get_cart_items(request)
+        return JsonResponse({
+            'success': True,
+            'cart_count': sum(cart.values()),
+            'total': total,
+            'cart_items': cart_items,
+        })
+    else:
+        return JsonResponse({'success': False, 'message': 'Producto no está en el carrito.'}, status=400)
+
+
 def pago(request):
     cart_items, total = _get_cart_items(request)
     cart_count = sum(_get_cart(request).values())

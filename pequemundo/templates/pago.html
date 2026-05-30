@@ -45,7 +45,7 @@
     .cart-item-info{flex:1;}
     .cart-item-name{font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:800;}
     .cart-item-qty{font-size:.75rem;color:var(--gray-500);}
-    .cart-item-price{font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;flex-shrink:0;}
+    .cart-item-price{font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;flex-shrink:0;}\n    .cart-item-remove{\n      background:transparent;border:none;color:var(--gray-400);font-size:1.2rem;cursor:pointer;\n      padding:0 8px;transition:all .2s;flex-shrink:0;border-radius:6px;\n    }\n    .cart-item-remove:hover{color:#dc2626;background:#fee2e2;}
 
     /* DELIVERY */
     .delivery-opt{
@@ -179,13 +179,14 @@
           <h3>🛒 Tu Carrito</h3>
           {% if cart_items %}
             {% for item in cart_items %}
-            <div class="cart-item">
+            <div class="cart-item" id="cart-item-{{ item.id }}">
               <img class="cart-img" src="{{ item.imagen_url }}" alt="{{ item.nombre }}">
               <div class="cart-item-info">
                 <div class="cart-item-name">{{ item.nombre }}</div>
                 <div class="cart-item-qty">Cantidad: {{ item.cantidad }}</div>
               </div>
               <div class="cart-item-price">${{ item.subtotal|floatformat:2 }}</div>
+              <button type="button" class="cart-item-remove" onclick="removeFromCart({{ item.id }}, event)" title="Eliminar del carrito">✕</button>
             </div>
             {% endfor %}
           {% else %}
@@ -322,6 +323,60 @@ document.addEventListener('click', function() {
     menu.classList.remove('show');
   }
 });
+
+// Eliminar producto del carrito
+function removeFromCart(productId, event) {
+  event.preventDefault();
+  
+  fetch(`/eliminar-carrito/${productId}/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    },
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Eliminar el elemento visualmente
+      const cartItem = document.getElementById(`cart-item-${productId}`);
+      if (cartItem) {
+        cartItem.style.opacity = '0';
+        cartItem.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => cartItem.remove(), 300);
+      }
+      
+      // Actualizar cantidad en el carrito del navbar
+      const navCartCount = document.querySelector('.nav-btn.active');
+      if (navCartCount) {
+        navCartCount.textContent = `🛒 Carrito (${data.cart_count})`;
+      }
+      
+      // Actualizar el total en el resumen
+      const summaryTotal = document.querySelector('.summary-row.total span:last-child');
+      if (summaryTotal && data.total !== undefined) {
+        summaryTotal.textContent = `$${data.total.toFixed(2)}`;
+      }
+      
+      // Actualizar subtotal
+      const summarySubtotal = document.querySelector('.summary-row span:last-child');
+      if (summarySubtotal && data.total !== undefined) {
+        summarySubtotal.textContent = `$${data.total.toFixed(2)}`;
+      }
+      
+      // Si no quedan items, recargar la página para mostrar el carrito vacío
+      if (data.cart_count === 0) {
+        setTimeout(() => location.reload(), 500);
+      }
+    } else {
+      alert('Error al eliminar el producto: ' + data.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Hubo un error al eliminar el producto');
+  });
+}
 </script>
 </body>
 </html>
