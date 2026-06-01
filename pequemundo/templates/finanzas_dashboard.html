@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Finanzas - PequeMundo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --teal: #3bc9c0;
+      --teal-dark: #2aada4;
+      --orange: #f97316;
+      --green: #22c55e;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --white: #ffffff;
+      --radius: 14px;
+      --shadow: 0 2px 16px rgba(0,0,0,.08);
+      --shadow-hover: 0 8px 32px rgba(0,0,0,.13);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Poppins', sans-serif; background: var(--gray-50); color: var(--gray-900); min-height: 100vh; }
+    
+    .navbar { background: var(--white); box-shadow: var(--shadow); padding: 16px 24px; margin-bottom: 24px; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; }
+    .navbar h1 { font-family: 'Nunito', sans-serif; font-size: 1.5rem; font-weight: 900; color: var(--teal); }
+    .navbar-links { display: flex; gap: 16px; align-items: center; }
+    .nav-link { color: var(--gray-500); text-decoration: none; font-weight: 600; transition: color .2s; }
+    .nav-link:hover { color: var(--teal); }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+    .header h1 { font-family: 'Nunito', sans-serif; font-size: 2rem; font-weight: 900; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 32px; }
+    .stat-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; transition: transform .2s, box-shadow .2s; }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+    .stat-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .stat-label { color: var(--gray-500); font-size: 0.875rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+    .stat-value { font-family: 'Nunito', sans-serif; font-size: 2rem; font-weight: 900; color: var(--gray-900); }
+    
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; margin-bottom: 32px; }
+    @media (max-width: 1200px) { .grid-2 { grid-template-columns: 1fr; } }
+    
+    .card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; }
+    .card h3 { font-family: 'Nunito', sans-serif; font-size: 1.25rem; font-weight: 800; margin-bottom: 20px; color: var(--gray-900); }
+    
+    .table { width: 100%; border-collapse: collapse; }
+    .table thead { background: var(--gray-100); }
+    .table th { padding: 12px; text-align: left; font-weight: 700; color: var(--gray-700); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .table td { padding: 12px; border-bottom: 1px solid var(--gray-200); font-size: 0.875rem; }
+    .table tbody tr:hover { background: var(--gray-50); }
+
+    .user-btn { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: #facc15; color: var(--gray-900); border: none; border-radius: 999px; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer; }
+    .user-btn:hover { background: #f59e0b; }
+    
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="navbar">
+    <h1>🏪 PequeMundo</h1>
+    <div class="navbar-links">
+      <a href="{% url 'catalogo' %}" class="nav-link">🛍️ Catálogo</a>
+      <a href="{% url 'finanzas_dashboard' %}" class="nav-link" style="color: var(--teal); font-weight: 700;">📊 Dashboard Finanzas</a>
+      {% if request.session.username %}
+      <div style="position: relative;">
+        <button class="user-btn" onclick="document.getElementById('userMenu').classList.toggle('show')">👤 {{ request.session.username }}</button>
+        <ul id="userMenu" style="display: none; position: absolute; right: 0; background: white; list-style: none; padding: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; min-width: 150px; z-index: 100;">
+          <li><a href="{% url 'user_profile' %}" style="text-decoration: none; color: #333; display: block; padding: 8px;">👤 Mi Perfil</a></li>
+          <li><a href="{% url 'logout' %}" style="text-decoration: none; color: #333; display: block; padding: 8px;">🚪 Cerrar Sesión</a></li>
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="header">
+    <div>
+      <h1>📊 Panel de Finanzas</h1>
+      <p style="color: var(--gray-500); font-size: 0.9rem; margin-top: 4px;">Resumen financiero de ventas y productos</p>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-label">Ingresos Totales (Ventas Confirmadas)</div>
+      <div class="stat-value">${{ total_ventas|floatformat:0 }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div class="stat-label">Pedidos Confirmados</div>
+      <div class="stat-value">{{ total_pedidos }}</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>📊 Productos Más Vendidos</h3>
+      <div style="position: relative; height: 300px; width: 100%;">
+        <canvas id="productosChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <h3>🥧 Ventas por Categoría</h3>
+      <div style="position: relative; height: 300px; width: 100%;">
+        <canvas id="categoriasChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>🏆 Productos Más Vendidos</h3>
+      {% if productos_vendidos %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Cant. Vendida</th>
+            <th>Ingresos</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for producto in productos_vendidos %}
+          <tr>
+            <td><strong>{{ producto.nombre }}</strong></td>
+            <td>{{ producto.categoria }}</td>
+            <td>{{ producto.total_vendido }}</td>
+            <td>${{ producto.ingresos|floatformat:0 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p style="text-align: center; color: var(--gray-500); padding: 20px;">No hay datos de productos vendidos aún.</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h3>📈 Ingresos por Pedidos Recientes</h3>
+      {% if ultimos_pedidos %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Código Pedido</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pedido in ultimos_pedidos %}
+          <tr>
+            <td><strong>{{ pedido.codigo }}</strong></td>
+            <td>{{ pedido.fecha }}</td>
+            <td>{{ pedido.estado }}</td>
+            <td>${{ pedido.total|floatformat:0 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p style="text-align: center; color: var(--gray-500); padding: 20px;">No hay pedidos recientes confirmados.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('userMenu');
+    if (menu && !e.target.closest('.user-btn') && !e.target.closest('#userMenu')) {
+      menu.style.display = 'none';
+    }
+  });
+  document.querySelector('.user-btn').addEventListener('click', function(e) {
+    const menu = document.getElementById('userMenu');
+    menu.style.display = menu.style.display === 'none' || menu.style.display === '' ? 'block' : 'none';
+  });
+
+  // Renderizar gráfico de productos más vendidos
+  document.addEventListener('DOMContentLoaded', function() {
+    const nombresProductos = [];
+    const cantidadesVendidas = [];
+
+    {% for p in productos_vendidos %}
+      nombresProductos.push("{{ p.nombre|escapejs }}");
+      cantidadesVendidas.push({{ p.total_vendido }});
+    {% endfor %}
+
+    if (nombresProductos.length > 0) {
+      const ctx = document.getElementById('productosChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: nombresProductos,
+          datasets: [{
+            label: 'Unidades Vendidas',
+            data: cantidadesVendidas,
+            backgroundColor: 'rgba(59, 201, 192, 0.7)', // Color var(--teal) con opacidad
+            borderColor: 'rgba(59, 201, 192, 1)',
+            borderWidth: 1,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 } }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    } else {
+      const container = document.getElementById('productosChart').parentElement;
+      container.innerHTML = '<p style="text-align: center; color: var(--gray-500); padding: 40px 20px;">No hay datos de ventas suficientes para mostrar el gráfico.</p>';
+    }
+
+    // Renderizar gráfico de categorías (Torta)
+    const nombresCategorias = [];
+    const cantidadesCategorias = [];
+    const coloresCategorias = [
+      '#3bc9c0', '#f97316', '#eab308', '#22c55e', '#a855f7', '#ec4899', '#3b82f6', '#ef4444', '#14b8a6', '#f43f5e'
+    ];
+
+    {% for c in categorias_vendidas %}
+      nombresCategorias.push("{{ c.nombre|escapejs }}");
+      cantidadesCategorias.push({{ c.total_vendido }});
+    {% endfor %}
+
+    if (nombresCategorias.length > 0) {
+      const ctxCat = document.getElementById('categoriasChart').getContext('2d');
+      new Chart(ctxCat, {
+        type: 'pie',
+        data: {
+          labels: nombresCategorias,
+          datasets: [{
+            data: cantidadesCategorias,
+            backgroundColor: coloresCategorias,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'right' } }
+        }
+      });
+    } else {
+      const containerCat = document.getElementById('categoriasChart').parentElement;
+      containerCat.innerHTML = '<p style="text-align: center; color: var(--gray-500); padding: 40px 20px;">No hay datos de categorías para mostrar.</p>';
+    }
+  });
+</script>
+</body>
+</html>

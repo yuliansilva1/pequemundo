@@ -391,6 +391,11 @@
   <h1>🏪 PequeMundo</h1>
   <div class="navbar-links">
     <a href="{% url 'catalogo' %}" class="nav-link">🛍️ Catálogo</a>
+    {% if request.session.user_role == 1 %}
+    <a href="{% url 'admin_dashboard' %}" class="nav-link">📊 Dashboard</a>
+    {% elif request.session.user_role == 3 %}
+    <a href="{% url 'finanzas_dashboard' %}" class="nav-link">📊 Dashboard</a>
+    {% endif %}
     <a href="{% url 'user_profile' %}" class="nav-link">👤 Mi Perfil</a>
     {% if request.session.username %}
     <div class="user-menu-container">
@@ -399,6 +404,11 @@
         <li><a href="{% url 'user_profile' %}">👤 Mi Perfil</a></li>
         <li><a href="{% url 'user_edit_profile' %}" style="color: var(--teal); font-weight: 700;">✏️ Editar Perfil</a></li>
         <li><a href="{% url 'pedidos' %}">🕐 Mis Pedidos</a></li>
+        {% if request.session.user_role == 1 %}
+        <li><a href="{% url 'admin_dashboard' %}">📊 Panel Admin</a></li>
+        {% elif request.session.user_role == 3 %}
+        <li><a href="{% url 'finanzas_dashboard' %}">📊 Panel Finanzas</a></li>
+        {% endif %}
         <li><div class="dropdown-divider"></div></li>
         <li><a href="{% url 'logout' %}">🚪 Cerrar Sesión</a></li>
       </ul>

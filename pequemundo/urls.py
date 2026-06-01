@@ -40,6 +40,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('perfil/', views.user_profile, name='user_profile'),
     path('perfil/editar/', views.user_edit_profile, name='user_edit_profile'),
+    path('finanzas-dashboard/', views.finanzas_dashboard, name='finanzas_dashboard'),
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-panel/usuarios/', views.manage_users, name='manage_users'),
     path('admin-panel/usuarios/<int:user_id>/role/', views.update_user_role, name='update_user_role'),

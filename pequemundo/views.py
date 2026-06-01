@@ -255,6 +255,8 @@ def login_view(request):
                 # Redirigir según el rol del usuario
                 if user.id_rol == 1:  # ADMIN
                     return redirect('admin_dashboard')
+                elif user.id_rol == 3:  # FINANZAS
+                    return redirect('finanzas_dashboard')
                 else:
                     return redirect('/')
             messages.error(request, 'Credenciales inválidas')
@@ -932,6 +934,82 @@ def admin_dashboard(request):
         'cart_count': cart_count,
     })
 
+
+def finanzas_dashboard(request):
+    """Panel de Finanzas (Rol 3)"""
+    user_id = request.session.get('user_id')
+    if not user_id:
+        messages.error(request, 'Debes iniciar sesión.')
+        return redirect('login')
+    
+    try:
+        user = Usuario.objects.get(id_usuario=user_id)
+        if user.id_rol not in [1, 3]:  # Solo Admin o Finanzas
+            messages.error(request, 'No tienes permiso para acceder a este panel.')
+            return redirect('catalogo')
+    except Usuario.DoesNotExist:
+        messages.error(request, 'Usuario no encontrado.')
+        return redirect('login')
+
+    ventas_qs = Pedido.objects.filter(estado__in=['EN_PREPARACION', 'EN_CAMINO', 'ENTREGADO'])
+    total_ventas = ventas_qs.aggregate(total=models.Sum('total_final'))['total'] or 0
+    total_pedidos = ventas_qs.count()
+
+    productos_vendidos = PedidoItem.objects.filter(
+        id_pedido__estado__in=['EN_PREPARACION', 'EN_CAMINO', 'ENTREGADO']
+    ).values(
+        'id_producto__nombre', 
+        'id_producto__id_categoria__nombre'
+    ).annotate(
+        total_vendido=models.Sum('cantidad'),
+        ingresos=models.Sum('subtotal')
+    ).order_by('-total_vendido')[:10]
+
+    productos_data = []
+    for p in productos_vendidos:
+        productos_data.append({
+            'nombre': p['id_producto__nombre'],
+            'categoria': p['id_producto__id_categoria__nombre'] or 'Sin categoría',
+            'total_vendido': p['total_vendido'],
+            'ingresos': float(p['ingresos'] or 0),
+        })
+
+    # --- NUEVO: Agrupar ventas por categoría para el gráfico de torta ---
+    categorias_qs = PedidoItem.objects.filter(
+        id_pedido__estado__in=['EN_PREPARACION', 'EN_CAMINO', 'ENTREGADO']
+    ).values(
+        'id_producto__id_categoria__nombre'
+    ).annotate(
+        total_vendido=models.Sum('cantidad')
+    ).order_by('-total_vendido')
+
+    categorias_data = []
+    for c in categorias_qs:
+        categorias_data.append({
+            'nombre': c['id_producto__id_categoria__nombre'] or 'Sin categoría',
+            'total_vendido': c['total_vendido'],
+        })
+
+    ultimos_pedidos = Pedido.objects.filter(estado__in=['EN_PREPARACION', 'EN_CAMINO', 'ENTREGADO']).order_by('-fecha_pedido')[:5]
+    pedidos_data = []
+    for pedido in ultimos_pedidos:
+        pedidos_data.append({
+            'codigo': pedido.codigo,
+            'estado': pedido.estado,
+            'total': float(pedido.total_final or 0),
+            'fecha': pedido.fecha_pedido.strftime('%d/%m/%Y') if pedido.fecha_pedido else '',
+        })
+
+    cart_count = sum(_get_cart(request).values())
+
+    return render(request, 'finanzas_dashboard.html', {
+        'total_ventas': float(total_ventas),
+        'total_pedidos': total_pedidos,
+        'productos_vendidos': productos_data,
+        'categorias_vendidas': categorias_data,
+        'ultimos_pedidos': pedidos_data,
+        'cart_count': cart_count,
+    })
 
 def manage_users(request):
     # Verificar si el usuario es administrador (id_rol = 1 es admin)

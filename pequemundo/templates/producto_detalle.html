@@ -92,6 +92,11 @@
     <a class="nav-btn ghost" href="/pedidos/">🕐 Mis Pedidos</a>
     <a class="nav-btn cart" href="/pago/">🛒 Carrito (<span id="cart-count">{{ cart_count|default:0 }}</span>)</a>
     {% if request.session.username %}
+      {% if request.session.user_role == 1 %}
+      <a class="nav-btn ghost" href="{% url 'admin_dashboard' %}">📊 Dashboard</a>
+      {% elif request.session.user_role == 3 %}
+      <a class="nav-btn ghost" href="{% url 'finanzas_dashboard' %}">📊 Dashboard</a>
+      {% endif %}
     <a class="nav-btn ghost" href="{% url 'user_profile' %}">👤 Mi Perfil</a>
     {% else %}
     <a class="nav-btn ghost" href="/login/">Iniciar Sesión</a>
