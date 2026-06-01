@@ -13,6 +13,9 @@ def productos_list(request):
             'categoria': producto.id_categoria.nombre if producto.id_categoria else None,
             'imagen_url': producto.imagen_url or '',
             'activo': producto.activo,
+            'marca': producto.marca or '',
+            'medida': producto.medidas or '',
+            'material': producto.material or '',
         }
         for producto in productos
     ]
@@ -34,6 +37,9 @@ def producto_detail(request, product_id):
         'imagen_url': producto.imagen_url or '',
         'descripcion': producto.descripcion or '',
         'activo': producto.activo,
+        'marca': producto.marca or '',
+        'medida': producto.medidas or '',
+        'material': producto.material or '',
     }
     return JsonResponse(data)
 
