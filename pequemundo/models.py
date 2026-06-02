@@ -91,3 +91,17 @@ class PedidoItem(models.Model):
 
     def __str__(self):
         return f'{self.cantidad} x {self.id_producto.nombre}'
+
+
+class Pago(models.Model):
+    id_pago = models.AutoField(primary_key=True)
+    id_pedido = models.ForeignKey(Pedido, models.DO_NOTHING, db_column='id_pedido')
+    monto = models.DecimalField(max_digits=10, decimal_places=2)
+    estado = models.CharField(max_length=50)
+    metodo_pago = models.CharField(max_length=50)
+    codigo_transaccion = models.CharField(max_length=100, blank=True, null=True)
+    fecha_pago = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        managed = False
+        db_table = 'pago'

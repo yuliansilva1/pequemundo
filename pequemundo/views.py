@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.db import models
 from django.conf import settings
 from urllib3 import request
-from .models import Producto, Usuario, Categoria, Pedido, PedidoItem
+from .models import Producto, Usuario, Categoria, Pedido, PedidoItem, Pago
 import os
 import uuid
 
@@ -720,6 +720,16 @@ def checkout(request):
     if user and order:
         order.estado = _normalize_order_status('En Preparación')
         order.save()
+
+        # Registrar el pago alternativo (no webpay)
+        Pago.objects.create(
+            id_pedido=order,
+            monto=total,
+            estado='Aprobado',
+            metodo_pago=payment_method,
+            codigo_transaccion='N/A',
+            fecha_pago=timezone.now()
+        )
     elif not user:
         session_orders = request.session.get('orders', [])
         for session_order in session_orders:
@@ -777,6 +787,16 @@ def webpay_commit(request):
                         if producto.stock < 0:
                             producto.stock = 0
                         producto.save()
+                    
+                    # Registrar el pago exitoso de Webpay
+                    Pago.objects.create(
+                        id_pedido=order,
+                        monto=amount,
+                        estado='Aprobado',
+                        metodo_pago='WEBPAY',
+                        codigo_transaccion=result.get('authorization_code', ''),
+                        fecha_pago=timezone.now()
+                    )
         else:
             session_orders = request.session.get('orders', [])
             for session_order in session_orders:
@@ -799,6 +819,16 @@ def webpay_commit(request):
         if order:
             order.estado = _normalize_order_status('Cancelado')
             order.save()
+            
+            # Registrar el pago fallido de Webpay
+            Pago.objects.create(
+                id_pedido=order,
+                monto=amount,
+                estado='Rechazado',
+                metodo_pago='WEBPAY',
+                codigo_transaccion=result.get('authorization_code', 'N/A'),
+                fecha_pago=timezone.now()
+            )
         else:
             session_orders = request.session.get('orders', [])
             for session_order in session_orders:
