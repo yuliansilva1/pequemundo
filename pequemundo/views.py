@@ -166,13 +166,13 @@ def _get_cart_items(request):
     for product_id, qty in cart.items():
         try:
             producto = Producto.objects.get(id_producto=int(product_id), activo__in=['1', None])
-            item_total = float(producto.precio) * qty
+            item_total = int(float(producto.precio)) * qty
             total += item_total
             imagen_or_default = producto.imagen_url or _default_image_for_categoria(producto.id_categoria.nombre if producto.id_categoria else '')
             items.append({
                 'id': producto.id_producto,
                 'nombre': producto.nombre,
-                'precio': float(producto.precio),
+                'precio': int(float(producto.precio)),
                 'cantidad': qty,
                 'subtotal': item_total,
                 'imagen_url': _normalize_image_url(imagen_or_default),
@@ -189,7 +189,7 @@ def catalogo(request):
             {
                 'id': p.id_producto,
                 'nombre': p.nombre,
-                'precio': float(p.precio),
+                'precio': int(float(p.precio)),
                 'stock': p.stock,
                 'categoria': p.id_categoria.nombre if p.id_categoria else 'Sin categoria',
                 'imagen_url': _normalize_image_url(p.imagen_url) if getattr(p, 'imagen_url', None) else ''
@@ -234,6 +234,9 @@ def catalogo(request):
 def producto_detalle(request, product_id):
     try:
         producto = Producto.objects.select_related('id_categoria').get(id_producto=product_id, activo__in=['1', None])
+        
+        # Convertimos a entero para que la vista renderice sin los decimales (,00)
+        producto.precio = int(float(producto.precio))
         
         # Normalizar imagen para que se vea correctamente en el detalle
         imagen_url = _normalize_image_url(producto.imagen_url) if getattr(producto, 'imagen_url', None) else _default_image_for_categoria(producto.id_categoria.nombre if producto.id_categoria else '')
@@ -346,13 +349,13 @@ def user_profile(request):
             items.append({
                 'nombre': item.id_producto.nombre if item.id_producto else 'Producto',
                 'cantidad': item.cantidad,
-                'precio': float(item.precio_unitario or 0),
+                'precio': int(float(item.precio_unitario or 0)),
             })
         pedidos_data.append({
             'id': pedido.id_pedido,
             'codigo': pedido.codigo,
             'estado': pedido.estado,
-            'total': float(pedido.total_final or 0),
+            'total': int(float(pedido.total_final or 0)),
             'fecha': pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') if pedido.fecha_pedido else '',
             'items': items,
         })
@@ -501,6 +504,7 @@ def edit_product(request, product_id):
 
     try:
         producto = Producto.objects.get(id_producto=product_id)
+        producto.precio = int(float(producto.precio))
     except Producto.DoesNotExist:
         messages.error(request, 'Producto no encontrado.')
         return redirect('catalogo')
@@ -903,16 +907,16 @@ def pedidos(request):
                     items.append({
                         'id': producto.id_producto if producto else None,
                         'nombre': producto.nombre if producto else '',
-                        'precio': float(item.precio_unitario or 0),
+                        'precio': int(float(item.precio_unitario or 0)),
                         'cantidad': item.cantidad,
-                        'subtotal': float(item.subtotal or 0),
+                        'subtotal': int(float(item.subtotal or 0)),
                         'imagen_url': producto.imagen_url if producto and producto.imagen_url else _default_image_for_categoria(producto.id_categoria.nombre if producto and producto.id_categoria else ''),
                     })
                 status_key = _normalize_order_status(pedido_obj.estado or 'RECIBIDO')
                 orders.append({
                     'id': pedido_obj.codigo or f'PM{pedido_obj.id_pedido}',
                     'date': pedido_obj.fecha_pedido.strftime('%d de %B de %Y') if pedido_obj.fecha_pedido else '',
-                    'total': float(pedido_obj.total or 0),
+                    'total': int(float(pedido_obj.total or 0)),
                     'status': _format_order_status(status_key),
                     'status_key': status_key,
                     'status_class': _get_status_class(status_key),
@@ -920,7 +924,7 @@ def pedidos(request):
                     'items': items,
                     'direccion': pedido_obj.direccion_entrega or 'No especificada',
                     'tipo_entrega': pedido_obj.tipo_entrega or 'Despacho',
-                    'costo_despacho': float(pedido_obj.costo_despacho or 0),
+                    'costo_despacho': int(float(pedido_obj.costo_despacho or 0)),
                 })
         except Usuario.DoesNotExist:
             orders = request.session.get('orders', [])
@@ -933,7 +937,7 @@ def pedidos(request):
             order['status_class'] = _get_status_class(status_key)
             order['direccion'] = order.get('direccion', 'Retiro en Tienda')
             order['tipo_entrega'] = order.get('delivery', 'Retiro')
-            order['costo_despacho'] = float(order.get('costo_despacho', 0))
+            order['costo_despacho'] = int(float(order.get('costo_despacho', 0)))
 
     total_orders = len(orders)
     in_process = sum(1 for order in orders if order.get('status_key') != 'ENTREGADO')
@@ -990,7 +994,7 @@ def admin_dashboard(request):
             'codigo': pedido.codigo,
             'usuario': pedido.id_usuario.nombre if pedido.id_usuario else 'Anónimo',
             'estado': pedido.estado,
-            'total': float(pedido.total_final or 0),
+            'total': int(float(pedido.total_final or 0)),
             'fecha': pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') if pedido.fecha_pedido else '',
         })
     
@@ -1044,7 +1048,7 @@ def admin_dashboard(request):
         'pedidos_por_estado': pedidos_por_estado,
         'total_pedidos': total_pedidos,
         'ultimos_usuarios': usuarios_data,
-        'total_ventas': float(total_ventas),
+        'total_ventas': int(float(total_ventas)),
         'productos_activos': productos_activos,
         'productos_inactivos': productos_inactivos,
         'productos': productos_data,
@@ -1088,7 +1092,7 @@ def finanzas_dashboard(request):
             'nombre': p['id_producto__nombre'],
             'categoria': p['id_producto__id_categoria__nombre'] or 'Sin categoría',
             'total_vendido': p['total_vendido'],
-            'ingresos': float(p['ingresos'] or 0),
+            'ingresos': int(float(p['ingresos'] or 0)),
         })
 
     # --- NUEVO: Agrupar ventas por categoría para el gráfico de torta ---
@@ -1113,14 +1117,14 @@ def finanzas_dashboard(request):
         pedidos_data.append({
             'codigo': pedido.codigo,
             'estado': pedido.estado,
-            'total': float(pedido.total_final or 0),
+            'total': int(float(pedido.total_final or 0)),
             'fecha': pedido.fecha_pedido.strftime('%d/%m/%Y') if pedido.fecha_pedido else '',
         })
 
     cart_count = sum(_get_cart(request).values())
 
     return render(request, 'finanzas_dashboard.html', {
-        'total_ventas': float(total_ventas),
+        'total_ventas': int(float(total_ventas)),
         'total_pedidos': total_pedidos,
         'productos_vendidos': productos_data,
         'categorias_vendidas': categorias_data,

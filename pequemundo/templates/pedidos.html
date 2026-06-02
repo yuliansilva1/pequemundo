@@ -1,4 +1,5 @@
 {% load static %}
+{% load currency_filters %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -89,7 +90,7 @@
             <div class="order-info">
               <h3>Pedido #{{ order.id }}</h3>
               <p class="order-date">🗓️ Fecha: {{ order.date }}</p>
-              <p class="order-total">💰 Total: ${{ order.total|floatformat:"0" }}</p>
+              <p class="order-total">💰 Total: {{ order.total|chile_currency }}</p>
             </div>
           </div>
           <div class="order-status-container">
@@ -109,10 +110,10 @@
               <img src="{{ item.imagen_url }}" alt="{{ item.nombre }}" class="item-img" onerror="this.src='/static/pequeMundo_logo.png'">
               <div class="item-info">
                 <p class="item-name">{{ item.nombre }}</p>
-                <p class="item-qty">Cantidad: {{ item.cantidad }} x ${{ item.precio|floatformat:"0" }}</p>
+                <p class="item-qty">Cantidad: {{ item.cantidad }} x {{ item.precio|chile_currency }}</p>
               </div>
               <div class="item-subtotal">
-                <p><strong>${{ item.subtotal|floatformat:"0" }}</strong></p>
+                <p><strong>{{ item.subtotal|chile_currency }}</strong></p>
               </div>
             </li>
             {% endfor %}
@@ -149,10 +150,10 @@
                 <img src="{{ item.imagen_url }}" alt="{{ item.nombre }}" class="item-img" onerror="this.src='/static/pequeMundo_logo.png'">
                 <div class="item-info">
                   <p class="item-name">{{ item.nombre }}</p>
-                  <p class="item-qty">Cantidad: {{ item.cantidad }} x ${{ item.precio|floatformat:"0" }}</p>
+                  <p class="item-qty">Cantidad: {{ item.cantidad }} x {{ item.precio|chile_currency }}</p>
                 </div>
                 <div class="item-subtotal">
-                  <p><strong>${{ item.subtotal|floatformat:"0" }}</strong></p>
+                  <p><strong>{{ item.subtotal|chile_currency }}</strong></p>
                 </div>
               </li>
               {% endfor %}
@@ -160,8 +161,8 @@
             
             <hr class="divider">
             <div class="order-totals">
-              <p>Costo de Despacho: ${{ order.costo_despacho|default:"0"|floatformat:"0" }}</p>
-              <h3>Total Pagado: ${{ order.total|floatformat:"0" }}</h3>
+              <p>Costo de Despacho: {{ order.costo_despacho|default:"0"|chile_currency }}</p>
+              <h3>Total Pagado: {{ order.total|chile_currency }}</h3>
             </div>
           </div>
         </div>

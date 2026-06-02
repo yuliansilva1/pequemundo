@@ -1,4 +1,5 @@
 {% load static %}
+{% load currency_filters %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -70,7 +71,7 @@
     <div class="stat-card">
       <div class="stat-icon">💰</div>
       <div class="stat-label">Total de Ventas</div>
-      <div class="stat-value">${{ total_ventas|floatformat:0 }}</div>
+      <div class="stat-value">{{ total_ventas|chile_currency }}</div>
       <div class="stat-detail">Ingresos totales</div>
     </div>
 
@@ -222,7 +223,7 @@
               {% if pedido.estado == 'CANCELADO' %}status-cancelado{% endif %}
             ">{{ pedido.estado }}</span>
           </td>
-          <td><strong>${{ pedido.total|floatformat:2 }}</strong></td>
+          <td><strong>{{ pedido.total|chile_currency:2 }}</strong></td>
           <td>{{ pedido.fecha }}</td>
         </tr>
         {% endfor %}

@@ -1,4 +1,5 @@
 {% load static %}
+{% load currency_filters %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -41,7 +42,7 @@
     <div class="stat-card">
       <div class="stat-icon">💰</div>
       <div class="stat-label">Ingresos Totales (Ventas Confirmadas)</div>
-      <div class="stat-value">${{ total_ventas|floatformat:0 }}</div>
+      <div class="stat-value">{{ total_ventas|chile_currency }}</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon">📦</div>
@@ -84,7 +85,7 @@
             <td><strong>{{ producto.nombre }}</strong></td>
             <td>{{ producto.categoria }}</td>
             <td>{{ producto.total_vendido }}</td>
-            <td>${{ producto.ingresos|floatformat:0 }}</td>
+            <td>{{ producto.ingresos|chile_currency }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -112,7 +113,7 @@
             <td><strong>{{ pedido.codigo }}</strong></td>
             <td>{{ pedido.fecha }}</td>
             <td>{{ pedido.estado }}</td>
-            <td>${{ pedido.total|floatformat:0 }}</td>
+            <td>{{ pedido.total|chile_currency }}</td>
           </tr>
           {% endfor %}
         </tbody>

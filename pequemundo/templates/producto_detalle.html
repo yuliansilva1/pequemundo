@@ -1,4 +1,5 @@
 {% load static %}
+{% load currency_filters %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -48,7 +49,7 @@
     <div class="product-info">
       <h1 class="product-title">{{ producto.nombre }}</h1>
       <span class="product-cat">{{ producto.id_categoria.nombre|default:"Sin categoría" }}</span>
-      <div class="product-price">${{ producto.precio|floatformat:2 }}</div>
+      <div class="product-price">{{ producto.precio|chile_currency:2 }}</div>
       
       <div class="description">
         {{ producto.descripcion|default:"Este producto no tiene descripción en este momento." }}
