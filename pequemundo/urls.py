@@ -44,6 +44,7 @@ urlpatterns = [
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-panel/usuarios/', views.manage_users, name='manage_users'),
     path('admin-panel/usuarios/<int:user_id>/role/', views.update_user_role, name='update_user_role'),
+    path('admin-panel/update-order/<int:order_id>/', views.admin_update_order, name='admin_update_order'),
 ]
 
 # Servir archivos media en desarrollo

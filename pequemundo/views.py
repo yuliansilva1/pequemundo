@@ -450,9 +450,11 @@ def user_edit_profile(request):
 
 
 def add_product(request):
-    if not request.session.get('username'):
-        messages.error(request, 'Debes iniciar sesión para agregar productos.')
-        return redirect('login')
+    user_id = request.session.get('user_id')
+    user_role = request.session.get('user_role')
+    if not user_id or user_role not in [1, 2]:  # 1 = Admin, 2 = Vendedor
+        messages.error(request, 'No tienes permisos para agregar productos.')
+        return redirect('catalogo')
 
     categorias = Categoria.objects.all()
 
@@ -498,9 +500,11 @@ def add_product(request):
 
 
 def edit_product(request, product_id):
-    if not request.session.get('username'):
-        messages.error(request, 'Debes iniciar sesión para editar productos.')
-        return redirect('login')
+    user_id = request.session.get('user_id')
+    user_role = request.session.get('user_role')
+    if not user_id or user_role not in [1, 2]:  # 1 = Admin, 2 = Vendedor
+        messages.error(request, 'No tienes permisos para editar productos.')
+        return redirect('catalogo')
 
     try:
         producto = Producto.objects.get(id_producto=product_id)
@@ -745,7 +749,7 @@ def checkout(request):
     # Si es un método de pago distinto a Webpay, descontar el stock de inmediato
     # Si es un método de pago distinto a Webpay, actualizamos el estado y descontamos stock de inmediato
     if user and order:
-        order.estado = _normalize_order_status('En Preparación')
+        order.estado = _normalize_order_status('Recibido')
         order.save()
 
         # Registrar el pago alternativo (no webpay)
@@ -761,8 +765,8 @@ def checkout(request):
         session_orders = request.session.get('orders', [])
         for session_order in session_orders:
             if session_order.get('id') == order_id:
-                session_order['status'] = 'En Preparación'
-                session_order['status_key'] = 'EN_PREPARACION'
+                session_order['status'] = 'Recibido'
+                session_order['status_key'] = 'RECIBIDO'
         request.session['orders'] = session_orders
 
     for item in cart_items:
@@ -803,8 +807,8 @@ def webpay_commit(request):
     
     if status_text == 'AUTHORIZED':
         if order:
-            if order.estado != 'EN_PREPARACION':
-                order.estado = _normalize_order_status('En Preparación')
+            if order.estado != 'RECIBIDO':
+                order.estado = _normalize_order_status('Recibido')
                 order.save()
                 # Descontar stock del producto en la BD
                 for item in order.items.all():
@@ -828,9 +832,9 @@ def webpay_commit(request):
             session_orders = request.session.get('orders', [])
             for session_order in session_orders:
                 if session_order.get('id') == buy_order:
-                    if session_order.get('status') != 'En Preparación':
-                        session_order['status'] = 'En Preparación'
-                        session_order['status_key'] = 'EN_PREPARACION'
+                    if session_order.get('status') != 'Recibido':
+                        session_order['status'] = 'Recibido'
+                        session_order['status_key'] = 'RECIBIDO'
                         # Descontar stock para usuarios sin cuenta (invitados)
                         for item in session_order.get('items', []):
                             producto = Producto.objects.filter(id_producto=item['id']).first()
@@ -881,12 +885,14 @@ def pedidos(request):
     orders = []
     user_profile_image = None
     is_admin = False
+    is_vendedor = False
     is_finanzas = False
     user_id = request.session.get('user_id')
     if user_id:
         try:
             user = Usuario.objects.get(id_usuario=user_id)
             is_admin = user.id_rol == 1
+            is_vendedor = user.id_rol == 2
             is_finanzas = user.id_rol == 3
             
             img_url = str(user.imagen_url or 'pequeMundo_usuarios.png')
@@ -899,7 +905,12 @@ def pedidos(request):
                 if img_url.startswith('img/'): img_url = img_url[4:]
                 user_profile_image = f'/static/{img_url}'
                 
-            pedidos_qs = Pedido.objects.filter(id_usuario=user).order_by('-fecha_pedido')
+            # Si es Admin o Vendedor, carga TODOS los pedidos de la tienda
+            if is_admin or is_vendedor:
+                pedidos_qs = Pedido.objects.select_related('id_usuario').all().order_by('-fecha_pedido')
+            else:
+                pedidos_qs = Pedido.objects.select_related('id_usuario').filter(id_usuario=user).order_by('-fecha_pedido')
+                
             for pedido_obj in pedidos_qs:
                 items = []
                 for item in pedido_obj.items.select_related('id_producto').all():
@@ -914,7 +925,9 @@ def pedidos(request):
                     })
                 status_key = _normalize_order_status(pedido_obj.estado or 'RECIBIDO')
                 orders.append({
+                    'id_db': pedido_obj.id_pedido,
                     'id': pedido_obj.codigo or f'PM{pedido_obj.id_pedido}',
+                    'cliente': pedido_obj.id_usuario.nombre if pedido_obj.id_usuario else 'Anónimo',
                     'date': pedido_obj.fecha_pedido.strftime('%d de %B de %Y') if pedido_obj.fecha_pedido else '',
                     'total': int(float(pedido_obj.total or 0)),
                     'status': _format_order_status(status_key),
@@ -951,6 +964,7 @@ def pedidos(request):
         'cart_count': cart_count,
         'user_profile_image': user_profile_image,
         'is_admin': is_admin,
+        'is_vendedor': is_vendedor,
         'is_finanzas': is_finanzas,
     })
 
@@ -1218,3 +1232,29 @@ def update_user_role(request, user_id):
         return JsonResponse({'success': False, 'message': 'Usuario no encontrado'}, status=404)
     except Exception as e:
         return JsonResponse({'success': False, 'message': f'Error: {str(e)}'}, status=500)
+
+
+@require_POST
+def admin_update_order(request, order_id):
+    """Permite al vendedor cambiar manualmente el estado del pedido."""
+    user_id = request.session.get('user_id')
+    user_role = request.session.get('user_role')
+    if not user_id or user_role not in [1, 2]:
+        messages.error(request, 'No tienes permisos para realizar esta acción.')
+        return redirect('catalogo')
+        
+    try:
+        pedido = Pedido.objects.get(id_pedido=order_id)
+        nuevo_estado = request.POST.get('estado')
+        if nuevo_estado in ['RECIBIDO', 'EN_PREPARACION', 'EN_CAMINO', 'ENTREGADO', 'CANCELADO']:
+            pedido.estado = nuevo_estado
+            pedido.save()
+            messages.success(request, f'Estado del pedido #{pedido.codigo} actualizado exitosamente.')
+    except Pedido.DoesNotExist:
+        messages.error(request, 'Pedido no encontrado.')
+        
+    # Devolver al usuario a la página desde la cual hizo el cambio
+    referer = request.META.get('HTTP_REFERER')
+    if referer:
+        return redirect(referer)
+    return redirect('admin_dashboard')

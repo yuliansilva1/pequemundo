@@ -12,6 +12,7 @@ def productos_list(request):
             'stock': producto.stock,
             'categoria': producto.id_categoria.nombre if producto.id_categoria else None,
             'imagen_url': producto.imagen_url or '',
+            'descripcion': producto.descripcion or '',
             'activo': producto.activo,
             'marca': producto.marca or '',
             'medida': producto.medidas or '',

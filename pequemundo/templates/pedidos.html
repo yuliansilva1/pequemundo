@@ -41,6 +41,7 @@
         {% elif is_finanzas %}
           <a href="{% url 'finanzas_dashboard' %}">📊 Panel Finanzas</a>
         {% endif %}
+        <a href="{% url 'pedidos' %}">📦 {% if is_admin or is_vendedor %}Todos los Pedidos{% else %}Mis Pedidos{% endif %}</a>
         <a href="{% url 'logout' %}" style="color: #e63946;">🚪 Cerrar Sesión</a>
       </div>
     </div>
@@ -51,14 +52,14 @@
   <div class="breadcrumb">
     <a href="{% url 'user_profile' %}">Mi Perfil</a>
     <span>/</span>
-    <span>Mis Pedidos</span>
+    <span>{% if is_admin or is_vendedor %}Todos los Pedidos{% else %}Mis Pedidos{% endif %}</span>
   </div>
 
   <div class="card">
     <div class="header-with-filters">
       <div>
-        <h1>📦 Mis Pedidos</h1>
-        <p class="subtitle" style="margin-bottom: 0;">Aquí puedes ver el historial y estado de todas tus compras.</p>
+        <h1>📦 {% if is_admin or is_vendedor %}Todos los Pedidos{% else %}Mis Pedidos{% endif %}</h1>
+        <p class="subtitle" style="margin-bottom: 0;">{% if is_admin or is_vendedor %}Gestión de todos los pedidos de la tienda.{% else %}Aquí puedes ver el historial y estado de todas tus compras.{% endif %}</p>
       </div>
       <div class="order-filters">
         <button class="filter-btn active" onclick="filterOrders('TODOS', this)">Todos</button>
@@ -89,6 +90,9 @@
 
             <div class="order-info">
               <h3>Pedido #{{ order.id }}</h3>
+              {% if is_admin or is_vendedor %}
+                <p class="order-date" style="color: var(--teal); font-weight: 600;">👤 Cliente: {{ order.cliente }}</p>
+              {% endif %}
               <p class="order-date">🗓️ Fecha: {{ order.date }}</p>
               <p class="order-total">💰 Total: {{ order.total|chile_currency }}</p>
             </div>
@@ -119,9 +123,24 @@
             {% endfor %}
           </ul>
           
-          <div class="order-eta-box">
-            <p><strong>🚚 Entrega:</strong> {{ order.eta }}</p>
-            <button class="btn-submit btn-small" onclick="openOrderModal('modal-{{ order.id }}')">📄 Ver Dirección y Envío</button>
+          <div class="order-eta-box" style="flex-wrap: wrap; gap: 10px;">
+            <p style="margin-bottom: 0;"><strong>🚚 Entrega:</strong> {{ order.eta }}</p>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              {% if is_admin or is_vendedor %}
+              <form action="{% url 'admin_update_order' order.id_db %}" method="POST" style="display:inline-flex; gap: 5px; align-items: center;" onclick="event.stopPropagation()">
+                  {% csrf_token %}
+                  <select name="estado" class="form-control" style="width: auto; font-size: 0.85rem; padding: 4px;">
+                      <option value="RECIBIDO" {% if order.status_key == 'RECIBIDO' %}selected{% endif %}>Recibido</option>
+                      <option value="EN_PREPARACION" {% if order.status_key == 'EN_PREPARACION' %}selected{% endif %}>En Preparación</option>
+                      <option value="EN_CAMINO" {% if order.status_key == 'EN_CAMINO' %}selected{% endif %}>En Camino</option>
+                      <option value="ENTREGADO" {% if order.status_key == 'ENTREGADO' %}selected{% endif %}>Entregado</option>
+                      <option value="CANCELADO" {% if order.status_key == 'CANCELADO' %}selected{% endif %}>Cancelado</option>
+                  </select>
+                  <button type="submit" class="btn-submit" style="padding: 4px 10px; margin: 0; width: auto; font-size: 0.8rem;">Actualizar</button>
+              </form>
+              {% endif %}
+              <button class="btn-submit btn-small" onclick="openOrderModal('modal-{{ order.id }}')">📄 Ver Dirección y Envío</button>
+            </div>
           </div>
         </div>
       </div>
@@ -136,6 +155,9 @@
           <div class="modal-body">
             <div class="info-section">
               <p><strong>Estado:</strong> <span class="badge {{ order.status_class }}">{{ order.status }}</span></p>
+              {% if is_admin or is_vendedor %}
+                <p><strong>Cliente:</strong> {{ order.cliente }}</p>
+              {% endif %}
               <p><strong>Fecha de compra:</strong> {{ order.date }}</p>
               <p><strong>Tipo de Entrega:</strong> {% if order.tipo_entrega == 'DESPACHO_DOMICILIO' %}Despacho a Domicilio{% else %}{{ order.tipo_entrega }}{% endif %}</p>
               <p><strong>Dirección:</strong> {{ order.direccion }}</p>
