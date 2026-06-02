@@ -8,78 +8,255 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
 
-<link rel="stylesheet" href="{% static 'css/edit_product.css' %}">
+<link rel="stylesheet" href="{% static 'css/add_product.css' %}">
 </head>
 <body>
+
+<nav>
+  <div class="logo">
+    <a href="{% url 'catalogo' %}">
+      <img src="/static/pequeMundo_logo.png" alt="PequeMundo" onerror="this.style.display='none'">
+    </a>
+  </div>
+  <div class="nav-links">
+    <a class="nav-btn" href="{% url 'catalogo' %}">⬅️ Volver al Catálogo</a>
+  </div>
+</nav>
+
 <div class="container">
-  <h1>Editar producto</h1>
-  <p>Modifica los datos del producto y guarda los cambios.</p>
+  <div class="breadcrumb">
+    <a href="{% url 'catalogo' %}">Catálogo</a>
+    <span>/</span>
+    <span>Editar Producto</span>
+  </div>
 
   {% if messages %}
-  <div class="messages">
-    {% for message in messages %}
-      <p class="{{ message.tags }}">{{ message }}</p>
-    {% endfor %}
-  </div>
+    <div class="messages">
+      {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+          {% if message.tags == 'error' %}⚠️{% else %}✅{% endif %}
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
   {% endif %}
 
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="form-group">
-      <label for="nombre">Nombre</label>
-      <input type="text" id="nombre" name="nombre" value="{{ producto.nombre }}" required>
-    </div>
-    <div class="form-group">
-      <label for="precio">Precio</label>
-      <input type="text" id="precio" name="precio" value="{{ producto.precio }}" required>
-    </div>
-    <div class="form-group">
-      <label for="stock">Stock</label>
-      <input type="number" id="stock" name="stock" value="{{ producto.stock }}" min="0" required>
-    </div>
-    <div class="form-group">
-      <label for="imagen_file">Imagen del producto</label>
-      <input type="file" id="imagen_file" name="imagen_file" accept="image/*">
-    </div>
-    <div class="form-group">
-      <label for="imagen_url">URL de imagen</label>
-      <input type="url" id="imagen_url" name="imagen_url" value="{{ producto.imagen_url|default_if_none:'' }}" placeholder="https://...">
-    </div>
-    <div class="form-group">
-      <label for="categoria">Categoría</label>
-      <select id="categoria" name="categoria" required>
-        {% for categoria in categorias %}
-          <option value="{{ categoria.id_categoria }}" {% if categoria.id_categoria == producto.id_categoria.id_categoria %}selected{% endif %}>{{ categoria.nombre }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="form-group">
-      <label for="activo">Estado</label>
-      <select id="activo" name="activo">
-        <option value="1" {% if producto.activo == '1' %}selected{% endif %}>Activo</option>
-        <option value="0" {% if producto.activo == '0' %}selected{% endif %}>Inactivo</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label for="descripcion">Descripción</label>
-      <input type="text" id="descripcion" name="descripcion" value="{{ producto.descripcion|default_if_none:'' }}">
-    </div>
-    <div class="form-group">
-      <label for="marca">Marca</label>
-      <input type="text" id="marca" name="marca" value="{{ producto.marca|default_if_none:'' }}" placeholder="Ej: PequeMundo">
-    </div>
-    <div class="form-group">
-      <label for="medidas">Medidas</label>
-      <input type="text" id="medidas" name="medidas" value="{{ producto.medidas|default_if_none:'' }}" placeholder="Ej: 120x60x80 cm">
-    </div>
-    <div class="form-group">
-      <label for="material">Material</label>
-      <input type="text" id="material" name="material" value="{{ producto.material|default_if_none:'' }}" placeholder="Ej: Madera">
-    </div>
-    <button class="btn-save" type="submit">Guardar cambios</button>
-  </form>
+  <div class="card">
+    <h1>✏️ Editar Producto</h1>
+    <p class="subtitle">Modifica los datos del producto y guarda los cambios.</p>
+    
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      
+      <!-- Basic Info -->
+      <h3 style="margin-bottom: 15px; color: var(--teal); font-size: 1.1rem; font-weight: 800; font-family: 'Nunito', sans-serif;">Información Básica</h3>
+      
+      <div class="form-group">
+        <label for="nombre">Nombre del Producto *</label>
+        <input type="text" id="nombre" name="nombre" class="form-control" value="{{ producto.nombre }}" placeholder="Ej. Cama Montessori Nube" required autofocus>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="precio">Precio (CLP) *</label>
+          <input type="number" id="precio" name="precio" class="form-control" value="{{ producto.precio }}" placeholder="Ej. 150000" min="0" required>
+        </div>
+        <div class="form-group">
+          <label for="stock">Stock Disponible *</label>
+          <input type="number" id="stock" name="stock" class="form-control" value="{{ producto.stock }}" placeholder="Ej. 10" min="0" required>
+        </div>
+      </div>
 
-  <a href="{% url 'catalogo' %}" class="back-link">← Volver al catálogo</a>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="categoria">Categoría</label>
+          <select id="categoria" name="categoria" class="form-control" required>
+            <option value="">-- Seleccionar Categoría --</option>
+            {% for categoria in categorias %}
+              <option value="{{ categoria.id_categoria }}" {% if categoria.id_categoria == producto.id_categoria.id_categoria %}selected{% endif %}>{{ categoria.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="activo">Estado</label>
+          <select id="activo" name="activo" class="form-control">
+            <option value="1" {% if producto.activo == '1' %}selected{% endif %}>Activo</option>
+            <option value="0" {% if producto.activo == '0' %}selected{% endif %}>Inactivo</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="descripcion">Descripción</label>
+        <textarea id="descripcion" name="descripcion" class="form-control" placeholder="Describe los detalles del producto...">{{ producto.descripcion|default_if_none:'' }}</textarea>
+      </div>
+
+      <!-- Detalle Técnico -->
+      <h3 style="margin: 30px 0 15px; color: var(--teal); font-size: 1.1rem; font-weight: 800; font-family: 'Nunito', sans-serif;">Detalles Técnicos</h3>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="marca">Marca</label>
+          <input type="text" id="marca" name="marca" class="form-control" value="{{ producto.marca|default_if_none:'' }}" placeholder="Ej. PequeMundo">
+        </div>
+        <div class="form-group">
+          <label for="material">Material</label>
+          <input type="text" id="material" name="material" class="form-control" value="{{ producto.material|default_if_none:'' }}" placeholder="Ej. Madera de Pino">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="medidas">Medidas</label>
+        <input type="text" id="medidas" name="medidas" class="form-control" value="{{ producto.medidas|default_if_none:'' }}" placeholder="Ej. 190 x 90 x 40 cm">
+      </div>
+
+      <!-- Imagen -->
+      <h3 style="margin: 30px 0 15px; color: var(--teal); font-size: 1.1rem; font-weight: 800; font-family: 'Nunito', sans-serif;">Imagen del Producto</h3>
+      
+      <div class="form-group full">
+        <label>Sube una nueva imagen (opcional)</label>
+        
+        <!-- Contenedor Drag and Drop -->
+        <div class="upload-area" id="uploadArea">
+          <input type="file" id="imagen_file" name="imagen_file" class="file-input" accept="image/*">
+          <div class="upload-icon">📸</div>
+          <div class="upload-text">Haz clic o arrastra una imagen aquí</div>
+          <div class="upload-hint">Soporta JPG, PNG, GIF (Máx 5MB)</div>
+        </div>
+        
+        <!-- Vista previa de la imagen -->
+        <div class="image-preview" id="imagePreview" {% if producto.imagen_url %}style="display: block;"{% endif %}>
+          <img src="{% if producto.imagen_url %}{% if producto.imagen_url|slice:':4' == 'http' %}{{ producto.imagen_url }}{% else %}/media/{{ producto.imagen_url }}{% endif %}{% endif %}" id="previewImg" alt="Vista previa de la imagen">
+          <br>
+          <div class="remove-img" id="removeImg">❌ Eliminar y seleccionar otra</div>
+        </div>
+      </div>
+      
+      <div class="divider">O usa un enlace web</div>
+      
+      <div class="form-group full">
+        <label for="imagen_url">URL de la imagen actual / nueva (opcional)</label>
+        <input type="text" id="imagen_url" name="imagen_url" class="form-control" value="{{ producto.imagen_url|default_if_none:'' }}" placeholder="https://ejemplo.com/imagen.jpg">
+      </div>
+
+      <button type="submit" class="btn-submit">
+        💾 Guardar Cambios
+      </button>
+    </form>
+  </div>
 </div>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h4>Sobre Nosotros</h4>
+      <p>Fabricamos muebles infantiles de calidad en Chile. Diseños seguros y modernos para el cuarto de tus niños.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <a href="mailto:contacto@pequemundo.cl">✉️ contacto@pequemundo.cl</a>
+      <a href="tel:+56222345678">📞 +56 2 2345 6789</a>
+      <a href="#">📍 Santiago, Chile</a>
+    </div>
+    <div class="footer-col">
+      <h4>Horario de Atención</h4>
+      <p>Lunes a Viernes: 9:00 – 18:00</p>
+      <p>Sábado: 10:00 – 14:00</p>
+      <p>Domingo: Cerrado</p>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 PequeMundo Muebles. Todos los derechos reservados.</div>
+</footer>
+
+<script>
+  // Lógica de Arrastrar y Soltar para la imagen
+  const uploadArea = document.getElementById('uploadArea');
+  const fileInput = document.getElementById('imagen_file');
+  const imagePreview = document.getElementById('imagePreview');
+  const previewImg = document.getElementById('previewImg');
+  const removeImg = document.getElementById('removeImg');
+  const urlInput = document.getElementById('imagen_url');
+
+  // Ocultar upload area si ya hay imagen
+  if (previewImg.getAttribute('src') && previewImg.getAttribute('src') !== '') {
+      uploadArea.style.display = 'none';
+      imagePreview.style.display = 'block';
+  }
+
+  // Prevenir que el navegador abra la imagen por defecto al arrastrar
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, preventDefaults, false);
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  // Efectos visuales de arrastrar sobre el área
+  ['dragenter', 'dragover'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, () => {
+      uploadArea.classList.add('dragover');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    uploadArea.addEventListener(eventName, () => {
+      uploadArea.classList.remove('dragover');
+    }, false);
+  });
+
+  // Al soltar un archivo
+  uploadArea.addEventListener('drop', (e) => {
+    let dt = e.dataTransfer;
+    let files = dt.files;
+    
+    if(files.length > 0) {
+      fileInput.files = files; // Asignar el archivo al input invisible
+      showPreview(files[0]);
+    }
+  });
+
+  // Al seleccionar con clic tradicional
+  fileInput.addEventListener('change', function() {
+    if(this.files && this.files[0]) {
+      showPreview(this.files[0]);
+    }
+  });
+
+  // Mostrar vista previa
+  function showPreview(file) {
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImg.src = e.target.result;
+        uploadArea.style.display = 'none';
+        imagePreview.style.display = 'block';
+        
+        // Bloquear el campo de URL si se sube una foto manualmente
+        urlInput.disabled = true; 
+        urlInput.value = "";
+        urlInput.placeholder = "Desactivado (borra la imagen para usar la URL)";
+      }
+      reader.readAsDataURL(file);
+    } else {
+      alert('Por favor, selecciona una imagen en formato JPG, PNG o GIF válido.');
+    }
+  }
+
+  // Remover imagen
+  removeImg.addEventListener('click', () => {
+    fileInput.value = ''; // Limpiar input
+    previewImg.src = '';
+    uploadArea.style.display = 'block';
+    imagePreview.style.display = 'none';
+    
+    // Volver a habilitar la URL
+    urlInput.disabled = false;
+    urlInput.value = "";
+    urlInput.placeholder = "https://ejemplo.com/imagen.jpg";
+  });
+</script>
+
 </body>
 </html>
