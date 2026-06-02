@@ -192,7 +192,8 @@ def catalogo(request):
                 'precio': int(float(p.precio)),
                 'stock': p.stock,
                 'categoria': p.id_categoria.nombre if p.id_categoria else 'Sin categoria',
-                'imagen_url': _normalize_image_url(p.imagen_url) if getattr(p, 'imagen_url', None) else ''
+                'imagen_url': _normalize_image_url(p.imagen_url) if getattr(p, 'imagen_url', None) else '',
+                'descripcion': p.descripcion or ''
             } for p in productos
         ]
     except Exception as e:
