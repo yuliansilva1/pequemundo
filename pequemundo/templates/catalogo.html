@@ -179,6 +179,20 @@
     background: #facc15;
   }
 
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-900);
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform .2s;
+  }
+
+  .user-avatar:hover {
+    transform: scale(1.1);
+  }
+
   .dropdown-menu {
     position: absolute;
     top: 100%;
@@ -251,7 +265,11 @@
     <a class="nav-btn cart" href="/pago/">🛒 Carrito ({{ cart_count|default:0 }})</a>
     {% if request.session.username %}
     <div class="user-menu-container">
+      {% if user_profile_image %}
+      <img src="{{ user_profile_image }}" class="user-avatar" onclick="toggleUserMenu(event)" title="{{ request.session.username }}" alt="{{ request.session.username }}" onerror="this.src='/static/pequeMundo_usuarios.png'; this.className='user-avatar'">
+      {% else %}
       <button class="user-btn" onclick="toggleUserMenu(event)">👤 {{ request.session.username }}</button>
+      {% endif %}
       <ul class="dropdown-menu" id="userMenu">
         <li><a href="{% url 'user_profile' %}">👤 Mi Perfil</a></li>
         <li><a href="{% url 'user_edit_profile' %}">✏️ Editar Perfil</a></li>

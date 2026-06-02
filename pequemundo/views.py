@@ -202,12 +202,14 @@ def catalogo(request):
     # Verificar si el usuario es administrador o finanzas
     is_admin = False
     is_finanzas = False
+    user_profile_image = None
     user_id = request.session.get('user_id')
     if user_id:
         try:
             user = Usuario.objects.get(id_usuario=user_id)
             is_admin = user.id_rol == 1
             is_finanzas = user.id_rol == 3
+            user_profile_image = _normalize_image_url(user.imagen_url) if user.imagen_url else None
         except Usuario.DoesNotExist:
             pass
     
@@ -216,7 +218,8 @@ def catalogo(request):
         'productos': productos_data, 
         'cart_count': cart_count,
         'is_admin': is_admin,
-        'is_finanzas': is_finanzas
+        'is_finanzas': is_finanzas,
+        'user_profile_image': user_profile_image
     })
 
 def producto_detalle(request, product_id):
@@ -253,6 +256,7 @@ def login_view(request):
                 request.session['user_id'] = user.id_usuario
                 request.session['username'] = user.nombre
                 request.session['user_role'] = user.id_rol
+                request.session['user_image'] = user.imagen_url
                 _migrate_session_orders_to_user(request, user)
                 
                 # Redirigir según el rol del usuario
@@ -413,6 +417,10 @@ def user_edit_profile(request):
             usuario.imagen_url = f'perfiles/{nombre_archivo}'
         
         usuario.save()
+        
+        # Actualizar la sesión con la nueva imagen si se subió una
+        if 'imagen_url' in request.FILES:
+            request.session['user_image'] = usuario.imagen_url
         
         messages.success(request, 'Perfil actualizado correctamente.')
         return redirect('user_profile')
