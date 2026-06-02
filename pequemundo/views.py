@@ -537,15 +537,43 @@ def add_to_cart(request, product_id):
 
     cart = _get_cart(request)
     product_key = str(product_id)
-    quantity = cart.get(product_key, 0) + 1
+    
+    # Leer la cantidad del body si se proporciona (para actualizaciones desde el carrito)
+    quantity = 1
+    if request.method == 'POST' and request.content_type == 'application/json':
+        try:
+            import json
+            body = json.loads(request.body)
+            new_quantity = body.get('quantity')
+            if new_quantity is not None:
+                quantity = int(new_quantity)
+            else:
+                quantity = cart.get(product_key, 0) + 1
+        except (json.JSONDecodeError, ValueError):
+            quantity = cart.get(product_key, 0) + 1
+    else:
+        quantity = cart.get(product_key, 0) + 1
 
     if producto.stock is not None and quantity > producto.stock:
         return JsonResponse({'success': False, 'message': 'Stock insuficiente.'}, status=400)
 
     cart[product_key] = quantity
     _save_cart(request, cart)
+    
+    # Obtener los datos actualizados
+    cart_items, total = _get_cart_items(request)
+    item_subtotal = None
+    for item in cart_items:
+        if item['id'] == product_id:
+            item_subtotal = item['subtotal']
+            break
 
-    return JsonResponse({'success': True, 'cart_count': sum(cart.values())})
+    return JsonResponse({
+        'success': True, 
+        'cart_count': sum(cart.values()),
+        'total': total,
+        'new_subtotal': item_subtotal
+    })
 
 
 @require_POST

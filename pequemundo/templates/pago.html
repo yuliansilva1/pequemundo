@@ -119,6 +119,76 @@
       text-decoration: none;transition: all .2s;font-weight: 500;font-size: .85rem;
     }
     .dropdown-menu a:hover { background: var(--gray-100);color: var(--teal); }
+    
+    /* Modal de Confirmación */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.show {
+      display: flex;
+    }
+    .modal-content {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 24px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+    }
+    .modal-header {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: var(--gray-900);
+    }
+    .modal-body {
+      color: var(--gray-700);
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    .modal-btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      transition: all .2s;
+      font-size: 0.9rem;
+      min-width: 100px;
+    }
+    .modal-btn.cancel {
+      background: var(--gray-200);
+      color: var(--gray-900);
+    }
+    .modal-btn.cancel:hover {
+      background: var(--gray-300);
+    }
+    .modal-btn.confirm {
+      background: var(--red);
+      color: white;
+    }
+    .modal-btn.confirm:hover {
+      background: #dc2626;
+    }
+    
     .message-box{margin:16px 0;}
     .message{padding:14px 16px;border-radius:12px;font-size:.95rem;line-height:1.4;margin-bottom:10px;}
     .message.error{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;}
@@ -183,10 +253,15 @@
               <img class="cart-img" src="{{ item.imagen_url }}" alt="{{ item.nombre }}">
               <div class="cart-item-info">
                 <div class="cart-item-name">{{ item.nombre }}</div>
-                <div class="cart-item-qty">Cantidad: {{ item.cantidad }}</div>
+                <div class="cart-item-qty">Cantidad: <span id="qty-{{ item.id }}">{{ item.cantidad }}</span></div>
               </div>
-              <div class="cart-item-price">${{ item.subtotal|floatformat:2 }}</div>
-              <button type="button" class="cart-item-remove" onclick="removeFromCart({{ item.id }}, event)" title="Eliminar del carrito">✕</button>
+              <div class="cart-item-price" id="price-{{ item.id }}">${{ item.subtotal|floatformat:2 }}</div>
+              <div class="cart-item-controls">
+                <button type="button" class="qty-btn" onclick="decreaseQty({{ item.id }}, event)" title="Reducir cantidad">−</button>
+                <span class="qty-display" id="qty-display-{{ item.id }}">{{ item.cantidad }}</span>
+                <button type="button" class="qty-btn" onclick="increaseQty({{ item.id }}, event)" title="Aumentar cantidad">+</button>
+                <button type="button" class="cart-item-remove" onclick="confirmRemoveFromCart({{ item.id }}, event)" title="Eliminar del carrito">🗑️</button>
+              </div>
             </div>
             {% endfor %}
           {% else %}
@@ -297,6 +372,20 @@
   <div class="footer-bottom">© 2026 PequeMundo Muebles. Todos los derechos reservados.</div>
 </footer>
 
+<!-- Modal de Confirmación de Eliminación -->
+<div id="deleteModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">⚠️ Confirmar eliminación</div>
+    <div class="modal-body">
+      ¿Está seguro de que desea eliminar este producto del carrito?
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" onclick="closeDeleteModal()">Cancelar</button>
+      <button class="modal-btn confirm" onclick="confirmDelete()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // Manejo visual y de estado para opciones de despacho/retiro
 function selectDelivery(type) {
@@ -324,10 +413,32 @@ document.addEventListener('click', function() {
   }
 });
 
-// Eliminar producto del carrito
-function removeFromCart(productId, event) {
+// Variable para almacenar el ID del producto a eliminar
+let productToDelete = null;
+
+// Mostrar modal de confirmación
+function confirmRemoveFromCart(productId, event) {
   event.preventDefault();
-  
+  productToDelete = productId;
+  document.getElementById('deleteModal').classList.add('show');
+}
+
+// Cerrar modal sin confirmar
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('show');
+  productToDelete = null;
+}
+
+// Confirmar eliminación
+function confirmDelete() {
+  if (productToDelete !== null) {
+    removeFromCart(productToDelete);
+    closeDeleteModal();
+  }
+}
+
+// Eliminar producto del carrito
+function removeFromCart(productId) {
   fetch(`/eliminar-carrito/${productId}/`, {
     method: 'POST',
     headers: {
@@ -377,6 +488,95 @@ function removeFromCart(productId, event) {
     alert('Hubo un error al eliminar el producto');
   });
 }
+
+// Aumentar cantidad del producto
+function increaseQty(productId, event) {
+  event.preventDefault();
+  const qtyDisplay = document.getElementById(`qty-display-${productId}`);
+  const qtyText = document.getElementById(`qty-${productId}`);
+  let currentQty = parseInt(qtyDisplay.textContent);
+  currentQty++;
+  
+  qtyDisplay.textContent = currentQty;
+  qtyText.textContent = currentQty;
+  updateCartItem(productId);
+}
+
+// Disminuir cantidad del producto
+function decreaseQty(productId, event) {
+  event.preventDefault();
+  const qtyDisplay = document.getElementById(`qty-display-${productId}`);
+  const qtyText = document.getElementById(`qty-${productId}`);
+  let currentQty = parseInt(qtyDisplay.textContent);
+  
+  if (currentQty > 1) {
+    currentQty--;
+    qtyDisplay.textContent = currentQty;
+    qtyText.textContent = currentQty;
+    updateCartItem(productId);
+  }
+}
+
+// Actualizar item en el carrito (llamar al servidor)
+function updateCartItem(productId) {
+  const newQuantity = parseInt(document.getElementById(`qty-display-${productId}`).textContent);
+  
+  fetch(`/agregar-carrito/${productId}/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    },
+    body: JSON.stringify({ quantity: newQuantity })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Actualizar precio del item
+      const priceElement = document.getElementById(`price-${productId}`);
+      if (priceElement && data.new_subtotal !== undefined) {
+        priceElement.textContent = `$${data.new_subtotal.toFixed(2)}`;
+      }
+      
+      // Actualizar total del carrito
+      const navCartCount = document.querySelector('.nav-btn.active');
+      if (navCartCount) {
+        navCartCount.textContent = `🛒 Carrito (${data.cart_count})`;
+      }
+      
+      // Actualizar resumen
+      const summaryTotal = document.querySelector('.summary-row.total span:last-child');
+      if (summaryTotal && data.total !== undefined) {
+        summaryTotal.textContent = `$${data.total.toFixed(2)}`;
+      }
+      
+      const summarySubtotal = document.querySelector('.summary-row span:last-child');
+      if (summarySubtotal && data.total !== undefined) {
+        summarySubtotal.textContent = `$${data.total.toFixed(2)}`;
+      }
+    } else {
+      alert('Error al actualizar la cantidad: ' + data.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Hubo un error al actualizar la cantidad');
+  });
+}
+
+// Cerrar modal al presionar Escape
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    closeDeleteModal();
+  }
+});
+
+// Cerrar modal al hacer clic fuera del contenido
+document.getElementById('deleteModal').addEventListener('click', function(event) {
+  if (event.target === this) {
+    closeDeleteModal();
+  }
+});
 </script>
 </body>
 </html>
