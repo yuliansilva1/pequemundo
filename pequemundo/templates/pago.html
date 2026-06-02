@@ -31,7 +31,7 @@
     h1{font-family:'Nunito',sans-serif;font-size:1.75rem;font-weight:900;margin-bottom:4px;}
     .subtitle{color:var(--gray-500);font-size:.88rem;margin-bottom:24px;}
 
-    .layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
+    .layout{display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;}
     @media(max-width:760px){.layout{grid-template-columns:1fr;}}
 
     /* LEFT COLUMN */
@@ -39,93 +39,57 @@
     .section-card h3{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 
     /* CART ITEMS */
-    .cart-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--gray-100);}
+    .cart-item{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--gray-100);}
     .cart-item:last-child{border-bottom:none;}
     .cart-img{width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;}
     .cart-item-info{flex:1;}
     .cart-item-name{font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:800;}
-    .cart-item-qty{font-size:.75rem;color:var(--gray-500);margin-top:2px;}
-    .cart-item-price{font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;flex-shrink:0;margin-right:10px;}
-    
-    /* CONTROLES DE CANTIDAD Y ELIMINACIÓN */
-    .cart-item-controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-    .qty-selector {
-      display: flex;
-      align-items: center;
-      background: var(--gray-100);
-      border-radius: 30px;
-      padding: 3px;
-      border: 1px solid var(--gray-200);
-    }
-    .qty-btn {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: none;
-      background: var(--white);
-      color: var(--gray-700);
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-      transition: all 0.2s ease;
-    }
-    .qty-btn:hover {
-      background: var(--teal);
-      color: var(--white);
-    }
-    .qty-display {
-      min-width: 32px;
-      text-align: center;
-      font-family: 'Nunito', sans-serif;
-      font-weight: 800;
-      font-size: 0.88rem;
-      color: var(--gray-900);
-      user-select: none;
-    }
+    .cart-item-qty{font-size:.75rem;color:var(--gray-500);}
+    .cart-item-price{font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;flex-shrink:0;}
+    .cart-item-controls { display: flex; align-items: center; gap: 8px; }
+    .qty-btn { background: var(--gray-100); border: none; width: 24px; height: 24px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .qty-btn:hover { background: var(--gray-200); }
+    .qty-display { font-size: 0.85rem; font-weight: 600; min-width: 15px; text-align: center; }
     .cart-item-remove{
-      background: var(--white);
-      border: 1px solid var(--gray-200);
-      color: var(--gray-500);
-      font-size: 1rem;
+      background:transparent;border:none;color:var(--gray-400);font-size:1.2rem;cursor:pointer;
+      padding:0 8px;transition:all .2s;flex-shrink:0;border-radius:6px;
+    }
+    .cart-item-remove:hover{color:#dc2626;background:#fee2e2;}
+
+    /* DELIVERY CORREGIDO CON FLEXBOX */
+    .delivery-opt {
+      border: 2px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 16px;
       cursor: pointer;
-      width: 34px;
-      height: 34px;
+      margin-bottom: 12px;
+      transition: all .2s;
       display: flex;
       align-items: center;
-      justify-content: center;
-      transition: all .2s ease;
+      gap: 16px;
+      background: var(--white);
+      width: 100%;
+    }
+    .delivery-opt.selected {
+      border-color: var(--teal);
+      background: #f0fffe;
+    }
+    .delivery-opt input[type=radio] {
+      accent-color: var(--teal);
       flex-shrink: 0;
-      border-radius: 50%;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
     }
-    .cart-item-remove:hover{
-      color: var(--red);
-      background: #fee2e2;
-      border-color: #fca5a5;
-      transform: scale(1.05);
+    .delivery-opt-content {
+      display: flex;
+      flex-direction: column;
     }
+    .delivery-opt-title { font-family: 'Nunito', sans-serif; font-size: .95rem; font-weight: 800; margin-bottom: 2px; }
+    .delivery-detail { font-size: .78rem; color: var(--gray-500); margin-bottom: 2px; }
+    .delivery-free { font-size: .75rem; color: var(--green); font-weight: 700; }
 
-    /* DELIVERY */
-    .delivery-opt{
-      border:2px solid var(--gray-200);border-radius:12px;padding:14px 16px;cursor:pointer;
-      margin-bottom:10px;transition:all .2s;display:flex;align-items:flex-start;gap:12px;
-    }
-    .delivery-opt.selected{border-color:var(--teal);background:#f0fffe;}
-    .delivery-opt input[type=radio]{margin-top:3px;accent-color:var(--teal);flex-shrink:0;}
-    .delivery-opt-title{font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;margin-bottom:4px;}
-    .delivery-detail{font-size:.75rem;color:var(--gray-500);display:flex;align-items:center;gap:5px;margin-bottom:2px;}
-    .delivery-free{font-size:.73rem;color:var(--green);font-weight:700;}
-
-    /* FORM */
+    /* FORM & SELECTS */
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
     .form-group{display:flex;flex-direction:column;gap:5px;}
     .form-group.full{grid-column:1/-1;}
@@ -133,19 +97,27 @@
     .radio-option:hover{border-color:var(--teal);background:#f8fffe;}
     .radio-option input{width:auto;margin:0;}
     label{font-size:.78rem;font-weight:600;color:var(--gray-700);}
-    input{
+    input, select{
       padding:10px 14px;border:1.5px solid var(--gray-200);border-radius:10px;
       font-size:.85rem;font-family:'Poppins',sans-serif;color:var(--gray-900);
       outline:none;transition:border-color .2s;background:var(--white);
+      width: 100%;
     }
-    input:focus{border-color:var(--teal);}
+    input:focus, select:focus{border-color:var(--teal);}
     input::placeholder{color:var(--gray-400);}
+    
+    #despacho-fields {
+      margin-top: 14px;
+      border-top: 1px dashed var(--gray-200);
+      padding-top: 14px;
+    }
 
     /* RIGHT COLUMN – SUMMARY */
     .summary-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;position:sticky;top:76px;}
     .summary-card h3{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;margin-bottom:16px;}
     .summary-row{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:8px;color:var(--gray-700);}
     .summary-row.total{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.1rem;color:var(--gray-900);border-top:1px solid var(--gray-200);padding-top:12px;margin-top:4px;}
+    .summary-row .price-value{font-weight: 600;}
     .summary-row .free{color:var(--green);font-weight:700;}
     .btn-pay{
       width:100%;padding:13px;margin-top:16px;
@@ -156,7 +128,6 @@
       transition:opacity .2s;box-shadow:0 4px 16px rgba(59,201,192,.35);
     }
     .btn-pay:hover{opacity:.9;}
-    .trust-items{margin-top:14px;display:flex;flex-direction:column;gap:6px;}
     .payment-info{margin-top:14px;background:#fefce8;border:1.5px solid #fde68a;border-radius:10px;padding:10px 12px;font-size:.76rem;color:#92400e;}
 
     /* FOOTER */
@@ -189,72 +160,22 @@
     
     /* Modal de Confirmación */
     .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 2000;
-      align-items: center;
-      justify-content: center;
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.5); z-index: 2000; align-items: center; justify-content: center;
     }
-    .modal-overlay.show {
-      display: flex;
-    }
+    .modal-overlay.show { display: flex; }
     .modal-content {
-      background: var(--white);
-      border-radius: var(--radius);
-      padding: 24px;
-      max-width: 500px;
-      width: 90%;
-      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+      background: var(--white); border-radius: var(--radius); padding: 24px;
+      max-width: 500px; width: 90%; box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
     }
-    .modal-header {
-      font-family: 'Nunito', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 800;
-      margin-bottom: 12px;
-      color: var(--gray-900);
-    }
-    .modal-body {
-      color: var(--gray-700);
-      font-size: 0.95rem;
-      margin-bottom: 20px;
-      line-height: 1.5;
-    }
-    .modal-footer {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      flex-wrap: wrap;
-    }
-    .modal-btn {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: 'Poppins', sans-serif;
-      transition: all .2s;
-      font-size: 0.9rem;
-      min-width: 100px;
-    }
-    .modal-btn.cancel {
-      background: var(--gray-200);
-      color: var(--gray-900);
-    }
-    .modal-btn.cancel:hover {
-      background: var(--gray-300);
-    }
-    .modal-btn.confirm {
-      background: var(--red);
-      color: white;
-    }
-    .modal-btn.confirm:hover {
-      background: #dc2626;
-    }
+    .modal-header { font-family: 'Nunito', sans-serif; font-size: 1.25rem; font-weight: 800; margin-bottom: 12px; color: var(--gray-900); }
+    .modal-body { color: var(--gray-700); font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+    .modal-btn { padding: 10px 16px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all .2s; font-size: 0.9rem; min-width: 100px; }
+    .modal-btn.cancel { background: var(--gray-200); color: var(--gray-900); }
+    .modal-btn.cancel:hover { background: var(--gray-300); }
+    .modal-btn.confirm { background: var(--red); color: white; }
+    .modal-btn.confirm:hover { background: #dc2626; }
     
     .message-box{margin:16px 0;}
     .message{padding:14px 16px;border-radius:12px;font-size:.95rem;line-height:1.4;margin-bottom:10px;}
@@ -295,7 +216,7 @@
 <div class="page">
   <a href="/catalogo/" class="back-link">← Volver al catálogo</a>
   <h1>Finalizar Compra</h1>
-  <p class="subtitle">Completa tu pedido y recibe tus muebles en casa</p>
+  <p class="subtitle">Completa tu pedido y recibe tus muebles seguros</p>
 
   {% if messages %}
     <div class="message-box">
@@ -307,8 +228,6 @@
 
   <form id="checkoutForm" method="POST" action="{% url 'checkout' %}">
     {% csrf_token %}
-    
-    <input type="hidden" name="region" value="Región Metropolitana">
     
     <div class="layout">
       <div>
@@ -338,21 +257,54 @@
 
         <div class="section-card">
           <h3>🚚 Modalidad de Entrega</h3>
+          
           <div class="delivery-opt selected" id="opt-retiro" onclick="selectDelivery('retiro')">
             <input type="radio" id="radio-retiro" name="delivery" value="Retiro en Tienda" checked>
-            <div>
+            <div class="delivery-opt-content">
               <div class="delivery-opt-title">🏪 Retiro en Tienda</div>
               <div class="delivery-detail">📍 Av. Providencia 1234, Santiago</div>
               <div class="delivery-detail">🕐 Lunes a Viernes 9:00 – 18:00</div>
               <div class="delivery-free">✓ Sin costo adicional</div>
             </div>
           </div>
+          
           <div class="delivery-opt" id="opt-despacho" onclick="selectDelivery('despacho')">
             <input type="radio" id="radio-despacho" name="delivery" value="Despacho a Domicilio">
-            <div>
+            <div class="delivery-opt-content">
               <div class="delivery-opt-title">🏠 Despacho a Domicilio</div>
-              <div class="delivery-detail">📦 Entrega en 5-7 días hábiles</div>
-              <div class="delivery-detail">🔧 Incluye instalación del mueble</div>
+              <div class="delivery-detail">📦 Entrega a través de servicio de transporte externo</div>
+              <div class="delivery-detail">🔧 Costo diferenciado según tu región</div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN DINÁMICA DE DIRECCIÓN Y LISTA COMPLETA DE REGIONES -->
+          <div id="despacho-fields" style="display: none;">
+            <div class="form-grid">
+              <div class="form-group full">
+                <label for="region_select">Región de Destino</label>
+                <select id="region_select" name="region" onchange="updateShippingCost()">
+                  <option value="REGION_METROPOLITANA" selected>Región Metropolitana de Santiago</option>
+                  <option value="TARAPACA">Región de Tarapacá</option>
+                  <option value="ANTOFAGASTA">Región de Antofagasta</option>
+                  <option value="ATACAMA">Región de Atacama</option>
+                  <option value="COQUIMBO">Región de Coquimbo</option>
+                  <option value="VALPARAISO">Región de Valparaíso</option>
+                  <option value="OHIGGINS">Región del Libertador General Bernardo O'Higgins</option>
+                  <option value="MAULE">Región del Maule</option>
+                  <option value="BIOBIO">Región del Bío-Bío</option>
+                  <option value="ARAUCANIA">Región de la Araucanía</option>
+                  <option value="LOS_LAGOS">Región de Los Lagos</option>
+                  <option value="AYSEN">Región Aysén del General Carlos Ibáñez del Campo</option>
+                  <option value="MAGALLANES">Región de Magallanes y de la Antártica Chilena</option>
+                  <option value="LOS_RIOS">Región de Los Ríos</option>
+                  <option value="ARICA_PARINACOTA">Región de Arica y Parinacota</option>
+                  <option value="NUBLE">Región de Ñuble</option>
+                </select>
+              </div>
+              <div class="form-group full">
+                <label>Dirección de Envío</label>
+                <input type="text" id="address" name="address" placeholder="Calle, Número, Departamento / Casa">
+              </div>
             </div>
           </div>
         </div>
@@ -384,7 +336,7 @@
           <div class="form-grid">
             <label class="form-group full radio-option">
               <input type="radio" name="payment_method" value="webpay" checked>
-              <span>Webpay</span>
+              <span>Webpay (Débito, Crédito, Redcompra)</span>
             </label>
             <label class="form-group full radio-option">
               <input type="radio" name="payment_method" value="transferencia">
@@ -394,23 +346,30 @@
         </div>
       </div>
 
+      <!-- COLUMNA RESUMEN TOTAL -->
       <div class="summary-card">
         <h3>Resumen del Pedido</h3>
-        <div class="summary-row"><span>Subtotal</span><span>${{ total|floatformat:2 }}</span></div>
-        <div class="summary-row"><span>Envío</span><span class="free">GRATIS</span></div>
-        <div class="summary-row total"><span>Total</span><span>${{ total|floatformat:2 }}</span></div>
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span class="price-value" id="summary-subtotal">${{ total|floatformat:2 }}</span>
+        </div>
+        <div class="summary-row">
+          <span>Envío</span>
+          <span id="summary-shipping" class="free">GRATIS</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total</span>
+          <span id="summary-total">${{ total|floatformat:2 }}</span>
+        </div>
         
         {% if cart_items %}
-          <button class="btn-pay" type="submit">💳 Pagar Ahora &rarr;</button>
+          <button class="btn-pay" type="submit">💳 Proceder al Pago &rarr;</button>
         {% else %}
-          <button class="btn-pay" type="button" disabled style="opacity:.7;cursor:not-allowed;">💳 Agrega productos para continuar</button>
+          <button class="btn-pay" type="button" disabled style="opacity:.7;cursor:not-allowed;"> 🛍️ Agrega productos</button>
         {% endif %}
 
-        <div class="trust-items">
-          <div class="trust-item"></div>
-        </div>
         <div class="payment-info">
-          💳 Aceptamos Webpay, transferencia y tarjetas de crédito
+          🔒 Integrado de forma segura con pasarelas automáticas autorizadas.
         </div>
       </div>
     </div>
@@ -421,19 +380,18 @@
   <div class="footer-grid">
     <div class="footer-col">
       <h4>Sobre Nosotros</h4>
-      <p>Fabricamos muebles infantiles de calidad en Chile. Diseños seguros y modernos para el cuarto de tus niños.</p>
+      <p>PequeMundo Muebles es un emprendimiento chileno dedicado al diseño y fabricación de muebles seguros para niños[cite: 1].</p>
     </div>
     <div class="footer-col">
       <h4>Contacto</h4>
       <a href="mailto:contacto@pequemundo.cl">✉️ contacto@pequemundo.cl</a>
       <a href="tel:+56222345678">📞 +56 2 2345 6789</a>
-      <a href="#">📍 Santiago, Chile</a>
+      <a href="#">📍 Santiago, Chile[cite: 1]</a>
     </div>
     <div class="footer-col">
       <h4>Horario de Atención</h4>
-      <p>Lunes a Viernes: 9:00 – 18:00</p>
+      <p>Lunes a Viernes: 9:00 – 18:00[cite: 1]</p>
       <p>Sábado: 10:00 – 14:00</p>
-      <p>Domingo: Cerrado</p>
     </div>
   </div>
   <div class="footer-bottom">© 2026 PequeMundo Muebles. Todos los derechos reservados.</div>
@@ -454,49 +412,85 @@
 </div>
 
 <script>
-// Manejo visual y de estado para opciones de despacho/retiro
+// Captura el subtotal base enviado desde el backend de Django
+let baseSubtotal = parseFloat("{{ total|default:0 }}");
+
+// Manejo dinámico para alternar entre Despacho y Retiro en tienda
 function selectDelivery(type) {
   const isRetiro = (type === 'retiro');
   document.getElementById('opt-retiro').classList.toggle('selected', isRetiro);
   document.getElementById('opt-despacho').classList.toggle('selected', !isRetiro);
   document.getElementById('radio-retiro').checked = isRetiro;
   document.getElementById('radio-despacho').checked = !isRetiro;
+
+  const despachoFields = document.getElementById('despacho-fields');
+  const addressInput = document.getElementById('address');
+
+  if (isRetiro) {
+    despachoFields.style.display = 'none';
+    addressInput.removeAttribute('required');
+  } else {
+    despachoFields.style.display = 'block';
+    addressInput.setAttribute('required', 'true');
+  }
+
+  // Ejecuta la actualización de costos
+  updateShippingCost();
 }
 
-// Menú Dropdown de Usuario
+// Lógica de cálculo automatizado de envíos para las regiones de Chile
+function updateShippingCost() {
+  const isRetiro = document.getElementById('radio-retiro').checked;
+  const shippingElement = document.getElementById('summary-shipping');
+  const totalElement = document.getElementById('summary-total');
+  
+  let shippingCost = 0;
+
+  if (isRetiro) {
+    shippingElement.textContent = "GRATIS";
+    shippingElement.className = "free";
+  } else {
+    const region = document.getElementById('region_select').value;
+    // Si la región seleccionada es la Metropolitana se cobra $5.990, sino se cobra $9.990
+    if (region === 'REGION_METROPOLITANA') {
+      shippingCost = 5990;
+    } else {
+      shippingCost = 9990;
+    }
+    shippingElement.textContent = `$${shippingCost.toLocaleString('es-CL')}`;
+    shippingElement.className = "price-value";
+  }
+
+  // Suma e impresión final con formato de miles chileno
+  let finalTotal = baseSubtotal + shippingCost;
+  totalElement.textContent = `$${finalTotal.toLocaleString('es-CL')}`;
+}
+
+// Lógica del Menú Dropdown
 function toggleUserMenu(event) {
   event.stopPropagation();
   const menu = document.getElementById('userMenu');
-  if (menu) {
-    menu.classList.toggle('show');
-  }
+  if (menu) { menu.classList.toggle('show'); }
 }
 
-// Cerrar menú al hacer clic afuera
 document.addEventListener('click', function() {
   const menu = document.getElementById('userMenu');
-  if (menu) {
-    menu.classList.remove('show');
-  }
+  if (menu) { menu.classList.remove('remove'); }
 });
 
-// Variable para almacenar el ID del producto a eliminar
 let productToDelete = null;
 
-// Mostrar modal de confirmación
 function confirmRemoveFromCart(productId, event) {
   event.preventDefault();
   productToDelete = productId;
   document.getElementById('deleteModal').classList.add('show');
 }
 
-// Cerrar modal sin confirmar
 function closeDeleteModal() {
   document.getElementById('deleteModal').classList.remove('show');
   productToDelete = null;
 }
 
-// Confirmar eliminación
 function confirmDelete() {
   if (productToDelete !== null) {
     removeFromCart(productToDelete);
@@ -504,7 +498,6 @@ function confirmDelete() {
   }
 }
 
-// Eliminar producto del carrito
 function removeFromCart(productId) {
   fetch(`/eliminar-carrito/${productId}/`, {
     method: 'POST',
@@ -516,7 +509,6 @@ function removeFromCart(productId) {
   .then(response => response.json())
   .then(data => {
     if (data.success) {
-      // Eliminar el elemento visualmente
       const cartItem = document.getElementById(`cart-item-${productId}`);
       if (cartItem) {
         cartItem.style.opacity = '0';
@@ -524,39 +516,21 @@ function removeFromCart(productId) {
         setTimeout(() => cartItem.remove(), 300);
       }
       
-      // Actualizar cantidad en el carrito del navbar
       const navCartCount = document.querySelector('.nav-btn.active');
-      if (navCartCount) {
-        navCartCount.textContent = `🛒 Carrito (${data.cart_count})`;
-      }
+      if (navCartCount) { navCartCount.textContent = `🛒 Carrito (${data.cart_count})`; }
       
-      // Actualizar el total en el resumen
-      const summaryTotal = document.querySelector('.summary-row.total span:last-child');
-      if (summaryTotal && data.total !== undefined) {
-        summaryTotal.textContent = `$${data.total.toFixed(2)}`;
-      }
+      baseSubtotal = data.total;
+      document.getElementById('summary-subtotal').textContent = `$${baseSubtotal.toLocaleString('es-CL')}`;
+      updateShippingCost();
       
-      // Actualizar subtotal
-      const summarySubtotal = document.querySelector('.summary-row span:last-child');
-      if (summarySubtotal && data.total !== undefined) {
-        summarySubtotal.textContent = `$${data.total.toFixed(2)}`;
-      }
-      
-      // Si no quedan items, recargar la página para mostrar el carrito vacío
-      if (data.cart_count === 0) {
-        setTimeout(() => location.reload(), 500);
-      }
+      if (data.cart_count === 0) { setTimeout(() => location.reload(), 500); }
     } else {
       alert('Error al eliminar el producto: ' + data.message);
     }
   })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('Hubo un error al eliminar el producto');
-  });
+  .catch(error => { console.error('Error:', error); });
 }
 
-// Aumentar cantidad del producto
 function increaseQty(productId, event) {
   event.preventDefault();
   const qtyDisplay = document.getElementById(`qty-display-${productId}`);
@@ -569,7 +543,6 @@ function increaseQty(productId, event) {
   updateCartItem(productId);
 }
 
-// Disminuir cantidad del producto
 function decreaseQty(productId, event) {
   event.preventDefault();
   const qtyDisplay = document.getElementById(`qty-display-${productId}`);
@@ -584,7 +557,6 @@ function decreaseQty(productId, event) {
   }
 }
 
-// Actualizar item en el carrito (llamar al servidor)
 function updateCartItem(productId) {
   const newQuantity = parseInt(document.getElementById(`qty-display-${productId}`).textContent);
   
@@ -599,51 +571,26 @@ function updateCartItem(productId) {
   .then(response => response.json())
   .then(data => {
     if (data.success) {
-      // Actualizar precio del item
       const priceElement = document.getElementById(`price-${productId}`);
       if (priceElement && data.new_subtotal !== undefined) {
         priceElement.textContent = `$${data.new_subtotal.toFixed(2)}`;
       }
       
-      // Actualizar total del carrito
       const navCartCount = document.querySelector('.nav-btn.active');
-      if (navCartCount) {
-        navCartCount.textContent = `🛒 Carrito (${data.cart_count})`;
-      }
+      if (navCartCount) { navCartCount.textContent = `🛒 Carrito (${data.cart_count})`; }
       
-      // Actualizar resumen
-      const summaryTotal = document.querySelector('.summary-row.total span:last-child');
-      if (summaryTotal && data.total !== undefined) {
-        summaryTotal.textContent = `$${data.total.toFixed(2)}`;
-      }
-      
-      const summarySubtotal = document.querySelector('.summary-row span:last-child');
-      if (summarySubtotal && data.total !== undefined) {
-        summarySubtotal.textContent = `$${data.total.toFixed(2)}`;
-      }
+      baseSubtotal = data.total;
+      document.getElementById('summary-subtotal').textContent = `$${baseSubtotal.toLocaleString('es-CL')}`;
+      updateShippingCost();
     } else {
       alert('Error al actualizar la cantidad: ' + data.message);
     }
   })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('Hubo un error al actualizar la cantidad');
-  });
+  .catch(error => { console.error('Error:', error); });
 }
 
-// Cerrar modal al presionar Escape
-document.addEventListener('keydown', function(event) {
-  if (event.key === 'Escape') {
-    closeDeleteModal();
-  }
-});
-
-// Cerrar modal al hacer clic fuera del contenido
-document.getElementById('deleteModal').addEventListener('click', function(event) {
-  if (event.target === this) {
-    closeDeleteModal();
-  }
-});
+document.addEventListener('keydown', function(event) { if (event.key === 'Escape') { closeDeleteModal(); } });
+document.getElementById('deleteModal').addEventListener('click', function(event) { if (event.target === this) { closeDeleteModal(); } });
 </script>
 </body>
 </html>

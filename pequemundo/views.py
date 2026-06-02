@@ -629,6 +629,16 @@ def checkout(request):
     direccion = request.POST.get('direccion', '').strip() or 'Retiro en Tienda'
     region = request.POST.get('region', '').strip() or 'Región Metropolitana'
 
+    # Calcular costo de despacho
+    costo_despacho = 0
+    if delivery == 'Despacho a Domicilio':
+        if region == 'Región Metropolitana':
+            costo_despacho = 5990
+        else:
+            costo_despacho = 9990
+
+    total_final = total + costo_despacho
+
     user = None
     user_id = request.session.get('user_id')
     if user_id:
@@ -644,8 +654,8 @@ def checkout(request):
             estado=_normalize_order_status('Recibido'),
             tipo_entrega=delivery_type,
             total=total,
-            total_final=total,
-            costo_despacho=0,
+            total_final=total_final,
+            costo_despacho=costo_despacho,
             region=region,
             direccion_entrega=direccion,
             fecha_pedido=timezone.now(),
@@ -671,7 +681,7 @@ def checkout(request):
         orders.append({
             'id': order_id,
             'date': order_date,
-            'total': total,
+            'total': total_final,
             'status': 'Recibido',
             'eta': '5-7 días hábiles',
             'delivery': delivery,
@@ -690,7 +700,7 @@ def checkout(request):
             webpay_response = _get_webpay_transaction().create(
                 buy_order=str(buy_order), 
                 session_id=str(session_id), 
-                amount=int(float(total)), 
+                amount=int(float(total_final)), 
                 return_url=str(return_url)
             )
             
@@ -724,7 +734,7 @@ def checkout(request):
         # Registrar el pago alternativo (no webpay)
         Pago.objects.create(
             id_pedido=order,
-            monto=total,
+            monto=total_final,
             estado='Aprobado',
             metodo_pago=payment_method,
             codigo_transaccion='N/A',
