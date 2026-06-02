@@ -243,10 +243,10 @@ def producto_detalle(request, product_id):
 
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
         try:
-            user = Usuario.objects.get(nombre=username, activo='1')
+            user = Usuario.objects.get(email=email, activo='1')
             valid_password = False
             if user.contrasena:
                 valid_password = check_password(password, user.contrasena)
@@ -285,9 +285,11 @@ def register_view(request):
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '')
         password_confirm = request.POST.get('password_confirm', '')
+        telefono = request.POST.get('telefono', '').strip()
+        direccion = request.POST.get('direccion', '').strip()
 
-        if not nombre or not password:
-            messages.error(request, 'El nombre de usuario y la contraseña son obligatorios.')
+        if not nombre or not apellido or not email or not telefono or not direccion or not password or not password_confirm:
+            messages.error(request, 'Todos los campos son obligatorios.')
         elif password != password_confirm:
             messages.error(request, 'Las contraseñas no coinciden.')
         elif Usuario.objects.filter(nombre=nombre).exists():
@@ -296,8 +298,10 @@ def register_view(request):
             # Todos los nuevos usuarios se registran como CLIENTE (rol 4)
             usuario = Usuario(
                 nombre=nombre,
-                apellido=apellido or None,
-                email=email or None,
+                apellido=apellido,
+                email=email,
+                telefono=telefono,
+                direccion=direccion,
                 contrasena=make_password(password),
                 id_rol=4,  # CLIENTE por defecto
                 imagen_url='pequeMundo_usuarios.png',  # Imagen por defecto
