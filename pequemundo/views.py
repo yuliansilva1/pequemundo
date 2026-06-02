@@ -199,13 +199,15 @@ def catalogo(request):
         productos_data = []
         print(f"Error en catalogo: {e}")
     
-    # Verificar si el usuario es administrador
+    # Verificar si el usuario es administrador o finanzas
     is_admin = False
+    is_finanzas = False
     user_id = request.session.get('user_id')
     if user_id:
         try:
             user = Usuario.objects.get(id_usuario=user_id)
             is_admin = user.id_rol == 1
+            is_finanzas = user.id_rol == 3
         except Usuario.DoesNotExist:
             pass
     
@@ -213,7 +215,8 @@ def catalogo(request):
     return render(request, 'catalogo.html', {
         'productos': productos_data, 
         'cart_count': cart_count,
-        'is_admin': is_admin
+        'is_admin': is_admin,
+        'is_finanzas': is_finanzas
     })
 
 def producto_detalle(request, product_id):

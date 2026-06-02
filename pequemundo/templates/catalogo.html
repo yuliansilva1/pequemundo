@@ -238,6 +238,9 @@
 </div>
   <div class="nav-links">
     <a class="nav-btn active" href="/catalogo/">🛍️ Catálogo</a>
+    {% if is_finanzas %}
+    <a class="nav-btn ghost" href="/finanzas-dashboard/" style="background: #fce7f3; color: #9d174d; font-weight: 700;">💰 Dashboard Finanzas</a>
+    {% endif %}
     <a class="nav-btn ghost" href="/pedidos/">🕐 Mis Pedidos</a>
     {% if request.session.username %}
     <a class="nav-btn ghost" href="/producto/nuevo/">➕ Agregar Producto</a>
