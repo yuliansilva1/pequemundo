@@ -2,166 +2,211 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PequeMundo – Mis Pedidos</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-
-
-<link rel="stylesheet" href="{% static 'css/pedidos.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Pedidos - PequeMundo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/pedidos.css' %}">
 </head>
 <body>
 
 <nav>
   <div class="logo">
-  <a href="/catalogo/" class="logo-link">
-    <img src="/static/pequeMundo_logo.png" class="logo-img" alt="volver al inicio" width="200" height="150">
-  </a>
-</div>
+    <a href="{% url 'catalogo' %}">
+      <img src="/static/pequeMundo_logo.png" alt="PequeMundo" onerror="this.style.display='none'">
+    </a>
+  </div>
   <div class="nav-links">
-    <a class="nav-btn ghost" href="/catalogo/">🛍️ Catálogo</a>
-    <a class="nav-btn active" href="/pedidos/">🕐 Mis Pedidos</a>
-    <a class="nav-btn cart" href="/pago/">🛒 Carrito ({{ cart_count|default:0 }})</a>
-    {% if request.session.username %}
-    <div class="user-menu-container">
-      <button class="user-btn" onclick="toggleUserMenu(event)">👤 {{ request.session.username }}</button>
-      <ul class="dropdown-menu" id="userMenu">
-        <li><a href="{% url 'user_profile' %}">👤 Mi Perfil</a></li>
-        <li><a href="{% url 'user_edit_profile' %}">✏️ Editar Perfil</a></li>
-        <li><a href="{% url 'pedidos' %}">🕐 Mis Pedidos</a></li>
-        <li><div class="dropdown-divider"></div></li>
-        <li><a href="{% url 'logout' %}">🚪 Cerrar Sesión</a></li>
-      </ul>
-    </div>
-    {% else %}
-    <a class="nav-btn ghost" href="/login/">Iniciar Sesión</a>
-    {% endif %}
+    <a class="nav-btn" href="{% url 'user_profile' %}">⬅️ Volver a mi perfil</a>
+    <a class="nav-btn" href="{% url 'catalogo' %}">🛍️ Catálogo</a>
   </div>
 </nav>
 
 <div class="container">
-  <a href="/catalogo/" class="back-link">← Volver al catálogo</a>
-  <h1>Mis Pedidos</h1>
-  <p class="subtitle">Revisa el estado de tus compras y el <span>historial de pedidos</span></p>
+  <div class="breadcrumb">
+    <a href="{% url 'user_profile' %}">Mi Perfil</a>
+    <span>/</span>
+    <span>Mis Pedidos</span>
+  </div>
 
-  <!-- STATS -->
-  <div class="stats">
-    <div class="stat-card">
-      <div class="stat-icon blue">📦</div>
+  <div class="card">
+    <div class="header-with-filters">
       <div>
-        <div class="stat-label">Total de Pedidos</div>
-        <div class="stat-num">{{ total_orders }}</div>
+        <h1>📦 Mis Pedidos</h1>
+        <p class="subtitle" style="margin-bottom: 0;">Aquí puedes ver el historial y estado de todas tus compras.</p>
+      </div>
+      <div class="order-filters">
+        <button class="filter-btn active" onclick="filterOrders('TODOS', this)">Todos</button>
+        <button class="filter-btn" onclick="filterOrders('EN_PREPARACION', this)">En Preparación</button>
+        <button class="filter-btn" onclick="filterOrders('EN_CAMINO', this)">En Camino</button>
+        <button class="filter-btn" onclick="filterOrders('ENTREGADO', this)">Entregados</button>
       </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon orange">🚚</div>
-      <div>
-        <div class="stat-label">En Proceso</div>
-        <div class="stat-num">{{ in_process }}</div>
+    
+    <div class="orders-list">
+      {% for order in orders %}
+      <!-- Tarjeta principal con acordeón -->
+      <div class="order-card" data-status="{{ order.status_key }}" onclick="toggleOrderDetails('{{ order.id }}')">
+        
+        <!-- Resumen siempre visible -->
+        <div class="order-summary">
+          <div class="order-summary-left">
+            
+            <!-- Miniaturas de productos comprados -->
+            <div class="order-thumbnails">
+              {% for item in order.items|slice:":3" %}
+              <img src="{{ item.imagen_url }}" alt="{{ item.nombre }}" class="thumb-img" onerror="this.src='/static/pequeMundo_logo.png'">
+              {% endfor %}
+              {% if order.items|length > 3 %}
+              <div class="thumb-more">+{{ order.items|length|add:"-3" }}</div>
+              {% endif %}
+            </div>
+
+            <div class="order-info">
+              <h3>Pedido #{{ order.id }}</h3>
+              <p class="order-date">🗓️ Fecha: {{ order.date }}</p>
+              <p class="order-total">💰 Total: ${{ order.total|floatformat:"0" }}</p>
+            </div>
+          </div>
+          <div class="order-status-container">
+            <span class="badge {{ order.status_class }}">{{ order.status }}</span>
+            <span class="toggle-icon" id="icon-{{ order.id }}">▼</span>
+          </div>
+        </div>
+        
+        <!-- Detalles ocultos (Acordeón) -->
+        <div class="order-details" id="details-{{ order.id }}" style="display: none;" onclick="event.stopPropagation()">
+          <hr class="divider">
+          <h4 style="color: var(--teal); margin-bottom: 10px;">🛒 Artículos del pedido:</h4>
+          
+          <ul class="items-list">
+            {% for item in order.items %}
+            <li class="item-row">
+              <img src="{{ item.imagen_url }}" alt="{{ item.nombre }}" class="item-img" onerror="this.src='/static/pequeMundo_logo.png'">
+              <div class="item-info">
+                <p class="item-name">{{ item.nombre }}</p>
+                <p class="item-qty">Cantidad: {{ item.cantidad }} x ${{ item.precio|floatformat:"0" }}</p>
+              </div>
+              <div class="item-subtotal">
+                <p><strong>${{ item.subtotal|floatformat:"0" }}</strong></p>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+          
+          <div class="order-eta-box">
+            <p><strong>🚚 Entrega:</strong> {{ order.eta }}</p>
+            <button class="btn-submit btn-small" onclick="openOrderModal('modal-{{ order.id }}')">📄 Ver Dirección y Envío</button>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon green">✅</div>
-      <div>
-        <div class="stat-label">Completados</div>
-        <div class="stat-num">{{ completed }}</div>
+
+      <!-- Ventana flotante (Modal) del pedido -->
+      <div class="modal-overlay" id="modal-{{ order.id }}" onclick="closeOrderModal('modal-{{ order.id }}')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+          <div class="modal-header">
+            <h2>Detalles del Pedido #{{ order.id }}</h2>
+            <button class="close-btn" onclick="closeOrderModal('modal-{{ order.id }}')">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="info-section">
+              <p><strong>Estado:</strong> <span class="badge {{ order.status_class }}">{{ order.status }}</span></p>
+              <p><strong>Fecha de compra:</strong> {{ order.date }}</p>
+              <p><strong>Tipo de Entrega:</strong> {% if order.tipo_entrega == 'DESPACHO_DOMICILIO' %}Despacho a Domicilio{% else %}{{ order.tipo_entrega }}{% endif %}</p>
+              <p><strong>Dirección:</strong> {{ order.direccion }}</p>
+              <p><strong>Tiempo estimado:</strong> {{ order.eta }}</p>
+            </div>
+            
+            <hr class="divider">
+            <h4 style="color: var(--teal); margin-bottom: 10px;">🛒 Artículos</h4>
+            <ul class="items-list">
+              {% for item in order.items %}
+              <li class="item-row">
+                <img src="{{ item.imagen_url }}" alt="{{ item.nombre }}" class="item-img" onerror="this.src='/static/pequeMundo_logo.png'">
+                <div class="item-info">
+                  <p class="item-name">{{ item.nombre }}</p>
+                  <p class="item-qty">Cantidad: {{ item.cantidad }} x ${{ item.precio|floatformat:"0" }}</p>
+                </div>
+                <div class="item-subtotal">
+                  <p><strong>${{ item.subtotal|floatformat:"0" }}</strong></p>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+            
+            <hr class="divider">
+            <div class="order-totals">
+              <p>Costo de Despacho: ${{ order.costo_despacho|default:"0"|floatformat:"0" }}</p>
+              <h3>Total Pagado: ${{ order.total|floatformat:"0" }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+        <div class="empty-state">
+          <p>No tienes pedidos registrados actualmente.</p>
+          <br>
+          <a href="{% url 'catalogo' %}" class="btn-submit" style="display: inline-block; width: auto; padding: 10px 20px; text-decoration: none;">Ir al Catálogo</a>
+        </div>
+      {% endfor %}
+
+      <!-- Mensaje dinámico si el filtro no arroja resultados -->
+      <div class="empty-state" id="empty-filter-msg" style="display: none;">
+        <p>No tienes pedidos actualmente en este estado.</p>
       </div>
     </div>
   </div>
-
-  <div class="section-title">Pedidos</div>
-
-  {% if orders %}
-  <div class="order-filters">
-    <button class="filter-btn active" onclick="filterOrders('todos', this)">Todos ({{ total_orders }})</button>
-    <button class="filter-btn" onclick="filterOrders('progreso', this)">En progreso ({{ in_process }})</button>
-    <button class="filter-btn" onclick="filterOrders('entregados', this)">Entregados ({{ completed }})</button>
-  </div>
-  {% endif %}
-
-  {% if orders %}
-    {% for order in orders %}
-    <div class="order-card" data-status="{% if order.status_key == 'ENTREGADO' %}entregados{% elif order.status_key == 'CANCELADO' %}cancelados{% else %}progreso{% endif %}">
-      <div class="order-main">
-        <img class="order-img" src="{{ order.items.0.imagen_url }}" alt="Pedido {{ order.id }}">
-        <div class="order-info">
-          <div class="order-name">Pedido #{{ order.id }}</div>
-          <div class="order-meta">{{ order.date }}</div>
-        </div>
-        <div class="order-price">${{ order.total|floatformat:2 }}</div>
-      </div>
-      <div class="order-status">
-        <span class="status-pill {{ order.status_class|default:'status-prep' }}">
-          {% if order.status_key == 'EN_PREPARACION' or order.status_key == 'RECIBIDO' %}🕐 {{ order.status }}{% elif order.status_key == 'EN_CAMINO' %}🚚 {{ order.status }}{% elif order.status_key == 'ENTREGADO' %}✅ {{ order.status }}{% else %}{{ order.status }}{% endif %}
-        </span>
-      </div>
-      <div class="order-eta">🕐 Entrega estimada: {{ order.eta }}</div>
-    </div>
-    {% endfor %}
-  {% else %}
-    <div class="order-card">
-      <div class="order-main">
-        <div class="order-info">
-          <div class="order-name">Todavía no has hecho pedidos</div>
-          <div class="order-meta">Agrega productos al carrito y finaliza tu compra.</div>
-        </div>
-      </div>
-    </div>
-  {% endif %}
 </div>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-grid">
-    <div class="footer-col">
-      <h4>Sobre Nosotros</h4>
-      <p>Fabricamos muebles infantiles de calidad en Chile. Diseños seguros y modernos para el cuarto de tus niños.</p>
-    </div>
-    <div class="footer-col">
-      <h4>Contacto</h4>
-      <a href="mailto:contacto@pequemundo.cl">✉️ contacto@pequemundo.cl</a>
-      <a href="tel:+56222345678">📞 +56 2 2345 6789</a>
-      <a href="#">📍 Santiago, Chile</a>
-    </div>
-    <div class="footer-col">
-      <h4>Horario de Atención</h4>
-      <p>Lunes a Viernes: 9:00 – 18:00</p>
-      <p>Sábado: 10:00 – 14:00</p>
-      <p>Domingo: Cerrado</p>
-    </div>
-  </div>
-  <div class="footer-bottom">© 2026 PequeMundo Muebles. Todos los derechos reservados.</div>
-</footer>
-
 <script>
-function toggleUserMenu(event) {
-  event.stopPropagation();
-  const menu = document.getElementById('userMenu');
-  menu.classList.toggle('show');
-}
-
-document.addEventListener('click', function() {
-  const menu = document.getElementById('userMenu');
-  if (menu) {
-    menu.classList.remove('show');
+  function toggleOrderDetails(orderId) {
+      const details = document.getElementById('details-' + orderId);
+      const icon = document.getElementById('icon-' + orderId);
+      
+      if (details.style.display === 'none' || details.style.display === '') {
+          details.style.display = 'block';
+          icon.style.transform = 'rotate(180deg)';
+      } else {
+          details.style.display = 'none';
+          icon.style.transform = 'rotate(0deg)';
+      }
   }
-});
 
-function filterOrders(filterType, btnElement) {
-  // Cambiar color del botón activo
-  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-  btnElement.classList.add('active');
+  function openOrderModal(modalId) {
+      document.getElementById(modalId).classList.add('active');
+      document.body.style.overflow = 'hidden'; // Evita que se haga scroll en la página de atrás
+  }
 
-  // Filtrar tarjetas
-  document.querySelectorAll('.order-card').forEach(card => {
-    if (filterType === 'todos') {
-      card.style.display = 'block';
-    } else {
-      // Mostrar solo las tarjetas que coincidan con el estado
-      card.style.display = card.getAttribute('data-status') === filterType ? 'block' : 'none';
-    }
-  });
-}
+  function closeOrderModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+      document.body.style.overflow = ''; // Restaura el scroll
+  }
+
+  // Lógica de Filtros
+  function filterOrders(status, btn) {
+      // Actualizar estilo del botón activo
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Mostrar/Ocultar tarjetas
+      const cards = document.querySelectorAll('.order-card');
+      let visibleCount = 0;
+      cards.forEach(card => {
+          if (status === 'TODOS' || card.getAttribute('data-status') === status) {
+              card.style.display = 'block';
+              visibleCount++;
+          } else {
+              card.style.display = 'none';
+          }
+      });
+      
+      // Mostrar mensaje de "Vacío" si el filtro no encuentra nada
+      const emptyFilterMsg = document.getElementById('empty-filter-msg');
+      if (cards.length > 0 && emptyFilterMsg) {
+          emptyFilterMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+      }
+  }
 </script>
+
 </body>
 </html>

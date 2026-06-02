@@ -630,13 +630,13 @@ def checkout(request):
 
     delivery = request.POST.get('delivery', 'Retiro en Tienda')
     delivery_type = _normalize_delivery_type(delivery)
-    direccion = request.POST.get('direccion', '').strip() or 'Retiro en Tienda'
-    region = request.POST.get('region', '').strip() or 'Región Metropolitana'
+    direccion = request.POST.get('address', '').strip() or 'Retiro en Tienda'
+    region = request.POST.get('region', '').strip() or 'REGION_METROPOLITANA'
 
     # Calcular costo de despacho
     costo_despacho = 0
     if delivery == 'Despacho a Domicilio':
-        if region == 'Región Metropolitana':
+        if region == 'REGION_METROPOLITANA':
             costo_despacho = 5990
         else:
             costo_despacho = 9990
@@ -741,7 +741,7 @@ def checkout(request):
             monto=total_final,
             estado='Aprobado',
             metodo_pago=payment_method,
-            codigo_transaccion='N/A',
+            codigo_transaccion=f'NA-{order.codigo}',
             fecha_pago=timezone.now()
         )
     elif not user:
@@ -808,7 +808,7 @@ def webpay_commit(request):
                         monto=amount,
                         estado='Aprobado',
                         metodo_pago='WEBPAY',
-                        codigo_transaccion=result.get('authorization_code', ''),
+                        codigo_transaccion=f"{result.get('authorization_code', '')}-{buy_order}",
                         fecha_pago=timezone.now()
                     )
         else:
@@ -840,7 +840,7 @@ def webpay_commit(request):
                 monto=amount,
                 estado='Rechazado',
                 metodo_pago='WEBPAY',
-                codigo_transaccion=result.get('authorization_code', 'N/A'),
+                codigo_transaccion=f"{result.get('authorization_code', 'NA')}-{buy_order}",
                 fecha_pago=timezone.now()
             )
         else:
@@ -893,6 +893,9 @@ def pedidos(request):
                     'status_class': _get_status_class(status_key),
                     'eta': '5-7 días hábiles',
                     'items': items,
+                    'direccion': pedido_obj.direccion_entrega or 'No especificada',
+                    'tipo_entrega': pedido_obj.tipo_entrega or 'Despacho',
+                    'costo_despacho': float(pedido_obj.costo_despacho or 0),
                 })
         except Usuario.DoesNotExist:
             orders = request.session.get('orders', [])
@@ -903,6 +906,9 @@ def pedidos(request):
             order['status'] = _format_order_status(status_key)
             order['status_key'] = status_key
             order['status_class'] = _get_status_class(status_key)
+            order['direccion'] = order.get('direccion', 'Retiro en Tienda')
+            order['tipo_entrega'] = order.get('delivery', 'Retiro')
+            order['costo_despacho'] = float(order.get('costo_despacho', 0))
 
     total_orders = len(orders)
     in_process = sum(1 for order in orders if order.get('status_key') != 'ENTREGADO')
