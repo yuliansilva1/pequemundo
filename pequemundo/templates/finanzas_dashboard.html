@@ -28,6 +28,19 @@
     
     .navbar { background: var(--white); box-shadow: var(--shadow); padding: 16px 24px; margin-bottom: 24px; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; }
     .navbar h1 { font-family: 'Nunito', sans-serif; font-size: 1.5rem; font-weight: 900; color: var(--teal); }
+    
+    .navbar-logo {
+      color: var(--teal);
+      text-decoration: none;
+      display: inline-block;
+      transition: color .2s;
+      cursor: pointer;
+    }
+
+    .navbar-logo:hover {
+      color: var(--teal-dark);
+    }
+    
     .navbar-links { display: flex; gap: 16px; align-items: center; }
     .nav-link { color: var(--gray-500); text-decoration: none; font-weight: 600; transition: color .2s; }
     .nav-link:hover { color: var(--teal); }
@@ -65,7 +78,7 @@
 
 <div class="container">
   <div class="navbar">
-    <h1>🏪 PequeMundo</h1>
+    <a href="{% url 'catalogo' %}" class="navbar-logo"><h1>🏪 PequeMundo</h1></a>
     <div class="navbar-links">
       <a href="{% url 'catalogo' %}" class="nav-link">🛍️ Catálogo</a>
       <a href="{% url 'finanzas_dashboard' %}" class="nav-link" style="color: var(--teal); font-weight: 700;">📊 Dashboard Finanzas</a>
