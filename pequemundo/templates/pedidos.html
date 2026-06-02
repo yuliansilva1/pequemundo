@@ -17,8 +17,32 @@
     </a>
   </div>
   <div class="nav-links">
-    <a class="nav-btn" href="{% url 'user_profile' %}">⬅️ Volver a mi perfil</a>
     <a class="nav-btn" href="{% url 'catalogo' %}">🛍️ Catálogo</a>
+    
+    <div class="user-menu-container">
+      <div class="nav-profile" onclick="toggleUserMenu(event)" style="cursor: pointer;">
+        {% if user_profile_image %}
+          <img src="{{ user_profile_image }}" alt="Mi Perfil" class="nav-avatar" onerror="this.src='/static/pequeMundo_usuarios.png'">
+        {% else %}
+          <span>👤 Mi Perfil</span>
+        {% endif %}
+        <span style="font-size: 0.8rem; margin-left: 5px; color: var(--gray-500);">▼</span>
+      </div>
+      
+      <div class="user-dropdown-menu" id="userDropdown">
+        <div class="dropdown-header">
+          <strong>Hola, {{ request.session.username|default:"Usuario" }}</strong>
+        </div>
+        <hr class="dropdown-divider">
+        <a href="{% url 'user_profile' %}">👤 Mi Perfil</a>
+        {% if is_admin %}
+          <a href="{% url 'admin_dashboard' %}">⚙️ Panel Admin</a>
+        {% elif is_finanzas %}
+          <a href="{% url 'finanzas_dashboard' %}">📊 Panel Finanzas</a>
+        {% endif %}
+        <a href="{% url 'logout' %}" style="color: #e63946;">🚪 Cerrar Sesión</a>
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -204,6 +228,21 @@
       const emptyFilterMsg = document.getElementById('empty-filter-msg');
       if (cards.length > 0 && emptyFilterMsg) {
           emptyFilterMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+      }
+  }
+
+  // Menú de Usuario
+  function toggleUserMenu(event) {
+      event.stopPropagation();
+      document.getElementById('userDropdown').classList.toggle('show');
+  }
+
+  window.onclick = function(event) {
+      if (!event.target.closest('.user-menu-container')) {
+          const dropdown = document.getElementById('userDropdown');
+          if (dropdown && dropdown.classList.contains('show')) {
+              dropdown.classList.remove('show');
+          }
       }
   }
 </script>

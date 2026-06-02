@@ -209,7 +209,16 @@ def catalogo(request):
             user = Usuario.objects.get(id_usuario=user_id)
             is_admin = user.id_rol == 1
             is_finanzas = user.id_rol == 3
-            user_profile_image = _normalize_image_url(user.imagen_url) if user.imagen_url else None
+            
+            img_url = str(user.imagen_url or 'pequeMundo_usuarios.png')
+            if img_url in ['None', '']: img_url = 'pequeMundo_usuarios.png'
+            if img_url.startswith('perfiles/'):
+                user_profile_image = f'{settings.MEDIA_URL}{img_url}'
+            elif img_url.startswith('http'):
+                user_profile_image = img_url
+            else:
+                if img_url.startswith('img/'): img_url = img_url[4:]
+                user_profile_image = f'/static/{img_url}'
         except Usuario.DoesNotExist:
             pass
     
@@ -866,10 +875,26 @@ def webpay_commit(request):
 
 def pedidos(request):
     orders = []
+    user_profile_image = None
+    is_admin = False
+    is_finanzas = False
     user_id = request.session.get('user_id')
     if user_id:
         try:
             user = Usuario.objects.get(id_usuario=user_id)
+            is_admin = user.id_rol == 1
+            is_finanzas = user.id_rol == 3
+            
+            img_url = str(user.imagen_url or 'pequeMundo_usuarios.png')
+            if img_url in ['None', '']: img_url = 'pequeMundo_usuarios.png'
+            if img_url.startswith('perfiles/'):
+                user_profile_image = f'{settings.MEDIA_URL}{img_url}'
+            elif img_url.startswith('http'):
+                user_profile_image = img_url
+            else:
+                if img_url.startswith('img/'): img_url = img_url[4:]
+                user_profile_image = f'/static/{img_url}'
+                
             pedidos_qs = Pedido.objects.filter(id_usuario=user).order_by('-fecha_pedido')
             for pedido_obj in pedidos_qs:
                 items = []
@@ -920,6 +945,9 @@ def pedidos(request):
         'in_process': in_process,
         'completed': completed,
         'cart_count': cart_count,
+        'user_profile_image': user_profile_image,
+        'is_admin': is_admin,
+        'is_finanzas': is_finanzas,
     })
 
 
