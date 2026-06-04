@@ -13,10 +13,12 @@
 </head>
 <body>
 
+  <!-- PANTALLA DEL RECIBO POST-TRANSBANK -->
   <div class="page">
     <div class="card">
       
       {% if status == "AUTHORIZED" %}
+        <!-- SECCIÓN: Éxito en el pago -->
         <div class="icon">🎉</div>
         <h1>¡Pago Confirmado!</h1>
         <p class="subtitle">Tu transacción se ha procesado con éxito en PequeMundo</p>
@@ -25,6 +27,7 @@
           ✓ Transacción Autorizada
         </div>
       {% else %}
+        <!-- SECCIÓN: Fracaso en el pago -->
         <div class="icon">❌</div>
         <h1>Pago Rechazado o Cancelado</h1>
         <p class="subtitle">No pudimos procesar tu cobro a través de Webpay</p>
@@ -34,6 +37,7 @@
         </div>
       {% endif %}
 
+      <!-- CUADRO DE DETALLES: Resumen y comprobante de la tarjeta -->
       <div class="details">
         <p><span>Código de pedido:</span> <strong>{{ order_code }}</strong></p>
         <p><span>Monto total:</span> <strong>{{ amount|chile_currency }}</strong> CLP</p>
@@ -49,6 +53,7 @@
         <p><span>Identificador de pago:</span> <strong style="font-size: 0.75rem; word-break: break-all;">{{ result.session_id|default:order_code }}</strong></p>
       </div>
 
+      <!-- BOTONES FINALES DE CONTINUIDAD (Dependen del éxito o rechazo) -->
       <div class="actions">
         {% if status == "AUTHORIZED" %}
           <a class="btn btn-primary" href="/pedidos/">🕐 Ver mis pedidos</a>

@@ -13,6 +13,7 @@
 </head>
 <body>
 
+<!-- BARRA DE NAVEGACIÓN -->
 <nav>
   <div class="logo">
     <a href="/catalogo/" class="logo-link">
@@ -53,6 +54,7 @@
     </div>
   {% endif %}
 
+  <!-- FORMULARIO DE COMPRA: Todo lo que está aquí adentro se enviará al presionar Pagar -->
   <form id="checkoutForm" method="POST" action="{% url 'checkout' %}">
     {% csrf_token %}
     
@@ -190,6 +192,7 @@
         </div>
         
         {% if cart_items %}
+          <!-- BOTÓN MAESTRO: Enviar todo el formulario y procesar el pago -->
           <button class="btn-pay" type="submit">💳 Proceder al Pago &rarr;</button>
         {% else %}
           <button class="btn-pay" type="button" disabled style="opacity:.7;cursor:not-allowed;"> 🛍️ Agrega productos</button>

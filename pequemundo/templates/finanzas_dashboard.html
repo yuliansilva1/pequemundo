@@ -14,6 +14,7 @@
 <body>
 
 <div class="container">
+  <!-- BARRA DE NAVEGACIÓN -->
   <div class="navbar">
     <a href="{% url 'catalogo' %}" class="navbar-logo"><h1>🏪 PequeMundo</h1></a>
     <div class="navbar-links">
@@ -38,6 +39,7 @@
     </div>
   </div>
 
+  <!-- TARJETAS DE RESUMEN NUMÉRICO SUPERIOR -->
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-icon">💰</div>
@@ -52,12 +54,14 @@
   </div>
 
   <div class="grid-2">
+    <!-- PANEL DEL GRÁFICO DE BARRAS (Productos) -->
     <div class="card">
       <h3>📊 Productos Más Vendidos</h3>
       <div style="position: relative; height: 300px; width: 100%;">
         <canvas id="productosChart"></canvas>
       </div>
     </div>
+    <!-- PANEL DEL GRÁFICO DE TORTA (Categorías) -->
     <div class="card">
       <h3>🥧 Ventas por Categoría</h3>
       <div style="position: relative; height: 300px; width: 100%;">
@@ -67,6 +71,7 @@
   </div>
 
   <div class="grid-2">
+    <!-- TABLA 1: Lista en texto de los productos que más dinero han generado -->
     <div class="card">
       <h3>🏆 Productos Más Vendidos</h3>
       {% if productos_vendidos %}
@@ -95,6 +100,7 @@
       {% endif %}
     </div>
 
+    <!-- TABLA 2: Registro de las últimas órdenes ingresadas -->
     <div class="card">
       <h3>📈 Ingresos por Pedidos Recientes</h3>
       {% if ultimos_pedidos %}

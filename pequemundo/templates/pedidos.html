@@ -11,6 +11,7 @@
 </head>
 <body>
 
+<!-- BARRA DE NAVEGACIÓN SUPERIOR -->
 <nav>
   <div class="logo">
     <a href="{% url 'catalogo' %}">
@@ -61,6 +62,7 @@
         <h1>📦 {% if is_admin or is_vendedor %}Todos los Pedidos{% else %}Mis Pedidos{% endif %}</h1>
         <p class="subtitle" style="margin-bottom: 0;">{% if is_admin or is_vendedor %}Gestión de todos los pedidos de la tienda.{% else %}Aquí puedes ver el historial y estado de todas tus compras.{% endif %}</p>
       </div>
+      <!-- SECCIÓN DE FILTROS: Botones que usan JavaScript para mostrar/ocultar pedidos sin recargar la página -->
       <div class="order-filters">
         <button class="filter-btn active" onclick="filterOrders('TODOS', this)">Todos</button>
         <button class="filter-btn" onclick="filterOrders('EN_PREPARACION', this)">En Preparación</button>
@@ -71,7 +73,7 @@
     
     <div class="orders-list">
       {% for order in orders %}
-      <!-- Tarjeta principal con acordeón -->
+      <!-- TARJETA DEL PEDIDO: Funciona como un gran botón. Al darle clic se activa "toggleOrderDetails" para abrir el panel de detalles -->
       <div class="order-card" data-status="{{ order.status_key }}" onclick="toggleOrderDetails('{{ order.id }}')">
         
         <!-- Resumen siempre visible -->
@@ -126,6 +128,7 @@
           <div class="order-eta-box" style="flex-wrap: wrap; gap: 10px;">
             <p style="margin-bottom: 0;"><strong>🚚 Entrega:</strong> {{ order.eta }}</p>
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <!-- ZONA DE ADMINISTRADOR: Botones y formulario que SOLO ven quienes trabajan en la tienda -->
               {% if is_admin or is_vendedor %}
               <form action="{% url 'admin_update_order' order.id_db %}" method="POST" style="display:inline-flex; gap: 5px; align-items: center;" onclick="event.stopPropagation()">
                   {% csrf_token %}
@@ -145,11 +148,12 @@
         </div>
       </div>
 
-      <!-- Ventana flotante (Modal) del pedido -->
+      <!-- VENTANA FLOTANTE (MODAL): Este es el recuadro que sale "flotando" cuando presionas el botón anterior -->
       <div class="modal-overlay" id="modal-{{ order.id }}" onclick="closeOrderModal('modal-{{ order.id }}')">
         <div class="modal-content" onclick="event.stopPropagation()">
           <div class="modal-header">
             <h2>Detalles del Pedido #{{ order.id }}</h2>
+            <!-- Botón para cerrar el Modal -->
             <button class="close-btn" onclick="closeOrderModal('modal-{{ order.id }}')">&times;</button>
           </div>
           <div class="modal-body">
@@ -190,6 +194,7 @@
         </div>
       </div>
       {% empty %}
+        <!-- ESTADO VACÍO: Si el usuario es nuevo y no tiene ningún pedido, verá esto -->
         <div class="empty-state">
           <p>No tienes pedidos registrados actualmente.</p>
           <br>

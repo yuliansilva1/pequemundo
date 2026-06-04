@@ -13,7 +13,7 @@
 </head>
 <body>
 
-<!-- navegacion -->
+<!-- BARRA DE NAVEGACIÓN SUPERIOR -->
 <nav>
   <div class="logo">
   <a href="/catalogo/" class="logo-link">
@@ -54,7 +54,7 @@
   </div>
 </nav>
 
-<!-- cabeza -->
+<!-- SECCIÓN HERO (El banner principal grande con el mensaje de bienvenida) -->
 <div class="hero">
   <h1>¡Crea el espacio perfecto para tus niños!</h1>
   <p>Muebles infantiles diseñados y fabricados en Chile con los más altos estándares de calidad y seguridad.</p>
@@ -65,7 +65,7 @@
   </div>
 </div>
 
-<!-- filtros -->
+<!-- BOTONES DE FILTROS: Permiten ocultar/mostrar productos según su categoría -->
 <div class="filters">
   <button class="filter-btn active" onclick="filterProducts('todos', this)">Todos los Productos</button>
   <button class="filter-btn" onclick="filterProducts('camas', this)">Camas</button>
@@ -77,9 +77,10 @@
   <button class="filter-btn" onclick="filterProducts('accesorios', this)">Accesorios</button>
 </div>
 
-<!-- catalogo -->
+<!-- GRILLA DE CATÁLOGO: Contenedor donde se muestran todos los muebles -->
 <div class="grid" id="productGrid">
   {% for producto in productos %}
+  <!-- TARJETA DE PRODUCTO: Cada mueble es una tarjeta independiente -->
   <div class="card" data-cat="{{ producto.categoria|lower }}">
     <a href="{% url 'producto_detalle' producto.id %}" style="text-decoration: none; color: inherit; display: block;">
       <div class="card-img">
@@ -110,6 +111,7 @@
           {% if producto.stock > 0 %}Stock: {{ producto.stock }} disponibles{% else %}Sin stock{% endif %}
         </div>
       </a>
+      <!-- Botón de acción principal: Agregar al Carrito -->
       <button class="btn-add {% if producto.stock == 0 %}disabled{% endif %}" {% if producto.stock == 0 %}disabled{% endif %} onclick="addToCart(this, {{ producto.id }})">{% if producto.stock > 0 %}🛒 Agregar al Carrito{% else %}🚫 No Disponible{% endif %}</button>
       {% if request.session.username %}
       <a href="{% url 'edit_product' producto.id %}" class="btn-add" style="margin-top:10px; background:#2563eb;">✏️ Editar producto</a>
@@ -119,7 +121,7 @@
   {% endfor %}
 </div>
 
-<!-- contactos -->
+<!-- SECCIÓN INFERIOR: Botón flotante para contactar por WhatsApp -->
 <div class="cta-section">
   <h3>¿Necesitas asesoría personalizada?</h3>
   <p>Nuestro equipo está listo para ayudarte a <span>elegir el mueble perfecto</span> para el cuarto de tus niños. Te asesoramos sin compromiso.</p>

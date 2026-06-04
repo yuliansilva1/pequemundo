@@ -12,6 +12,7 @@
 </head>
 <body>
 
+<!-- BARRA DE NAVEGACIÓN -->
 <nav>
   <div class="logo">
     <a href="{% url 'catalogo' %}">
@@ -24,6 +25,7 @@
 </nav>
 
 <div class="container">
+  <!-- MIGAS DE PAN (Ruta) -->
   <div class="breadcrumb">
     <a href="{% url 'catalogo' %}">Catálogo</a>
     <span>/</span>
@@ -41,14 +43,16 @@
     </div>
   {% endif %}
 
+  <!-- PANEL DE EDICIÓN DEL PRODUCTO -->
   <div class="card">
     <h1>✏️ Editar Producto</h1>
     <p class="subtitle">Modifica los datos del producto y guarda los cambios.</p>
     
+    <!-- Formulario Maestro para actualizar BD -->
     <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
       
-      <!-- Basic Info -->
+      <!-- SECCIÓN: Información Básica de Venta -->
       <h3 style="margin-bottom: 15px; color: var(--teal); font-size: 1.1rem; font-weight: 800; font-family: 'Nunito', sans-serif;">Información Básica</h3>
       
       <div class="form-group">
@@ -91,7 +95,7 @@
         <textarea id="descripcion" name="descripcion" class="form-control" placeholder="Describe los detalles del producto...">{{ producto.descripcion|default_if_none:'' }}</textarea>
       </div>
 
-      <!-- Detalle Técnico -->
+      <!-- SECCIÓN: Detalle Técnico del Mueble -->
       <h3 style="margin: 30px 0 15px; color: var(--teal); font-size: 1.1rem; font-weight: 800; font-family: 'Nunito', sans-serif;">Detalles Técnicos</h3>
       
       <div class="form-grid">
@@ -110,13 +114,13 @@
         <input type="text" id="medidas" name="medidas" class="form-control" value="{{ producto.medidas|default_if_none:'' }}" placeholder="Ej. 190 x 90 x 40 cm">
       </div>
 
-      <!-- Imagen -->
+      <!-- SECCIÓN: Subida y control de Imagen del Producto -->
       <h3 style="margin: 30px 0 15px; color: var(--teal); font-size: 1.1rem; font-weight: 800; font-family: 'Nunito', sans-serif;">Imagen del Producto</h3>
       
       <div class="form-group full">
         <label>Sube una nueva imagen (opcional)</label>
         
-        <!-- Contenedor Drag and Drop -->
+        <!-- Contenedor Drag and Drop interactivo -->
         <div class="upload-area" id="uploadArea">
           <input type="file" id="imagen_file" name="imagen_file" class="file-input" accept="image/*">
           <div class="upload-icon">📸</div>
@@ -124,7 +128,7 @@
           <div class="upload-hint">Soporta JPG, PNG, GIF (Máx 5MB)</div>
         </div>
         
-        <!-- Vista previa de la imagen -->
+        <!-- Vista previa de la imagen cargada previamente -->
         <div class="image-preview" id="imagePreview" {% if producto.imagen_url %}style="display: block;"{% endif %}>
           <img src="{% if producto.imagen_url %}{% if producto.imagen_url|slice:':4' == 'http' %}{{ producto.imagen_url }}{% else %}/media/{{ producto.imagen_url }}{% endif %}{% endif %}" id="previewImg" alt="Vista previa de la imagen">
           <br>
@@ -134,11 +138,13 @@
       
       <div class="divider">O usa un enlace web</div>
       
+      <!-- Opción alternativa: enlazar imagen externa por URL -->
       <div class="form-group full">
         <label for="imagen_url">URL de la imagen actual / nueva (opcional)</label>
         <input type="text" id="imagen_url" name="imagen_url" class="form-control" value="{{ producto.imagen_url|default_if_none:'' }}" placeholder="https://ejemplo.com/imagen.jpg">
       </div>
 
+      <!-- BOTÓN PARA CONFIRMAR EDICIÓN -->
       <button type="submit" class="btn-submit">
         💾 Guardar Cambios
       </button>

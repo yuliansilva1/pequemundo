@@ -12,6 +12,7 @@
 </head>
 <body>
 
+<!-- BARRA DE NAVEGACIÓN SUPERIOR -->
 <div class="navbar">
   <h1>🏪 PequeMundo</h1>
   <div class="navbar-links">
@@ -23,6 +24,7 @@
     {% endif %}
     <a href="{% url 'user_profile' %}" class="nav-link">👤 Mi Perfil</a>
     {% if request.session.username %}
+    <!-- Contenedor del menú del perfil de usuario -->
     <div class="user-menu-container">
       <button class="user-btn" onclick="toggleUserMenu(event)">👤 {{ request.session.username }}</button>
       <ul class="dropdown-menu" id="userMenu">
@@ -51,12 +53,14 @@
   </div>
   {% endif %}
 
+  <!-- MIGAS DE PAN (Breadcrumbs) para navegar -->
   <div class="breadcrumb">
     <a href="{% url 'user_profile' %}">Mi Perfil</a>
     <span>/</span>
     <span>Editar Perfil</span>
   </div>
 
+  <!-- CONTENEDOR CENTRAL: FORMULARIO DE EDICIÓN -->
   <div class="section">
     <h1>✏️ Editar Perfil</h1>
 
@@ -64,8 +68,9 @@
       <p>📝 Actualiza tu información personal y carga una foto de perfil</p>
     </div>
 
-    <!-- Sección de Avatar Corregida -->
+    <!-- SECCIÓN DE FOTO DE PERFIL (AVATAR) -->
     <div class="avatar-section">
+      <!-- Contenedor visual del círculo de la foto -->
       <div class="profile-avatar" id="avatarContainer">
         {% if usuario.imagen_url and usuario.imagen_url != "pequeMundo_usuarios.png" %}
           {% if usuario.imagen_url|slice:":9" == "perfiles/" %}
@@ -77,6 +82,7 @@
           <img src="/static/pequeMundo_usuarios.png" alt="Foto por defecto">
         {% endif %}
       </div>
+      <!-- Botón personalizado para disparar la subida del archivo (input=file oculto) -->
       <div class="avatar-upload">
         <h3 style="margin-bottom: 12px; font-size: 1.1rem; color: var(--gray-900);">Foto de Perfil</h3>
         <p style="color: var(--gray-500); margin-bottom: 16px; font-size: 0.9rem;">Sube una foto para tu perfil (PNG, JPG, GIF - máx 5MB)</p>
@@ -85,6 +91,7 @@
       </div>
     </div>
 
+    <!-- FORMULARIO DE DATOS DEL USUARIO -->
     <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
 
@@ -118,10 +125,11 @@
         <textarea id="direccion" name="direccion" placeholder="Calle, número, ciudad, etc.">{{ usuario.direccion|default:'' }}</textarea>
       </div>
 
-      <!-- Campo oculto para la imagen -->
+      <!-- INPUT FILE OCULTO: Este es el control real que procesa la subida de foto al tocar el botón de arriba -->
       <input type="file" id="imageInput" name="imagen_url" accept="image/*" style="display: none;" onchange="previewImage(event)">
 
       <div class="form-actions">
+        <!-- BOTONES FINALES DE GUARDADO -->
         <button type="submit" class="btn btn-primary">💾 Guardar Cambios</button>
         <a href="{% url 'user_profile' %}" class="btn btn-secondary">❌ Cancelar</a>
       </div>

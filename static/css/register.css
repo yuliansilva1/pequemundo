@@ -1,3 +1,4 @@
+/* === VARIABLES GLOBALES === */
 :root {
   --teal: #3bc9c0;
   --teal-dark: #2aada4;
@@ -24,6 +25,7 @@ body {
   padding: 20px;
 }
 
+/* === CONTENEDOR PRINCIPAL (MÁS ANCHO QUE LOGIN) === */
 .login-container { 
   background: var(--white); 
   border-radius: var(--radius); 
@@ -33,6 +35,7 @@ body {
   overflow: hidden;
 }
 
+/* === CABECERA DEL FORMULARIO === */
 .login-header {
   background: var(--teal);
   color: var(--white);
@@ -55,6 +58,7 @@ body {
   padding: 36px;
 }
 
+/* === CAMPOS DE TEXTO DEL FORMULARIO === */
 .form-group { margin-bottom: 16px; }
 
 .form-group label { 
@@ -80,7 +84,7 @@ body {
   border-color: var(--teal); 
 }
 
-/* Diseño a dos columnas para los nuevos campos */
+/* === DISEÑO A DOS COLUMNAS PARA CAMPOS CORTOS === */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -91,6 +95,7 @@ body {
   .form-row { grid-template-columns: 1fr; gap: 0; }
 }
 
+/* === BOTONES Y ENLACES (LINKS) === */
 .btn-submit { 
   width: 100%; 
   padding: 14px; 
@@ -120,6 +125,7 @@ body {
 .back-home { display: block; text-align: center; margin-top: 20px; color: var(--gray-500); text-decoration: none; font-weight: 500; font-size: 0.9rem; }
 .back-home:hover { color: var(--teal); }
 
+/* === MENSAJES DE ERROR/ÉXITO === */
 .messages { margin-bottom: 18px; }
 .message { padding: 12px 14px; border-radius: 10px; margin-bottom: 10px; font-size: 0.9rem; }
 .message.error { background: #fee2e2; color: #b91c1c; }

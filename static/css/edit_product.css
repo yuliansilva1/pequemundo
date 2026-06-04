@@ -1,3 +1,4 @@
+/* === VARIABLES GLOBALES === */
 :root {
     --teal: #3bc9c0;
     --teal-dark: #2aada4;
@@ -14,14 +15,18 @@
     --shadow: 0 2px 16px rgba(0,0,0,.08);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+/* === CUERPO Y CONTENEDOR CENTRAL === */
   body { font-family: 'Poppins', sans-serif; background: var(--gray-50); color: var(--gray-900); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
   .container { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 36px; width: 100%; max-width: 540px; }
+
+/* === FORMULARIO DE EDICIÓN === */
   h1 { font-family: 'Nunito', sans-serif; font-size: 1.8rem; margin-bottom: 12px; }
   p { color: var(--gray-600); margin-bottom: 22px; }
   .form-group { margin-bottom: 16px; }
   .form-group label { display: block; margin-bottom: 6px; font-weight: 700; }
   .form-group input, .form-group select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--gray-200); font-size: 1rem; }
   .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--teal); }
+/* === BOTONES Y MENSAJES === */
   .btn-save { width: 100%; padding: 14px; background: var(--teal); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
   .btn-save:hover { background: var(--teal-dark); }
   .messages { margin-bottom: 18px; }

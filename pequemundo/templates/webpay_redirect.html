@@ -10,11 +10,15 @@
 <link rel="stylesheet" href="{% static 'css/webpay_redirect.css' %}">
 </head>
 <body>
+  <!-- PANTALLA DE TRANSICIÓN HACIA TRANSBANK -->
   <div class="container">
     <h1>Redirigiendo a Webpay...</h1>
     <p>Tu pago se procesará en la pasarela segura de Webpay. Si no se redirige automáticamente, haz clic en el botón.</p>
+    
+    <!-- FORMULARIO OCULTO: Envía el token de la transacción a Transbank -->
     <form id="webpayForm" action="{{ webpay_url }}" method="POST">
       <input type="hidden" name="token_ws" value="{{ webpay_token }}">
+      <!-- BOTÓN DE RESPALDO: Por si falla la redirección automática con JavaScript -->
       <button class="button" type="submit">Continuar a Webpay</button>
     </form>
     <noscript>
@@ -22,6 +26,7 @@
     </noscript>
   </div>
   <script>
+    // SCRIPT DE REDIRECCIÓN: Envía el formulario de forma automática al cargar la página
     window.addEventListener('DOMContentLoaded', function() {
       var form = document.getElementById('webpayForm');
       if (form) {

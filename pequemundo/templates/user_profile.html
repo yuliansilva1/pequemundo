@@ -13,6 +13,7 @@
 </head>
 <body>
 
+<!-- BARRA DE NAVEGACIÓN PRINCIPAL -->
 <div class="navbar">
   <h1>🏪 PequeMundo</h1>
   <div class="navbar-links">
@@ -52,7 +53,7 @@
   </div>
   {% endif %}
 
-  <!-- Header de Perfil Corregido sin fallos de parpadeo -->
+  <!-- CABECERA DEL PERFIL: Muestra la foto, nombre e información principal -->
   <div class="profile-header">
     <div class="profile-avatar">
       {% if imagen_perfil_url %}
@@ -66,6 +67,7 @@
       <p>📧 {{ usuario.email|default:"Sin email registrado" }}</p>
       <p>📱 {{ usuario.telefono|default:"Sin teléfono registrado" }}</p>
       <p>📍 {{ usuario.direccion|default:"Sin dirección registrada" }}</p>
+      <!-- Botones de Acción directos del perfil -->
       <div class="profile-actions">
         <a href="{% url 'user_edit_profile' %}" class="btn btn-primary">✏️ Editar Perfil</a>
         <a href="{% url 'catalogo' %}" class="btn btn-secondary">🛍️ Ir al Catálogo</a>
@@ -73,7 +75,7 @@
     </div>
   </div>
 
-  <!-- Información Detallada -->
+  <!-- PANEL DE DATOS: Cuadrícula con los detalles del usuario -->
   <div class="section">
     <h2>📋 Información Completa</h2>
     <div class="info-grid">
@@ -104,7 +106,7 @@
     </div>
   </div>
 
-  <!-- Historial de Compras -->
+  <!-- TABLA DE HISTORIAL DE COMPRAS: Muestra los pedidos pasados del usuario -->
   <div class="section">
     <h2>🛒 Historial de Compras</h2>
     {% if pedidos %}

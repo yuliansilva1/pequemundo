@@ -13,6 +13,7 @@
 </head>
 <body>
 
+<!-- MENÚ LATERAL IZQUIERDO (Sidebar) -->
 <div class="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-logo">🏪 Admin</div>
@@ -24,6 +25,7 @@
     <li><a href="{% url 'catalogo' %}">🛍️ Catálogo</a></li>
     {% if request.session.username %}
     <li>
+      <!-- Menú desplegable del usuario en el sidebar -->
       <div class="user-menu-container">
         <button class="user-btn" onclick="toggleUserMenu(event)">👤 {{ request.session.username }}</button>
         <ul class="dropdown-menu" id="userMenu">
@@ -39,20 +41,23 @@
   </ul>
 </div>
 
+<!-- CONTENIDO PRINCIPAL DERECHO -->
 <div class="main-content">
+  <!-- CABECERA DE LA PÁGINA (Título y botones de acción rápida) -->
   <div class="header">
     <div>
       <h1>📊 Panel de Administración</h1>
       <p style="color: var(--gray-500); font-size: 0.9rem; margin-top: 4px;">Bienvenido de vuelta, administrador</p>
     </div>
     <div class="header-actions">
+      <!-- Botones principales del Admin -->
       <a href="{% url 'add_product' %}" class="btn btn-primary">➕ Crear producto</a>
       <a href="{% url 'manage_users' %}" class="btn btn-secondary">👥 Gestionar Usuarios</a>
       <a href="{% url 'catalogo' %}" class="btn btn-secondary">🛍️ Ir al Catálogo</a>
     </div>
   </div>
 
-  <!-- Estadísticas Principales -->
+  <!-- SECCIÓN DE KPI: Tarjetas numéricas de resumen -->
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-icon">👥</div>
@@ -95,6 +100,7 @@
     </div>
   </div>
 
+  <!-- TABLA 1: Productos Recientes creados -->
   <div class="card" style="margin-bottom: 32px;">
     <h3>📦 Productos recientes</h3>
     {% if productos %}
@@ -119,6 +125,7 @@
               {% if producto.activo == '1' %}Activo{% else %}Inactivo{% endif %}
             </span>
           </td>
+          <!-- Botón para ir a editar el producto a la pantalla de Edit Product -->
           <td><a href="{% url 'edit_product' producto.id %}" class="btn btn-secondary">Editar</a></td>
         </tr>
         {% endfor %}
@@ -131,8 +138,9 @@
     {% endif %}
   </div>
 
-  <!-- Distribución de Usuarios y Pedidos -->
+  <!-- GRÁFICOS / BARRAS DE PROGRESO DE DISTRIBUCIÓN -->
   <div class="grid-2">
+    <!-- PANEL IZQUIERDO: Usuarios registrados según su tipo de permiso -->
     <div class="card">
       <h3>👥 Usuarios por Rol</h3>
       <div class="chart-container">
@@ -164,6 +172,7 @@
       </div>
     </div>
 
+    <!-- PANEL DERECHO: Situación actual de los pedidos -->
     <div class="card">
       <h3>📦 Pedidos por Estado</h3>
       <div class="chart-container">
@@ -196,7 +205,7 @@
     </div>
   </div>
 
-  <!-- Últimos Pedidos -->
+  <!-- TABLA 2: Registro de los pedidos más nuevos del sistema -->
   <div class="card" style="margin-bottom: 32px;">
     <h3>📋 Últimos Pedidos</h3>
     {% if ultimos_pedidos %}
@@ -236,7 +245,7 @@
     {% endif %}
   </div>
 
-  <!-- Últimos Usuarios -->
+  <!-- TABLA 3: Registro de las últimas personas que crearon una cuenta -->
   <div class="card">
     <h3>👤 Últimos Usuarios Registrados</h3>
     {% if ultimos_usuarios %}

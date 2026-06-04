@@ -1,3 +1,4 @@
+/* === VARIABLES GLOBALES Y COLORES === */
 :root {
       --teal: #3bc9c0;
       --teal-dark: #2aada4;
@@ -31,6 +32,7 @@
       min-height: 100vh;
     }
 
+/* === MENÚ LATERAL IZQUIERDO (SIDEBAR) === */
     .sidebar {
       position: fixed;
       left: 0;
@@ -84,6 +86,7 @@
       padding-left: 17px;
     }
 
+/* === CONTENIDO PRINCIPAL DERECHO === */
     .main-content {
       margin-left: 260px;
       padding: 24px;
@@ -108,6 +111,7 @@
       gap: 12px;
     }
 
+/* === BOTONES DE ACCIÓN === */
     .btn {
       padding: 10px 20px;
       border-radius: 8px;
@@ -140,6 +144,7 @@
       background: var(--gray-300);
     }
 
+/* === TARJETAS NUMÉRICAS DE ESTADÍSTICA SUPERIOR === */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -215,6 +220,7 @@
       color: var(--gray-900);
     }
 
+/* === CONTENEDORES PARA GRÁFICOS Y BARRAS === */
     .chart-container {
       height: 300px;
       display: flex;
@@ -257,6 +263,7 @@
       font-size: 0.875rem;
     }
 
+/* === TABLAS DE DATOS === */
     .table {
       width: 100%;
       border-collapse: collapse;
@@ -286,6 +293,7 @@
       background: var(--gray-50);
     }
 
+/* === PÍLDORAS O ETIQUETAS DE ESTADO (BADGES) === */
     .badge {
       display: inline-block;
       padding: 4px 12px;
@@ -353,6 +361,7 @@
       color: var(--gray-500);
     }
 
+/* === ADAPTACIÓN A PANTALLAS PEQUEÑAS (CELULARES) === */
     @media (max-width: 768px) {
       .sidebar {
         width: 100%;

@@ -13,7 +13,7 @@
 </head>
 <body>
 
-<!-- Menu de navegacion -->
+<!-- BARRA DE NAVEGACIÓN SUPERIOR -->
 <nav>
   <div class="logo">
   <a href="/catalogo/" class="logo-link">
@@ -21,40 +21,50 @@
   </a>
   </div>
   <div class="nav-links">
+    <!-- Botones de acceso rápido -->
     <a class="nav-btn ghost" href="/catalogo/">🛍️ Catálogo</a>
     <a class="nav-btn ghost" href="/pedidos/">🕐 Mis Pedidos</a>
+    <!-- Botón del Carrito de Compras -->
     <a class="nav-btn cart" href="/pago/">🛒 Carrito (<span id="cart-count">{{ cart_count|default:0 }}</span>)</a>
     {% if request.session.username %}
+      <!-- Opciones según el rol del usuario -->
       {% if request.session.user_role == 1 %}
       <a class="nav-btn ghost" href="{% url 'admin_dashboard' %}">📊 Dashboard</a>
       {% elif request.session.user_role == 3 %}
       <a class="nav-btn ghost" href="{% url 'finanzas_dashboard' %}">📊 Dashboard</a>
       {% endif %}
+    <!-- Botón hacia el Perfil -->
     <a class="nav-btn ghost" href="{% url 'user_profile' %}">👤 Mi Perfil</a>
     {% else %}
+    <!-- Botón Iniciar Sesión (para usuarios no registrados) -->
     <a class="nav-btn ghost" href="/login/">Iniciar Sesión</a>
     {% endif %}
   </div>
 </nav>
 
-<!-- Detalles del producto -->
+<!-- SECCIÓN PRINCIPAL: Detalles del producto -->
 <div class="container">
+  <!-- Botón de retroceso al catálogo -->
   <a href="{% url 'catalogo' %}" class="back-btn">← Volver al catálogo</a>
   
   <div class="product-layout">
+    <!-- COLUMNA IZQUIERDA: Imagen del mueble -->
     <div class="product-image">
       <img src="{{ producto.imagen_normalizada }}" alt="{{ producto.nombre }}">
     </div>
     
+    <!-- COLUMNA DERECHA: Información y botones de acción -->
     <div class="product-info">
       <h1 class="product-title">{{ producto.nombre }}</h1>
       <span class="product-cat">{{ producto.id_categoria.nombre|default:"Sin categoría" }}</span>
       <div class="product-price">{{ producto.precio|chile_currency:2 }}</div>
       
+      <!-- Descripción comercial -->
       <div class="description">
         {{ producto.descripcion|default:"Este producto no tiene descripción en este momento." }}
       </div>
       
+      <!-- Lista de especificaciones técnicas -->
       <div class="specs">
         <h3>Especificaciones Técnicas</h3>
         <ul>
@@ -70,14 +80,17 @@
         </ul>
       </div>
       
+      <!-- ZONA DE COMPRA: Disponibilidad y botón de Agregar al Carrito -->
       <div class="actions">
         {% if producto.stock > 0 %}
           <div class="stock-status in-stock">✓ Stock disponible: {{ producto.stock }} unidades</div>
+          <!-- Botón de acción principal: Agregar al Carrito usando la función JS -->
           <button class="btn-add" onclick="agregarAlCarrito(this, {{ producto.id_producto }})">
             🛒 Agregar al carrito
           </button>
         {% else %}
           <div class="stock-status out-of-stock">✗ Agotado</div>
+          <!-- Botón deshabilitado si no hay stock -->
           <button class="btn-add disabled" disabled>🚫 No Disponible</button>
         {% endif %}
       </div>

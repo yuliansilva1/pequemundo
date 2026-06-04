@@ -12,6 +12,7 @@
 </head>
 <body>
 
+<!-- BARRA DE NAVEGACIÓN SUPERIOR -->
 <div class="navbar">
   <a href="{% url 'admin_dashboard' %}" class="navbar-logo"><h1>🏪 PequeMundo</h1></a>
   <div class="navbar-links">
@@ -19,6 +20,7 @@
     <a href="{% url 'manage_users' %}" class="nav-link" style="color: var(--teal); font-weight: 700;">👥 Gestionar Usuarios</a>
     <a href="{% url 'catalogo' %}" class="nav-link">🛍️ Catálogo</a>
     {% if request.session.username %}
+    <!-- Contenedor del perfil del Administrador -->
     <div class="user-menu-container">
       <button class="user-btn" onclick="toggleUserMenu(event)">👤 {{ request.session.username }}</button>
       <ul class="dropdown-menu" id="userMenu">
@@ -34,6 +36,7 @@
 </div>
 
 <div class="container">
+  <!-- TÍTULO DE LA SECCIÓN -->
   <div class="header">
     <h2>👥 Gestión de Usuarios y Roles</h2>
   </div>
@@ -46,9 +49,11 @@
   </div>
   {% endif %}
 
+  <!-- CONTENEDOR PARA AVISOS JS FLOTANTES -->
   <div id="alert" class="alert"></div>
 
   {% if usuarios %}
+  <!-- TABLA MAESTRA DE USUARIOS REGISTRADOS -->
   <div class="users-table">
     <div class="table-responsive">
       <table>
@@ -77,6 +82,7 @@
                 {{ usuario.rol_actual }}
               </span>
             </td>
+            <!-- COLUMNA CLAVE: Selector para modificar privilegios del usuario (Dispara petición AJAX) -->
             <td>
               <form method="post" action="{% url 'update_user_role' usuario.id %}" class="role-form" style="display: inline;">
                 {% csrf_token %}
@@ -103,6 +109,7 @@
   </div>
 
   <script>
+    // Lógica para enviar actualización del ROL al servidor sin recargar página
     document.querySelectorAll('.role-select').forEach(select => {
       select.addEventListener('change', function() {
         const userId = this.dataset.userId;

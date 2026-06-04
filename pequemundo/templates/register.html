@@ -12,12 +12,15 @@
 </head>
 <body>
 
+  <!-- CONTENEDOR PRINCIPAL DE REGISTRO -->
   <div class="login-container">
+    <!-- CABECERA: Título y mensaje de bienvenida -->
     <div class="login-header">
       <h1>🏪 PequeMundo</h1>
       <p>¡Crea tu cuenta y únete a nosotros!</p>
     </div>
     
+    <!-- CUERPO: Formulario de registro de nuevo usuario -->
     <div class="login-body">
       {% if messages %}
         <div class="messages">
@@ -32,11 +35,13 @@
 
       <form method="POST">
         {% csrf_token %}
+        <!-- CAMPO: Nombre de usuario -->
         <div class="form-group">
           <label for="nombre">Nombre de Usuario *</label>
           <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ej. ysilv" required autofocus>
         </div>
         
+        <!-- FILA COMPARTIDA: Apellido y Correo Electrónico -->
         <div class="form-row">
           <div class="form-group">
             <label for="apellido">Apellido *</label>
@@ -48,6 +53,7 @@
           </div>
         </div>
         
+        <!-- FILA COMPARTIDA: Teléfono y Dirección -->
         <div class="form-row">
           <div class="form-group">
             <label for="telefono">Teléfono *</label>
@@ -59,25 +65,30 @@
           </div>
         </div>
         
+        <!-- CAMPO: Contraseña -->
         <div class="form-group">
           <label for="password">Contraseña *</label>
           <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
         </div>
         
+        <!-- CAMPO: Confirmar Contraseña -->
         <div class="form-group">
           <label for="password_confirm">Confirmar Contraseña *</label>
           <input type="password" id="password_confirm" name="password_confirm" class="form-control" placeholder="••••••••" required>
         </div>
         
+        <!-- BOTÓN: Enviar formulario para crear la cuenta -->
         <button type="submit" class="btn-submit">
           Registrarme 🚀
         </button>
       </form>
       
+      <!-- ENLACE: Redirige al login si ya tiene cuenta -->
       <div class="login-footer">
         ¿Ya tienes una cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a>
       </div>
       
+      <!-- ENLACE: Botón para regresar al catálogo principal -->
       <a href="{% url 'catalogo' %}" class="back-home">⬅️ Volver al Catálogo</a>
     </div>
   </div>

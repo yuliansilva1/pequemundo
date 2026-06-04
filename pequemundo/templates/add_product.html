@@ -12,6 +12,7 @@
 </head>
 <body>
 
+<!-- BARRA DE NAVEGACIÓN -->
 <nav>
   <div class="logo">
     <a href="{% url 'catalogo' %}">
@@ -24,6 +25,7 @@
 </nav>
 
 <div class="container">
+  <!-- MIGAS DE PAN (Ruta) -->
   <div class="breadcrumb">
     <a href="{% url 'catalogo' %}">Catálogo</a>
     <span>/</span>
@@ -41,10 +43,12 @@
     </div>
   {% endif %}
 
+  <!-- PANEL PRINCIPAL DEL FORMULARIO -->
   <div class="card">
     <h1>➕ Nuevo Producto</h1>
     <p class="subtitle">Agrega un nuevo mueble o accesorio al catálogo de PequeMundo</p>
     
+    <!-- FORMULARIO MAESTRO PARA AGREGAR PRODUCTO -->
     <form method="POST" action="{% url 'add_product' %}" enctype="multipart/form-data">
       {% csrf_token %}
       
@@ -107,7 +111,7 @@
       <div class="form-group full">
         <label>Sube una imagen</label>
         
-        <!-- Contenedor Drag and Drop -->
+        <!-- ÁREA INTERACTIVA DRAG & DROP: Permite arrastrar una foto desde el escritorio y soltarla aquí -->
         <div class="upload-area" id="uploadArea">
           <input type="file" id="imagen_file" name="imagen_file" class="file-input" accept="image/*">
           <div class="upload-icon">📸</div>
@@ -130,6 +134,7 @@
         <input type="text" id="imagen_url" name="imagen_url" class="form-control" placeholder="https://ejemplo.com/imagen.jpg">
       </div>
 
+      <!-- BOTÓN PRINCIPAL DE GUARDADO -->
       <button type="submit" class="btn-submit">
         💾 Guardar Producto
       </button>
