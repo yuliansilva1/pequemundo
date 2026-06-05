@@ -7,6 +7,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 from django.db import models
+from django.db.models import Sum
 from django.conf import settings
 from urllib3 import request
 from .models import Producto, Usuario, Categoria, Pedido, PedidoItem, Pago
@@ -971,21 +972,10 @@ def pedidos(request):
 
 
 def admin_dashboard(request):
-    """Panel de administrador con estadísticas y gestión general"""
-    # Verificar si el usuario es administrador
-    user_id = request.session.get('user_id')
-    if not user_id:
-        messages.error(request, 'Debes iniciar sesión.')
-        return redirect('login')
-    
-    try:
-        user = Usuario.objects.get(id_usuario=user_id)
-        if user.id_rol != 1:  # Solo administradores
-            messages.error(request, 'No tienes permiso para acceder.')
-            return redirect('catalogo')
-    except Usuario.DoesNotExist:
-        messages.error(request, 'Usuario no encontrado.')
-        return redirect('login')
+    """Panel de administrador"""
+    # Sumar total_final de TODOS los pedidos sin filtro
+    total_ventas = Pedido.objects.aggregate(total=Sum('total_final'))['total'] or 0
+    total_pedidos = Pedido.objects.count()
     
     # Obtener estadísticas
     total_usuarios = Usuario.objects.count()
@@ -1037,9 +1027,6 @@ def admin_dashboard(request):
             'fecha_registro': usuario.fecha_registro.strftime('%d/%m/%Y') if usuario.fecha_registro else '',
         })
     
-    # Calcular total de ventas
-    total_ventas = Pedido.objects.aggregate(total=models.Sum('total_final'))['total'] or 0
-    
     productos_activos = Producto.objects.filter(activo='1').count()
     productos_inactivos = Producto.objects.filter(activo='0').count()
     productos = Producto.objects.select_related('id_categoria').order_by('-fecha_creacion')[:10]
@@ -1056,6 +1043,8 @@ def admin_dashboard(request):
     cart_count = sum(_get_cart(request).values())
     
     return render(request, 'admin_dashboard.html', {
+        'total_ventas': total_ventas,
+        'total_pedidos': total_pedidos,
         'total_usuarios': total_usuarios,
         'usuarios_activos': usuarios_activos,
         'roles_count': roles_count,
@@ -1072,7 +1061,7 @@ def admin_dashboard(request):
 
 
 def finanzas_dashboard(request):
-    """Panel de Finanzas (Rol 3)"""
+    """Panel de finanzas"""
     user_id = request.session.get('user_id')
     if not user_id:
         messages.error(request, 'Debes iniciar sesión.')
@@ -1087,9 +1076,9 @@ def finanzas_dashboard(request):
         messages.error(request, 'Usuario no encontrado.')
         return redirect('login')
 
-    ventas_qs = Pedido.objects.filter(estado__in=['EN_PREPARACION', 'EN_CAMINO', 'ENTREGADO'])
-    total_ventas = ventas_qs.aggregate(total=models.Sum('total_final'))['total'] or 0
-    total_pedidos = ventas_qs.count()
+    # CAMBIO: Sumar TODOS los pedidos sin filtro (igual que admin_dashboard)
+    total_ventas = Pedido.objects.aggregate(total=Sum('total_final'))['total'] or 0
+    total_pedidos = Pedido.objects.count()
 
     productos_vendidos = PedidoItem.objects.filter(
         id_pedido__estado__in=['EN_PREPARACION', 'EN_CAMINO', 'ENTREGADO']
@@ -1139,7 +1128,7 @@ def finanzas_dashboard(request):
     cart_count = sum(_get_cart(request).values())
 
     return render(request, 'finanzas_dashboard.html', {
-        'total_ventas': int(float(total_ventas)),
+        'total_ventas': total_ventas,
         'total_pedidos': total_pedidos,
         'productos_vendidos': productos_data,
         'categorias_vendidas': categorias_data,
