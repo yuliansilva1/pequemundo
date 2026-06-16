@@ -10,6 +10,7 @@ from django.db import models
 from django.db.models import Sum
 from django.conf import settings
 from urllib3 import request
+import requests
 from .models import Producto, Usuario, Categoria, Pedido, PedidoItem, Pago
 import os
 import uuid
@@ -201,6 +202,49 @@ def catalogo(request):
         productos_data = []
         print(f"Error en catalogo: {e}")
     
+    # --- Integración con la API externa ---
+    try:
+        api_url = "https://saborlatinochile.cl/api/productos_pequemundos_api.php"
+        # Hacemos la petición GET a la API (Aumentamos el timeout y evitamos errores de SSL)
+        response = requests.get(api_url, timeout=10, verify=False)
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Imprimir en la terminal para diagnosticar qué envía la API realmente
+            print("\n==== RESPUESTA DE LA API SABOR LATINO ====")
+            print(data)
+            print("============================================\n")
+            
+            # Detectar si la API envía una lista directa o un diccionario (ej: {"productos": [...]})
+            if isinstance(data, dict):
+                productos_externos = data.get('productos', data.get('data', []))
+            else:
+                productos_externos = data
+                
+            # Iteramos y agregamos los productos de la API a nuestra lista local
+            for p in productos_externos:
+                if isinstance(p, dict): # Nos aseguramos de que sea un producto válido
+                    # Arreglo para rutas de imagen relativas
+                    img_ext = p.get('imagen_url', p.get('image', p.get('foto', p.get('imagen', p.get('img', p.get('url_imagen', ''))))))
+                    
+                    if img_ext and not str(img_ext).startswith('http'):
+                        img_ext = f"https://saborlatinochile.cl/{str(img_ext).lstrip('/')}"
+                        
+                    if not img_ext:
+                        img_ext = 'https://via.placeholder.com/300x180?text=Sin+Imagen'
+                        
+                    productos_data.append({
+                        'id': p.get('id', p.get('id_producto', p.get('ID', 0))),
+                        'nombre': p.get('nombre', p.get('name', p.get('titulo', 'Producto Externo'))),
+                        'precio': int(float(p.get('precio', p.get('price', p.get('valor', 0))))),
+                        'stock': int(p.get('stock', p.get('cantidad', 10))),
+                        'categoria': 'Sabor Latino',
+                        'imagen_url': img_ext,
+                        'descripcion': p.get('descripcion', p.get('description', ''))
+                    })
+    except Exception as e:
+        print(f"Error al consumir la API externa: {e}")
+        
     # Verificar si el usuario es administrador o finanzas
     is_admin = False
     is_finanzas = False
