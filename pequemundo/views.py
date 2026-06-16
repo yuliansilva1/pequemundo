@@ -185,8 +185,45 @@ def _get_cart_items(request):
 
 
 def catalogo(request):
+    # Obtener parámetro de búsqueda general y para la API externa
+    search_term = request.GET.get('buscar', '').strip()
+    categoria_filtro = request.GET.get('categoria_filtro', '').strip()
+    destacado_filtro = request.GET.get('destacado_filtro', '')
+    stock_filtro = request.GET.get('stock_filtro', '')
+    precio_min = request.GET.get('precio_min', '')
+    precio_max = request.GET.get('precio_max', '')
+
     try:
         productos = Producto.objects.select_related('id_categoria').filter(activo__in=['1', None])
+        
+        if search_term:
+            from django.db.models import Q
+            # Ahora solo busca coincidencias en el nombre o en la categoría, ignorando la descripción
+            productos = productos.filter(Q(nombre__icontains=search_term) | Q(id_categoria__nombre__icontains=search_term))
+            
+        # --- Nuevos filtros aplicados estrictamente a tus productos locales ---
+        if categoria_filtro:
+            productos = productos.filter(id_categoria__nombre__icontains=categoria_filtro)
+            
+        if stock_filtro == '1':
+            productos = productos.filter(stock__gt=0)
+            
+        if precio_min:
+            try:
+                productos = productos.filter(precio__gte=float(precio_min))
+            except ValueError:
+                pass
+                
+        if precio_max:
+            try:
+                productos = productos.filter(precio__lte=float(precio_max))
+            except ValueError:
+                pass
+                
+        if destacado_filtro == '1':
+            # Los productos locales no tienen estado "destacado", así que los ocultamos temporalmente
+            productos = productos.none()
+            
         productos_data = [
             {
                 'id': p.id_producto,
@@ -194,19 +231,31 @@ def catalogo(request):
                 'precio': int(float(p.precio)),
                 'stock': p.stock,
                 'categoria': p.id_categoria.nombre if p.id_categoria else 'Sin categoria',
+                'filter_cat': p.id_categoria.nombre if p.id_categoria else 'Sin categoria',
                 'imagen_url': _normalize_image_url(p.imagen_url) if getattr(p, 'imagen_url', None) else '',
-                'descripcion': p.descripcion or ''
+                'descripcion': p.descripcion or '',
+                'is_external': False,
             } for p in productos
         ]
     except Exception as e:
         productos_data = []
         print(f"Error en catalogo: {e}")
     
+
     # --- Integración con la API externa ---
     try:
         api_url = "https://saborlatinochile.cl/api/productos_pequemundos_api.php"
-        # Hacemos la petición GET a la API (Aumentamos el timeout y evitamos errores de SSL)
-        response = requests.get(api_url, timeout=10, verify=False)
+        params = {}
+        if search_term:
+            params['buscar'] = search_term
+        if categoria_filtro: params['categoria'] = categoria_filtro
+        if destacado_filtro == '1': params['destacado'] = '1'
+        if stock_filtro == '1': params['stock'] = '1'
+        if precio_min: params['precio_min'] = precio_min
+        if precio_max: params['precio_max'] = precio_max
+
+        # Hacemos la petición GET a la API, pasando los filtros si existen
+        response = requests.get(api_url, params=params, timeout=10, verify=False)
         if response.status_code == 200:
             data = response.json()
             
@@ -215,9 +264,12 @@ def catalogo(request):
             print(data)
             print("============================================\n")
             
-            # Detectar si la API envía una lista directa o un diccionario (ej: {"productos": [...]})
-            if isinstance(data, dict):
-                productos_externos = data.get('productos', data.get('data', []))
+            # Detectar si la API responde con un error controlado (ej: categoría "autos")
+            if isinstance(data, dict) and data.get('estado') == 'error':
+                messages.error(request, f"Error del Socio Comercial: {data.get('mensaje', 'Categoría o filtro inválido.')}")
+                productos_externos = []
+            elif isinstance(data, dict):
+                productos_externos = data.get('data', data.get('productos', []))
             else:
                 productos_externos = data
                 
@@ -225,7 +277,7 @@ def catalogo(request):
             for p in productos_externos:
                 if isinstance(p, dict): # Nos aseguramos de que sea un producto válido
                     # Arreglo para rutas de imagen relativas
-                    img_ext = p.get('imagen_url', p.get('image', p.get('foto', p.get('imagen', p.get('img', p.get('url_imagen', ''))))))
+                    img_ext = p.get('imagen', p.get('imagen_url', p.get('image', p.get('foto', p.get('img', p.get('url_imagen', ''))))))
                     
                     if img_ext and not str(img_ext).startswith('http'):
                         img_ext = f"https://saborlatinochile.cl/{str(img_ext).lstrip('/')}"
@@ -233,17 +285,57 @@ def catalogo(request):
                     if not img_ext:
                         img_ext = 'https://via.placeholder.com/300x180?text=Sin+Imagen'
                         
+                    destacado_val = p.get('destacado', False)
+                    is_destacado = destacado_val in [True, '1', 1, 'true', 'True']
+                    
+                    # --- Formatear las medidas ---
+                    medidas_raw = p.get('medidas', '')
+                    medidas_str = medidas_raw
+                    
+                    # Si por algún motivo la API lo envía como texto con formato de diccionario
+                    if isinstance(medidas_raw, str) and '{' in medidas_raw:
+                        import ast
+                        try:
+                            medidas_raw = ast.literal_eval(medidas_raw)
+                        except Exception:
+                            pass
+
+                    # Si es un diccionario, armamos un texto legible
+                    if isinstance(medidas_raw, dict):
+                        ancho = medidas_raw.get('ancho_cm', medidas_raw.get('ancho', ''))
+                        alto = medidas_raw.get('alto_cm', medidas_raw.get('alto', ''))
+                        prof = medidas_raw.get('profundidad_cm', medidas_raw.get('profundidad', ''))
+                        
+                        if ancho or alto or prof:
+                            partes = []
+                            if ancho: partes.append(f"Ancho {ancho}cm")
+                            if alto: partes.append(f"Alto {alto}cm")
+                            if prof: partes.append(f"Prof {prof}cm")
+                            medidas_str = ", ".join(partes)
+                        else:
+                            medidas_str = " x ".join([str(v) for v in medidas_raw.values()]) + " cm"
+                        
                     productos_data.append({
-                        'id': p.get('id', p.get('id_producto', p.get('ID', 0))),
+                        'id': p.get('id', p.get('id_producto', p.get('sku', 0))),
                         'nombre': p.get('nombre', p.get('name', p.get('titulo', 'Producto Externo'))),
                         'precio': int(float(p.get('precio', p.get('price', p.get('valor', 0))))),
                         'stock': int(p.get('stock', p.get('cantidad', 10))),
-                        'categoria': 'Sabor Latino',
+                        'categoria': p.get('categoria', 'Sabor Latino'),
+                        'filter_cat': p.get('categoria', 'Socio Comercial'),
                         'imagen_url': img_ext,
-                        'descripcion': p.get('descripcion', p.get('description', ''))
+                        'descripcion': p.get('descripcion', p.get('description', '')),
+                        'is_external': True,
+                        'empresa': p.get('empresa', 'Socio Comercial'),
+                        'material': p.get('material', ''),
+                        'color': p.get('color', ''),
+                        'edad_recomendada': p.get('edad_recomendada', ''),
+                        'medidas': medidas_str,
+                        'destacado': is_destacado,
                     })
     except Exception as e:
         print(f"Error al consumir la API externa: {e}")
+        # Mensaje para el usuario si la API del socio falla
+        messages.warning(request, 'No se pudo cargar el catálogo del socio comercial en este momento. Por favor, intenta más tarde.')
         
     # Verificar si el usuario es administrador o finanzas
     is_admin = False

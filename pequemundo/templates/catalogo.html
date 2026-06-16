@@ -54,6 +54,17 @@
   </div>
 </nav>
 
+{% if messages %}
+<div class="messages-container" style="padding: 0 20px; max-width: 1200px; margin: 15px auto 0;">
+  {% for message in messages %}
+    <div class="message {{ message.tags }}" style="padding: 15px; border-radius: 8px; margin-bottom: 10px; font-weight: 600; color: #92400e; background-color: #fef3c7; border: 1px solid #fde68a;">
+      {% if message.tags == 'error' %}⚠️{% elif message.tags == 'warning' %}🔔{% else %}✅{% endif %}
+      {{ message }}
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+
 <!-- SECCIÓN HERO (El banner principal grande con el mensaje de bienvenida) -->
 <div class="hero">
   <h1>¡Crea el espacio perfecto para tus niños!</h1>
@@ -65,25 +76,68 @@
   </div>
 </div>
 
+<!-- FORMULARIO DE BÚSQUEDA EN VIVO -->
+<div class="search-container" style="max-width: 1200px; margin: 30px auto 10px; padding: 0 20px;">
+  <form method="GET" action="{% url 'catalogo' %}" style="display: flex; flex-direction: column; gap: 15px;">
+    <div style="display: flex; gap: 10px;">
+      <div style="flex-grow: 1; position: relative;">
+        <input type="text" id="searchInput" name="buscar" autocomplete="off" placeholder="Buscar productos (ej: cama, escritorio...)" value="{{ request.GET.buscar }}" style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
+        <!-- Menú desplegable autocompletar -->
+        <div id="autocompleteMenu" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1000; max-height: 300px; overflow-y: auto; margin-top: 5px;"></div>
+      </div>
+      <button type="submit" style="padding: 0 20px; background: var(--teal); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem;">🔍 Buscar</button>
+      {% if request.GET.buscar or request.GET.categoria_filtro or request.GET.destacado_filtro or request.GET.stock_filtro or request.GET.precio_min or request.GET.precio_max %}
+      <a href="{% url 'catalogo' %}" style="padding: 0 20px; display:flex; align-items:center; background: var(--gray-500); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; text-decoration: none;">Limpiar</a>
+      {% endif %}
+    </div>
+    
+    <!-- FILTROS GENERALES (Locales y Socio Comercial) -->
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; background: white; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb;">
+      <strong style="color: var(--teal); font-size: 0.95rem;">⚙️ Filtros:</strong>
+      
+      <select name="categoria_filtro" onchange="this.form.submit()" style="padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 0.9rem;">
+        <option value="">Todas las Categorías</option>
+        <option value="camas" {% if request.GET.categoria_filtro == 'camas' %}selected{% endif %}>Camas</option>
+        <option value="escritorios" {% if request.GET.categoria_filtro == 'escritorios' %}selected{% endif %}>Escritorios</option>
+        <option value="almacenamiento" {% if request.GET.categoria_filtro == 'almacenamiento' %}selected{% endif %}>Almacenamiento</option>
+        <option value="mesas" {% if request.GET.categoria_filtro == 'mesas' %}selected{% endif %}>Mesas</option>
+        <option value="decoracion" {% if request.GET.categoria_filtro == 'decoracion' %}selected{% endif %}>Decoración</option>
+        <option value="autos" {% if request.GET.categoria_filtro == 'autos' %}selected{% endif %}>Autos (Prueba Error)</option>
+      </select>
+      
+      <label style="display: flex; align-items: center; gap: 5px; font-size: 0.9rem; cursor: pointer;">
+        <input type="checkbox" name="destacado_filtro" value="1" onchange="this.form.submit()" {% if request.GET.destacado_filtro == '1' %}checked{% endif %}> Destacados
+      </label>
+      
+      <label style="display: flex; align-items: center; gap: 5px; font-size: 0.9rem; cursor: pointer;">
+        <input type="checkbox" name="stock_filtro" value="1" onchange="this.form.submit()" {% if request.GET.stock_filtro == '1' %}checked{% endif %}> Con Stock
+      </label>
+      
+      <div style="display: flex; align-items: center; gap: 5px; font-size: 0.9rem;">
+        <span>Precio:</span>
+        <input type="number" name="precio_min" placeholder="Min" value="{{ request.GET.precio_min }}" style="width: 80px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px;">
+        <span>-</span>
+        <input type="number" name="precio_max" placeholder="Max" value="{{ request.GET.precio_max }}" style="width: 80px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px;">
+      </div>
+    </div>
+  </form>
+</div>
+
 <!-- BOTONES DE FILTROS: Permiten ocultar/mostrar productos según su categoría -->
 <div class="filters">
-  <button class="filter-btn active" onclick="filterProducts('todos', this)">Todos los Productos</button>
-  <button class="filter-btn" onclick="filterProducts('camas', this)">Camas</button>
-  <button class="filter-btn" onclick="filterProducts('camas infantiles', this)">Camas infantiles</button>
-  <button class="filter-btn" onclick="filterProducts('escritorios', this)">Escritorios</button>
-  <button class="filter-btn" onclick="filterProducts('repisas', this)">Repisas</button>
-  <button class="filter-btn" onclick="filterProducts('organizadores', this)">Organizadores</button>
-  <button class="filter-btn" onclick="filterProducts('cunas', this)">Cunas</button>
-  <button class="filter-btn" onclick="filterProducts('accesorios', this)">Accesorios</button>
-  <button class="filter-btn" onclick="filterProducts('sabor latino', this)">🌶️ Sabor Latino</button>
+  <button class="filter-btn" onclick="filterProducts('socio comercial', this)">🤝 Socio Comercial</button>
 </div>
 
 <!-- GRILLA DE CATÁLOGO: Contenedor donde se muestran todos los muebles -->
 <div class="grid" id="productGrid">
   {% for producto in productos %}
   <!-- TARJETA DE PRODUCTO: Cada mueble es una tarjeta independiente -->
-  <div class="card" data-cat="{{ producto.categoria|lower }}">
+  <div class="card" data-cat="{{ producto.filter_cat|lower }}" data-external="{{ producto.is_external|lower }}">
+    {% if not producto.is_external %}
     <a href="{% url 'producto_detalle' producto.id %}" style="text-decoration: none; color: inherit; display: block;">
+    {% else %}
+    <div style="text-decoration: none; color: inherit; display: block; position: relative;">
+    {% endif %}
       <div class="card-img">
         {% if producto.imagen_url %}
         <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}">
@@ -96,30 +150,77 @@
         {% else %}
         <img src="https://via.placeholder.com/300x180?text={{ producto.nombre }}" alt="{{ producto.nombre }}">
         {% endif %}
+        
+        {% if producto.is_external and producto.destacado %}
+        <span class="card-badge" style="background:var(--teal); left:auto; right:10px;">⭐ Destacado</span>
+        {% endif %}
+        
         {% if producto.stock <= 5 and producto.stock > 0 %}
         <span class="card-badge">Últimas unidades</span>
         {% elif producto.stock == 0 %}
         <span class="card-badge" style="background:var(--red)">Agotado</span>
         {% endif %}
       </div>
+    {% if not producto.is_external %}
     </a>
+    {% else %}
+    </div>
+    {% endif %}
     <div class="card-body">
+      {% if not producto.is_external %}
       <a href="{% url 'producto_detalle' producto.id %}" style="text-decoration: none; color: inherit; display: block; margin-bottom: 12px;">
-        <div><span class="card-cat cat-{{ producto.categoria|lower }}">{{ producto.categoria }}</span><span class="card-stars">⭐ 4.8</span></div>
+      {% else %}
+      <div style="text-decoration: none; color: inherit; display: block; margin-bottom: 12px;">
+      {% endif %}
+        <div>
+          <span class="card-cat cat-{{ producto.categoria|lower }}">{{ producto.categoria }}</span>
+          {% if producto.is_external %}
+          <span class="card-stars" style="background:#fef3c7; color:#92400e; padding:2px 6px; border-radius:4px; font-size:0.7rem;">🤝 {{ producto.empresa }}</span>
+          {% else %}
+          <span class="card-stars">⭐ 4.8</span>
+          {% endif %}
+        </div>
         <div class="card-title">{{ producto.nombre }}</div>
+        
+        {% if producto.is_external %}
+        <div style="font-size: 0.8rem; color: var(--gray-500); margin-bottom: 5px; line-height: 1.4;">
+            {% if producto.material %}<strong>Material:</strong> {{ producto.material }}<br>{% endif %}
+            {% if producto.color %}<strong>Color:</strong> {{ producto.color }}<br>{% endif %}
+            {% if producto.edad_recomendada %}<strong>Edad:</strong> {{ producto.edad_recomendada }}<br>{% endif %}
+            {% if producto.medidas %}<strong>Medidas:</strong> {{ producto.medidas }}{% endif %}
+            {% if not producto.material and not producto.color and not producto.edad_recomendada and not producto.medidas %}
+            {{ producto.descripcion|truncatechars:60 }}
+            {% endif %}
+        </div>
+        {% endif %}
+        
         <div class="card-price">{{ producto.precio|chile_currency:2 }}</div>
         <div class="card-stock {% if producto.stock == 0 %}sin{% endif %}" style="margin-bottom: 0;">
           {% if producto.stock > 0 %}Stock: {{ producto.stock }} disponibles{% else %}Sin stock{% endif %}
         </div>
+      {% if not producto.is_external %}
       </a>
-      <!-- Botón de acción principal: Agregar al Carrito -->
-      <button class="btn-add {% if producto.stock == 0 %}disabled{% endif %}" {% if producto.stock == 0 %}disabled{% endif %} onclick="addToCart(this, {{ producto.id }})">{% if producto.stock > 0 %}🛒 Agregar al Carrito{% else %}🚫 No Disponible{% endif %}</button>
-      {% if request.session.username %}
-      <a href="{% url 'edit_product' producto.id %}" class="btn-add" style="margin-top:10px; background:#2563eb;">✏️ Editar producto</a>
+      {% else %}
+      </div>
+      {% endif %}
+      
+      <!-- Botón de acción principal -->
+      {% if producto.is_external %}
+        <a href="https://wa.me/56990726705?text=Hola,%20me%20interesa%20el%20producto%20externo:%20{{ producto.nombre }}" class="btn-add" style="background:#f59e0b; text-align:center; display:block; text-decoration:none;" target="_blank">✉️ Consultar por este producto</a>
+      {% else %}
+        <button class="btn-add {% if producto.stock == 0 %}disabled{% endif %}" {% if producto.stock == 0 %}disabled{% endif %} onclick="addToCart(this, {{ producto.id }})">{% if producto.stock > 0 %}🛒 Agregar al Carrito{% else %}🚫 No Disponible{% endif %}</button>
+        {% if request.session.username %}
+        <a href="{% url 'edit_product' producto.id %}" class="btn-add" style="margin-top:10px; background:#2563eb; display:block; text-align:center; text-decoration:none;">✏️ Editar producto</a>
+        {% endif %}
       {% endif %}
     </div>
   </div>
   {% endfor %}
+</div>
+
+<!-- MENSAJE DE FILTRO VACÍO -->
+<div id="empty-filter-msg" style="display: none; text-align: center; padding: 40px; color: var(--gray-500); width: 100%;">
+  <h3>No se encontraron productos para esta categoría.</h3>
 </div>
 
 <!-- SECCIÓN INFERIOR: Botón flotante para contactar por WhatsApp -->
@@ -152,9 +253,32 @@ function getCookie(name) {
 function filterProducts(cat, btn) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  let visibleCount = 0;
   document.querySelectorAll('.card').forEach(card => {
-    card.style.display = (cat === 'todos' || card.dataset.cat === cat) ? '' : 'none';
+    const cardCat = card.dataset.cat || '';
+    const isExternal = card.dataset.external === 'true';
+    
+    let show = false;
+    if (cat === 'todos') {
+      show = true;
+    } else if (cat === 'socio comercial') {
+      show = isExternal;
+    } else if (cardCat === cat || cardCat.includes(cat)) {
+      show = true;
+    }
+    
+    if (show) {
+      card.style.display = '';
+      visibleCount++;
+    } else {
+      card.style.display = 'none';
+    }
   });
+  
+  const emptyMsg = document.getElementById('empty-filter-msg');
+  if (emptyMsg) {
+    emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+  }
 }
 
 function addToCart(btn, productId) {
@@ -187,6 +311,111 @@ function addToCart(btn, productId) {
       alert('Error al conectar con el carrito.');
     });
 }
+
+// === LÓGICA DE BÚSQUEDA EN VIVO Y AUTOCOMPLETAR ===
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('searchInput');
+  const autocompleteMenu = document.getElementById('autocompleteMenu');
+  const cards = document.querySelectorAll('.card');
+
+  if (!searchInput || !autocompleteMenu) return;
+
+  searchInput.addEventListener('input', function() {
+    const query = this.value.toLowerCase().trim();
+    autocompleteMenu.innerHTML = '';
+    
+    if (query.length === 0) {
+      autocompleteMenu.style.display = 'none';
+      // Restaurar todos los productos visualmente si se borra el texto
+      cards.forEach(c => c.style.display = '');
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      const emptyMsg = document.getElementById('empty-filter-msg');
+      if (emptyMsg) emptyMsg.style.display = 'none';
+      return;
+    }
+
+    let matchCount = 0;
+    
+    cards.forEach(card => {
+      const titleElement = card.querySelector('.card-title');
+      const catElement = card.querySelector('.card-cat');
+      if (!titleElement) return;
+      
+      // Buscar solo en título y categoría para ser más precisos (evita descripciones)
+      const titleText = titleElement.innerText.toLowerCase();
+      const catText = catElement ? catElement.innerText.toLowerCase() : '';
+      
+      if (titleText.includes(query) || catText.includes(query)) {
+        // Mostrar en la grilla (FILTRO EN VIVO)
+        card.style.display = '';
+        
+        // 1. Agregar el producto al menú desplegable
+        const menuItem = document.createElement('div');
+        menuItem.style.padding = '10px 15px';
+        menuItem.style.cursor = 'pointer';
+        menuItem.style.borderBottom = '1px solid #f3f4f6';
+        menuItem.style.display = 'flex';
+        menuItem.style.alignItems = 'center';
+        menuItem.style.gap = '10px';
+        menuItem.style.transition = 'background 0.2s';
+        
+        // Extraer la imagen de la tarjeta
+        const imgElement = card.querySelector('.card-img img');
+        const imgSrc = imgElement ? imgElement.src : '';
+        
+        menuItem.innerHTML = `
+          <img src="${imgSrc}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #e5e7eb;">
+          <span style="font-weight: 500; color: var(--gray-700);">${titleElement.innerText}</span>
+        `;
+        
+        // Efectos hover
+        menuItem.addEventListener('mouseover', () => menuItem.style.background = '#f9fafb');
+        menuItem.addEventListener('mouseout', () => menuItem.style.background = 'white');
+        
+        // 2. Al hacer clic en un elemento del menú
+        menuItem.addEventListener('click', () => {
+          searchInput.value = titleElement.innerText;
+          autocompleteMenu.style.display = 'none';
+          
+          // Mostrar solo la tarjeta seleccionada
+          cards.forEach(c => {
+            if (c !== card) c.style.display = 'none';
+            else c.style.display = '';
+          });
+          
+          // Desactivar visualmente los botones de categoría
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          const emptyMsg = document.getElementById('empty-filter-msg');
+          if (emptyMsg) emptyMsg.style.display = 'none';
+        });
+        
+        autocompleteMenu.appendChild(menuItem);
+        matchCount++;
+      } else {
+        // Ocultar tarjetas que no coinciden de la grilla
+        card.style.display = 'none';
+      }
+    });
+
+    // 3. Mostrar el menú o el mensaje de vacío
+    const emptyMsg = document.getElementById('empty-filter-msg');
+    if (matchCount > 0) {
+      autocompleteMenu.style.display = 'block';
+      if (emptyMsg) emptyMsg.style.display = 'none';
+    } else {
+      autocompleteMenu.innerHTML = '<div style="padding: 10px 15px; color: var(--gray-500);">No se encontraron productos con ese nombre.</div>';
+      autocompleteMenu.style.display = 'block';
+      if (emptyMsg) emptyMsg.style.display = 'block';
+    }
+  });
+
+  // Ocultar el menú si el usuario hace clic fuera de él
+  document.addEventListener('click', function(e) {
+    if (!searchInput.contains(e.target) && !autocompleteMenu.contains(e.target)) {
+      autocompleteMenu.style.display = 'none';
+    }
+  });
+});
 </script>
 </body>
 </html>
