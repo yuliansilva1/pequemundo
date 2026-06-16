@@ -1,0 +1,7 @@
+/* === PANTALLA CORTA DE REDIRECCIÓN A TRANSBANK === */
+body{font-family:Arial,sans-serif;background:#f4f7fb;color:#111;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;}
+    .container{background:#fff;padding:28px 30px;border-radius:18px;box-shadow:0 16px 40px rgba(0,0,0,.08);max-width:420px;text-align:center;}
+    h1{margin-bottom:18px;font-size:1.4rem;}
+    p{margin-bottom:20px;color:#555;}
+/* Botón de contingencia (en caso de que falle la redirección automática) */
+    .button{display:inline-flex;align-items:center;justify-content:center;padding:12px 20px;border-radius:999px;background:#0b8cff;color:#fff;font-weight:700;text-decoration:none;border:none;cursor:pointer;}

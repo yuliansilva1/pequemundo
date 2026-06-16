@@ -1,0 +1,132 @@
+/* === VARIABLES GLOBALES === */
+:root {
+  --teal: #3bc9c0;
+  --teal-dark: #2aada4;
+  --gray-50: #f9fafb;
+  --gray-200: #e5e7eb;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
+  --gray-900: #111827;
+  --white: #ffffff;
+  --radius: 14px;
+  --shadow: 0 2px 16px rgba(0,0,0,.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { 
+  font-family: 'Poppins', sans-serif; 
+  background: var(--gray-50); 
+  color: var(--gray-900); 
+  min-height: 100vh; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  padding: 20px;
+}
+
+/* === CONTENEDOR PRINCIPAL (MÁS ANCHO QUE LOGIN) === */
+.login-container { 
+  background: var(--white); 
+  border-radius: var(--radius); 
+  box-shadow: var(--shadow); 
+  width: 100%; 
+  max-width: 560px; 
+  overflow: hidden;
+}
+
+/* === CABECERA DEL FORMULARIO === */
+.login-header {
+  background: var(--teal);
+  color: var(--white);
+  padding: 30px;
+  text-align: center;
+}
+
+.login-header h1 {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+
+.login-header p {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.login-body {
+  padding: 36px;
+}
+
+/* === CAMPOS DE TEXTO DEL FORMULARIO === */
+.form-group { margin-bottom: 16px; }
+
+.form-group label { 
+  display: block; 
+  margin-bottom: 6px; 
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--gray-700);
+}
+
+.form-control { 
+  width: 100%; 
+  padding: 12px; 
+  border-radius: 10px; 
+  border: 1px solid var(--gray-200); 
+  font-size: 1rem; 
+  font-family: inherit;
+  transition: border-color 0.3s;
+}
+
+.form-control:focus { 
+  outline: none; 
+  border-color: var(--teal); 
+}
+
+/* === DISEÑO A DOS COLUMNAS PARA CAMPOS CORTOS === */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 480px) {
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+}
+
+/* === BOTONES Y ENLACES (LINKS) === */
+.btn-submit { 
+  width: 100%; 
+  padding: 14px; 
+  background: var(--teal); 
+  color: white; 
+  border: none; 
+  border-radius: 10px; 
+  font-weight: 700; 
+  cursor: pointer; 
+  font-size: 1rem;
+  margin-top: 10px;
+  transition: background 0.3s;
+}
+
+.btn-submit:hover { background: var(--teal-dark); }
+
+.login-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 0.95rem;
+  color: var(--gray-700);
+}
+
+.login-footer a { color: var(--teal); text-decoration: none; font-weight: 600; }
+.login-footer a:hover { text-decoration: underline; }
+
+.back-home { display: block; text-align: center; margin-top: 20px; color: var(--gray-500); text-decoration: none; font-weight: 500; font-size: 0.9rem; }
+.back-home:hover { color: var(--teal); }
+
+/* === MENSAJES DE ERROR/ÉXITO === */
+.messages { margin-bottom: 18px; }
+.message { padding: 12px 14px; border-radius: 10px; margin-bottom: 10px; font-size: 0.9rem; }
+.message.error { background: #fee2e2; color: #b91c1c; }
+.message.success { background: #dcfce7; color: #166534; }

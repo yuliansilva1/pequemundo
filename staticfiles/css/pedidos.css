@@ -1,0 +1,578 @@
+/* === VARIABLES GLOBALES === Define los colores principales, bordes y sombras para todo el sitio */
+:root {
+  --teal: #3bc9c0;
+  --teal-dark: #2aada4;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
+  --gray-900: #111827;
+  --white: #ffffff;
+  --radius: 14px;
+  --shadow: 0 2px 16px rgba(0,0,0,.08);
+}
+
+/* Reseteo básico para evitar márgenes indeseados en los navegadores */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* === ESTILOS BASE DEL CUERPO (BODY) === */
+body { 
+  font-family: 'Poppins', sans-serif; 
+  background: var(--gray-50); 
+  color: var(--gray-900); 
+  min-height: 100vh; 
+  display: flex; 
+  flex-direction: column;
+}
+
+/* === BARRA DE NAVEGACIÓN SUPERIOR (NAVBAR) === */
+nav {
+  background: var(--white);
+  padding: 15px 30px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Logo de la tienda */
+nav .logo img {
+  height: 70px;
+  height: 45px;
+  transform: scale(1.8);
+  transform-origin: left center;
+}
+
+/* Contenedor de los enlaces del menú */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Estilo base para los botones de texto de la barra de navegación */
+.nav-btn {
+  text-decoration: none;
+  color: var(--gray-700);
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.nav-btn:hover {
+  color: var(--teal);
+}
+
+/* Contenedor y texto del perfil del usuario (Mi Perfil) */
+.nav-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--gray-700);
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.nav-profile:hover {
+  color: var(--teal);
+}
+
+/* Círculo con la foto de perfil en el navbar */
+.nav-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--teal);
+}
+
+/* === MENÚ DESPLEGABLE DEL USUARIO (DROPDOWN) === */
+.user-menu-container {
+  position: relative;
+}
+
+/* El recuadro flotante que se abre al hacer clic en el perfil */
+.user-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 10px;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  min-width: 200px;
+  z-index: 1000;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Clase para mostrar el menú cuando tiene javascript activo */
+.user-dropdown-menu.show { display: block; }
+
+.dropdown-header { padding: 12px 16px; color: var(--gray-700); font-size: 0.95rem; }
+.dropdown-divider { border: 0; height: 1px; background: var(--gray-200); margin: 0; }
+
+/* Enlaces dentro del menú desplegable */
+.user-dropdown-menu a {
+  display: block;
+  padding: 12px 16px;
+  color: var(--gray-700);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+.user-dropdown-menu a:hover { background: var(--gray-50); color: var(--teal); }
+
+/* === CONTENEDORES PRINCIPALES === */
+/* Define el ancho máximo y centrado de la página debajo del navbar */
+.container {
+  flex: 1;
+  width: 100%;
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+/* Ruta o migas de pan (Ej. Mi Perfil / Mis Pedidos) */
+.breadcrumb {
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: var(--gray-500);
+}
+
+.breadcrumb a {
+  color: var(--teal);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Estilo general para recuadros blancos con bordes redondeados y sombras */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 36px;
+}
+
+/* Títulos grandes de sección */
+h1 {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.8rem;
+  color: var(--teal);
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: var(--gray-500);
+  margin-bottom: 24px;
+}
+
+/* === SECCIÓN DE FILTROS DE PEDIDOS === */
+/* Contenedor que alinea el título a la izquierda y los filtros a la derecha */
+.header-with-filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Contenedor exclusivo de los botones de filtro */
+.order-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Botones de filtro inactivos (bordes grises) */
+.filter-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  color: var(--gray-700);
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+  background: var(--gray-50);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+/* Botón de filtro seleccionado actualmente (color teal sólido) */
+.filter-btn.active {
+  background: var(--teal);
+  color: var(--white);
+  border-color: var(--teal);
+}
+
+/* === LISTA Y TARJETAS DE PEDIDOS === */
+/* Contenedor de todas las tarjetas */
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Estilo individual para la tarjeta principal de cada pedido (Resumen) */
+.order-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  padding: 24px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #f3f4f6;
+}
+
+/* Efecto visual de elevación al pasar el mouse por la tarjeta */
+.order-card:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+/* Separación entre información (izquierda) y estado (derecha) */
+.order-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Grupo de la izquierda: fotos del producto, número de orden y fecha */
+.order-summary-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Contenedor de las fotos apiladas */
+.order-thumbnails {
+  display: flex;
+  align-items: center;
+}
+
+/* Miniaturas superpuestas (con z-index y márgenes negativos) */
+.thumb-img {
+  width: 55px;
+  height: 55px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid var(--white);
+  margin-left: -15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.thumb-img:first-child { margin-left: 0; z-index: 3; }
+.thumb-img:nth-child(2) { z-index: 2; }
+.thumb-img:nth-child(3) { z-index: 1; }
+
+/* El circulito gris de "+2" cuando hay más de 3 productos */
+.thumb-more {
+  width: 55px;
+  height: 55px;
+  border-radius: 8px;
+  background: var(--gray-100);
+  color: var(--gray-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-left: -15px;
+  border: 2px solid var(--white);
+  position: relative;
+  z-index: 0;
+}
+
+/* Textos de información general de la tarjeta */
+.order-info h3 {
+  font-family: 'Nunito', sans-serif;
+  color: #111827;
+  margin-bottom: 8px;
+  font-size: 1.25rem;
+}
+
+.order-date, .order-total {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.order-total {
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Grupo de la derecha: Etiqueta de estado y flechita */
+.order-status-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Estilo base para las "píldoras" de estados (badge) */
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Variaciones de colores para la píldora de estado del pedido */
+.status-prep { background: #fef3c7; color: #b45309; }
+.status-camino { background: #dbeafe; color: #1d4ed8; }
+.status-entregado { background: #dcfce7; color: #15803d; }
+.status-cancelado { background: #fee2e2; color: #b91c1c; }
+
+/* Flecha animada (▼) a la derecha */
+.toggle-icon {
+  font-size: 1rem;
+  color: var(--gray-400);
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+/* === DETALLES DESPLEGABLES DEL PEDIDO (ACORDEÓN) === */
+/* Esta sección se mantiene oculta y aparece al clickear la tarjeta */
+.order-details {
+  margin-top: 20px;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+/* Caja inferior de detalles con el tiempo estimado de entrega (ETA) y acciones */
+.order-eta-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  background: var(--gray-50);
+  padding: 12px 16px;
+  border-radius: 8px;
+  border-left: 4px solid var(--teal);
+}
+
+.order-eta-box p {
+  margin: 0;
+  color: var(--gray-700);
+  font-size: 0.9rem;
+}
+
+/* Botón secundario en el acordeón */
+.btn-small { width: auto; padding: 8px 16px; font-size: 0.85rem; margin-top: 0; }
+
+/* === VENTANA FLOTANTE (MODAL PARA DETALLE DE DIRECCIÓN Y ENVÍO) === */
+/* Fondo oscuro transparente que cubre toda la pantalla */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+/* La caja blanca de la ventana modal central */
+.modal-content {
+  background: var(--white);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  animation: slideUp 0.3s ease;
+}
+
+/* Cabecera del modal (siempre visible arriba, pegajosa "sticky") */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--gray-200);
+  position: sticky;
+  top: 0;
+  background: var(--white);
+  z-index: 10;
+}
+
+.modal-header h2 {
+  font-size: 1.25rem;
+  color: var(--teal);
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+}
+
+/* Botón X para cerrar la ventana modal */
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: var(--gray-900);
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+/* Caja sombreada gris dentro del modal para información de despacho */
+.info-section {
+  background: var(--gray-50);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid var(--gray-100);
+}
+
+.info-section p {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  color: var(--gray-700);
+}
+.info-section p:last-child {
+  margin-bottom: 0;
+}
+.info-section strong {
+  color: var(--gray-900);
+}
+
+/* Línea divisoria en los detalles */
+.divider {
+  border: 0;
+  height: 1px;
+  background: var(--gray-200);
+  margin: 20px 0;
+}
+
+/* Lista de artículos internos dentro del modal o del acordeón */
+.items-list {
+  list-style: none;
+}
+
+/* Fila individual para un producto (foto, nombre, cantidad, subtotal) */
+.item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px dashed var(--gray-200);
+}
+
+.item-row:last-child {
+  border-bottom: none;
+}
+
+/* Imagen miniatura en la lista */
+.item-img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 15px;
+  border: 1px solid var(--gray-200);
+}
+
+.item-info {
+  flex-grow: 1;
+}
+
+.item-name {
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 4px;
+  font-size: 0.95rem;
+}
+
+.item-qty {
+  font-size: 0.85rem;
+  color: var(--gray-500);
+}
+
+/* Precio individual total de la fila */
+.item-subtotal p {
+  font-weight: 700;
+  color: var(--teal-dark);
+}
+
+/* Resumen total y costo de despacho (abajo en el modal) */
+.order-totals {
+  text-align: right;
+}
+
+.order-totals p {
+  color: var(--gray-500);
+  margin-bottom: 5px;
+  font-size: 0.95rem;
+}
+
+.order-totals h3 {
+  font-size: 1.3rem;
+  color: var(--gray-900);
+  font-family: 'Nunito', sans-serif;
+}
+
+/* === ANIMACIONES GLOBALES === */
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Estilo para los mensajes "No hay pedidos" */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--gray-500);
+}
+
+/* === BOTONES GENERALES === Botón principal de la plataforma */
+.btn-submit { 
+  background: var(--teal); 
+  color: white; 
+  border: none; 
+  border-radius: 10px; 
+  font-weight: 700; 
+  cursor: pointer; 
+  transition: background 0.3s;
+}
+
+.btn-submit:hover { background: var(--teal-dark); }
+
+/* Animación sutil de aparición */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === RESPONSIVO === Adapta el diseño de las tarjetas cuando se ve en celular */
+@media (max-width: 600px) {
+  .order-summary-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
